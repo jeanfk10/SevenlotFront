@@ -1,6 +1,6 @@
 # Front Pop — LottoGE
 
-Estilo cómic y sticker. La página es celeste, cortada en franjas de colores: rosado para el premio, amarillo con borde en zigzag para la cuenta regresiva y verde para los premios. Todo lleva bordes negros gruesos con sombra sólida y está un poco inclinado, como stickers pegados. Una estrella amarilla con el precio se balancea sobre la foto, y alrededor flotan círculos, estrellas, anillos y triángulos. Las cintas dicen "¡Compra ya!" con el premio y el precio. Los botones se hunden al tocarlos, y las cantidades y métodos rebotan como gelatina al elegirlos. Las secciones entran con rebote y la cuenta regresiva salta cada segundo. El boleto final cae girando.
+Estilo sticker en tonos neutros. La página va en franjas arena, salvia, niebla y piedra, y el color fuerte lo pone solo el rifero: la estrella con el precio, la cinta y lo que el comprador elige. Todo lleva bordes negros gruesos con sombra sólida y está un poco inclinado, como stickers pegados. Alrededor flotan círculos, estrellas, anillos y triángulos. Las cintas dicen "¡Compra ya!" con el premio y el precio. Los botones se hunden al tocarlos, y las cantidades y métodos rebotan como gelatina al elegirlos. Las secciones entran con rebote, la cuenta regresiva salta cada segundo y el boleto final cae girando.
 
 **Flujo y lógica:** idénticos a la plantilla [minimalista](../minimalista/README.md):
 - compra en el mismo recuadro (boletos, datos y pago);

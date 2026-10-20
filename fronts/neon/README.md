@@ -1,6 +1,6 @@
 # Front Neón — LottoGE
 
-Una noche de feria. Detrás de la página se mueven tres auroras de color, y detrás del premio giran rayos de luz. El título brilla como un letrero de neón y parpadea, y el extra del premio cambia de color. Dos cintas diagonales corren con el premio, el precio y la fecha. El recuadro de compra tiene un borde arcoíris que no para de girar. Los botones respiran con un brillo y tienen un destello que los cruza. La cuenta regresiva da vuelta cada segundo, la barra de vendidos tiene rayas en movimiento y el 1er premio es holográfico. El boleto final flota con un destello.
+Una noche sobria en grafito, plata y blanco cálido; el único color es el del rifero. Detrás de la página se mueve una aurora suave y detrás del premio giran rayos tenues. El título tiene un brillo leve en el color del rifero, sin parpadeo. Dos cintas diagonales corren con el premio, el precio y la fecha. El recuadro de compra tiene un borde fino que gira en el color del rifero. El 1er premio tiene brillo metálico y el botón principal un destello que lo cruza. La cuenta regresiva da vuelta cada segundo y la barra de vendidos tiene rayas en movimiento.
 
 **Flujo y lógica:** idénticos a la plantilla [minimalista](../minimalista/README.md):
 - compra en el mismo recuadro (boletos, datos y pago);
