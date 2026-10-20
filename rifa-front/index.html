@@ -88,7 +88,12 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .sw input:focus-visible + span { outline: 3px dashed var(--ink); outline-offset: 3px; }
 .sw:active span { transform: scale(.96); }
 .imgrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.imgthumb { width: 56px; height: 56px; object-fit: cover; object-position: top; background: var(--surface-2); }
+.thumbs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.thumbs li { position: relative; }
+.thumbs img { width: 64px; height: 64px; object-fit: cover; object-position: top; display: block; background: var(--surface-2); }
+.thumbs button { position: absolute; top: 2px; right: 2px; width: 26px; height: 26px; border: 0; background: var(--ink); color: var(--bg); font-size: 16px; line-height: 1; }
+.thumbs small { position: absolute; left: 0; bottom: 0; background: var(--ink); color: var(--bg); font-size: 11px; font-weight: 700; padding: 1px 5px; }
+.f > span small { font-weight: 400; color: var(--muted); }
 .pbtn { border: 0; min-height: 44px; padding: 0 14px; font-weight: 700; font-size: 15px; background: var(--ink); color: var(--bg); transition: transform .15s, opacity .2s; display: inline-flex; align-items: center; cursor: pointer; }
 .pbtn:hover { opacity: .85; }
 .pbtn:active { transform: scale(.97); }
@@ -163,7 +168,23 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; animation: pulse 1.8s ease-in-out infinite; }
 
 .hero__img { position: relative; background: var(--island); }
-.hero__img img { display: block; width: 100%; aspect-ratio: 5 / 4; object-fit: cover; object-position: 50% 12%; animation: unveil 1.1s cubic-bezier(.7,0,.2,1) .2s both; }
+.slides { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.slides::-webkit-scrollbar { display: none; }
+.slides:focus-visible { outline-offset: -4px; outline-color: var(--accent); }
+.slide { flex: 0 0 100%; margin: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+.slide img { display: block; width: 100%; aspect-ratio: 5 / 4; object-fit: cover; object-position: 50% 50%; }
+.slide img.is-tall { object-position: 50% 12%; }
+.slide:first-child img { animation: unveil 1.1s cubic-bezier(.7,0,.2,1) .2s both; }
+.gal__count { position: absolute; left: 12px; top: 12px; background: var(--island); color: var(--on-island); font-size: 13px; font-weight: 700; padding: 4px 9px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.gal__nav { position: absolute; top: 50%; margin-top: -20px; width: 40px; height: 40px; border: 0; background: var(--bg); color: var(--ink); display: grid; place-items: center; transition: opacity .2s, transform .15s; }
+.gal__nav:active { transform: scale(.92); }
+.gal__nav:disabled { opacity: 0; pointer-events: none; }
+.gal__nav svg { width: 20px; height: 20px; }
+.gal__nav--prev { left: 10px; }
+.gal__nav--next { right: 10px; }
+.dots { position: absolute; left: 12px; bottom: 22px; display: flex; gap: 6px; }
+.dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 4px; background: var(--on-island); opacity: .5; transition: width .25s, opacity .25s; }
+.dots button[aria-current="true"] { width: 22px; opacity: 1; }
 .flyerbtn { position: absolute; right: 12px; bottom: 12px; border: 0; background: var(--bg); color: var(--ink); min-height: 40px; padding: 0 14px; font-size: 14px; font-weight: 700; display: inline-flex; gap: 8px; align-items: center; transition: transform .15s; }
 .flyerbtn:active { transform: scale(.95); }
 .flyerbtn svg { width: 16px; height: 16px; }
@@ -309,6 +330,11 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .steps3 li.is-now span { color: inherit; opacity: .8; }
 .steps3 li.is-now i { background: var(--wait); color: var(--bg); animation: pulse 1.8s ease-in-out infinite; }
 .held { padding: 26px 14px 0; }
+.held-note { margin: 22px 20px 0; background: var(--surface); padding: 16px; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 15px; line-height: 1.45; }
+.held-note svg { width: 36px; height: 36px; padding: 7px; background: var(--ink); color: var(--bg); }
+.held-note b { display: block; font-size: 16px; }
+.held-note span b { display: inline; font-size: inherit; overflow-wrap: anywhere; }
+.held-note span > b:first-child { display: block; font-size: 16px; margin-bottom: 2px; }
 .held h2 { margin: 0 6px 12px; font-size: 18px; font-weight: 700; }
 .held ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .held li { background: var(--surface); padding: 10px 10px 12px; display: grid; gap: 4px; }
@@ -415,6 +441,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 .lightbox__bar button { border: 0; background: var(--on-island); color: var(--island); min-height: 40px; padding: 0 14px; font-weight: 700; font-size: 15px; }
 .lightbox__img { grid-row: 3; overflow-y: auto; scrollbar-width: none; padding-bottom: 40px; }
 .lightbox__img img { display: block; width: 100%; height: auto; }
+.lightbox__img img + img { margin-top: 6px; }
 
 .verify { position: absolute; inset: 54px 0 0; z-index: 58; background: var(--island); color: var(--on-island); padding: 0 24px 80px; display: grid; align-content: center; gap: 18px; }
 .verify h2 { margin: 0; font-size: 34px; line-height: 1.02; font-weight: 800; font-stretch: 125%; letter-spacing: -0.02em; }
@@ -528,7 +555,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         <div class="f"><label for="cfg-rifero">Nombre de la marca</label><input class="in" id="cfg-rifero" data-cfg="rifero" maxlength="40"></div>
         <div class="f2">
           <div class="f"><label for="cfg-handle">Instagram</label><input class="in" id="cfg-handle" data-cfg="handle" maxlength="30"></div>
-          <div class="f"><label for="cfg-whatsapp">WhatsApp</label><input class="in" id="cfg-whatsapp" data-cfg="whatsapp" inputmode="tel" maxlength="20"></div>
+          <div class="f"><label for="cfg-support">Correo de soporte</label><input class="in" id="cfg-support" data-cfg="support" type="email" inputmode="email" maxlength="60"></div>
         </div>
         <div class="f"><label for="cfg-conalot">Autorización CONALOT</label><input class="in" id="cfg-conalot" data-cfg="conalot" maxlength="40"></div>
       </fieldset>
@@ -565,12 +592,12 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       <fieldset style="grid-column: 1 / -1">
         <legend>Marca e imagen</legend>
         <div class="f"><span id="cfg-color-l">Color de la marca</span><div class="swatches" role="radiogroup" aria-labelledby="cfg-color-l" data-swatches></div></div>
-        <div class="f"><span>Imagen o flyer del premio</span>
+        <div class="f"><span>Fotos del premio <small>(se deslizan en la página; la primera es la portada, hasta 10)</small></span>
+          <ul class="thumbs" data-thumbs aria-label="Fotos cargadas"></ul>
           <div class="imgrow">
-            <img class="imgthumb" data-thumb src="img/flyer.jpg" alt="" width="56" height="56">
-            <input class="sr-only" id="cfg-img" type="file" accept="image/*" data-cfg-img>
-            <label class="pbtn" for="cfg-img">Subir otra imagen</label>
-            <button class="pbtn pbtn--ghost" type="button" data-cfg-sample-img>Usar flyer de ejemplo</button>
+            <input class="sr-only" id="cfg-img" type="file" accept="image/*" multiple data-cfg-img>
+            <label class="pbtn" for="cfg-img">Agregar fotos</label>
+            <button class="pbtn pbtn--ghost" type="button" data-cfg-sample-img>Usar fotos de ejemplo</button>
           </div>
         </div>
       </fieldset>
@@ -591,11 +618,13 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       </div>
       <div class="gallery">
         <figure class="device" data-init='{"view":"home"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Inicio</h3><p>El flyer del rifero, el premio, la fecha y el precio en Bs y $.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+          <figcaption><h3>Inicio</h3><p>Las fotos del premio en un carrusel, el premio, la fecha y el precio en Bs y $.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","slide":1}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Fotos deslizables</h3><p>El rifero sube las fotos que quiera: por fuera, por dentro, de lado. Se deslizan con el dedo o con las flechas.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"home","scrollTo":"clock"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
           <figcaption><h3>Cuenta regresiva y premios</h3><p>Tiempo para el cierre, porcentaje vendido y los tres premios, como en el flyer.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"home","flyer":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Flyer completo</h3><p>El flyer original del rifero, a pantalla completa, tal como lo publica en redes.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+          <figcaption><h3>Fotos en grande</h3><p>“Ver en grande” muestra todas las fotos completas, una debajo de otra, empezando por la que se estaba viendo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
       </div>
     </section>
 
@@ -612,7 +641,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         <figure class="device" data-init='{"view":"home","scrollTo":"buy","mode":"manual","picks":["first","second"],"board":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
           <figcaption><h3>Tablero de números</h3><p>Buscar, elegir al azar, ir por series. Los vendidos salen tachados.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"data","qty":2,"cedula":"18456732","estado":"Zulia"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Tus datos</h3><p>Tras “Participar”, en el mismo recuadro. Con la cédula se llenan nombre, WhatsApp y correo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+          <figcaption><h3>Tus datos</h3><p>Tras “Participar”, en el mismo recuadro. Con la cédula se llenan nombre, teléfono y correo, donde llegan los números.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
           <figcaption><h3>Pago</h3><p>Cada método con su color. Los datos para pagar se copian uno a uno o todos de una vez.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190","verifying":true,"hold":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
@@ -627,9 +656,11 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       </div>
       <div class="gallery">
         <figure class="device" data-init='{"view":"ok","qty":2,"cedula":"18456732","method":"pm-auto","ref":"004821"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>¡Listo! Números revelados</h3><p>Dígito a dígito y con confeti. Se envían por WhatsApp y por correo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+          <figcaption><h3>¡Listo! Números revelados</h3><p>Dígito a dígito y con confeti. Se envían al correo del comprador.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"held","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Boletos reservados</h3><p>Pago Móvil manual, Binance o Zelle: los números quedan apartados hasta que el rifero apruebe o rechace el comprobante desde su panel.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+          <figcaption><h3>Reservados, al azar</h3><p>Pago manual con boletos al azar: no se muestran números. Se asignan al aprobar el pago y llegan por correo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"held","mode":"manual","picks":["first","second"],"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Reservados, números elegidos</h3><p>Si eligió sus números, los ve apartados mientras el rifero aprueba o rechaza el comprobante desde su panel.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"rej","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004820","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
           <figcaption><h3>Compra rechazada</h3><p>Pago Móvil al instante con un dato mal: el banco no encuentra el pago. En la demo, una referencia que termina en 0 da este resultado.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"mine","cedula":"18456732","searched":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
@@ -642,7 +673,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 
   <footer class="foot">
     <p><strong>Prototipo de demostración.</strong> No procesa pagos ni guarda datos. El rifero (Rifas La Bendición), los compradores, cuentas, montos, el nº CONALOT y la tasa BCV son de ejemplo.</p>
-    <p>El flyer del Toyota Agya 2026 es material de prueba aportado por el cliente.</p>
+    <p>El flyer del Toyota Agya 2026 y las fotos de ejemplo del carrusel son material de prueba aportado por el cliente.</p>
   </footer>
 </div>
 
@@ -652,11 +683,11 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 
   /* ---------- what a rifero configures (sample loaded from the flyer) ---------- */
   const SAMPLE = {
-    rifero: 'Rifas La Bendición', handle: '@rifaslabendicion', whatsapp: '0414-555-0187', conalot: 'CNL-AUT-RF-2026-075423',
+    rifero: 'Rifas La Bendición', handle: '@rifaslabendicion', support: 'soporte@rifas-ejemplo.com', conalot: 'CNL-AUT-RF-2026-075423',
     prize: 'Toyota Agya 2026', prizeExtra: '+ 3.000 en la guantera', second: '2.000 Bendiciones', third: '1.000 Bendiciones',
     price: 4799, rate: 881.88, total: 10000, soldPct: 76,
     date: '2026-10-22', time: '22:00', times2: ['4:00 PM', '1:00 PM'], lottery: 'Supergana',
-    accent: 'oro', image: 'img/flyer.jpg'
+    accent: 'oro', images: ['img/flyer.jpg', 'img/burj-al-arab.jpg', 'img/sala.jpg']
   };
   const ACCENTS = {
     oro: ['#e9b227', '#17130a', 'Oro'], rojo: ['#d42a33', '#ffffff', 'Rojo'], verde: ['#0e8a55', '#ffffff', 'Verde'],
@@ -770,20 +801,20 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   const qtys = [1, 2, 5, 10, 20, 50];
 
   function appHTML(c, p) {
-    const prize = esc(c.prize), org = esc(c.rifero), mark = esc(initials(c.rifero));
+    const prize = esc(c.prize), org = esc(c.rifero), mark = esc(initials(c.rifero)), imgs = c.images.length ? c.images : SAMPLE.images;
     const acc = (items, cls) => items.map(([q, a], i) =>
       `<div class="acc__item"><button type="button" aria-expanded="false" aria-controls="${p}-${cls}${i}"><span>${q}</span>${PLUS}</button><div class="acc__body" id="${p}-${cls}${i}" hidden><p>${a}</p></div></div>`).join('');
     const HOW = [
       ['Elige tus boletos', 'Toca una cantidad o elige tus números en el tablero, y luego “Participar”.'],
-      ['Escribe tu cédula', 'Llenamos tu nombre, WhatsApp y correo. Solo revisas y eliges tu estado.'],
+      ['Escribe tu cédula', 'Llenamos tu nombre, teléfono y correo. Solo revisas y eliges tu estado.'],
       ['Paga como prefieras', 'Pago Móvil se verifica solo, al instante. También Binance, Zelle o Pago Móvil con comprobante.'],
-      ['Recibe tus números', 'Los ves en pantalla al confirmar el pago, y te llegan por WhatsApp.']
+      ['Recibe tus números', 'Te llegan a tu correo apenas se confirma el pago.']
     ];
     const FAQ = [
       ['¿Cómo se escoge al ganador?', `Con el resultado de ${esc(c.lottery)} de ${D.digits} cifras del ${D.long}. El 1er premio juega a las ${D.hour}; el 2do y el 3er, a las ${c.times2[0]} y a la ${c.times2[1]} del mismo día.`],
       ['¿Esta rifa es legal?', `Sí. Está autorizada por CONALOT con el nº ${esc(c.conalot)}, y funciona sobre LottoGE, la plataforma autorizada para rifas en Venezuela.`],
       ['¿Cuándo recibo mis números?', 'Con Pago Móvil al instante, en el momento. Con los otros métodos tus boletos quedan reservados hasta que el rifero apruebe el comprobante, normalmente en menos de 2 horas.'],
-      ['¿Cómo cobro si gano?', `${org} te escribe por WhatsApp. La entrega se hace en persona y se transmite en vivo por ${esc(c.handle)}.`]
+      ['¿Cómo cobro si gano?', `${org} te escribe a tu correo. La entrega se hace en persona y se transmite en vivo por ${esc(c.handle)}.`]
     ];
     const ids = ['V', 'E', 'J'].map(t => `<button type="button" role="radio" data-action="idtype" data-t="${t}" aria-checked="${t === 'V'}">${t}</button>`).join('');
     const nSeries = c.total / D.series;
@@ -809,8 +840,14 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       </div>
       <header class="hero">
         <div class="hero__img">
-          <img src="${c.image}" alt="Flyer del 1er premio: ${prize}">
-          <button class="flyerbtn" type="button" data-action="flyer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v2H7.4l4.3 4.3-1.4 1.4L6 7.4V11H4zm16 16h-7v-2h3.6l-4.3-4.3 1.4-1.4 4.3 4.3V13h2z" fill="currentColor"/></svg>Ver flyer completo</button>
+          <div class="slides" data-slides tabindex="0" role="group" aria-roledescription="carrusel" aria-label="Fotos del premio">
+            ${imgs.map((src, i) => `<figure class="slide" role="group" aria-roledescription="foto" aria-label="${i + 1} de ${imgs.length}"><img src="${src}" alt="Foto ${i + 1} de ${imgs.length} del premio: ${prize}"${i ? ' loading="lazy"' : ''}></figure>`).join('')}
+          </div>
+          ${imgs.length > 1 ? `<span class="gal__count" data-gal-count aria-hidden="true">1 / ${imgs.length}</span>
+          <button class="gal__nav gal__nav--prev" type="button" data-action="g-prev" aria-label="Foto anterior" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 4.6 8 12l7.4 7.4-1.4 1.4L5.2 12 14 3.2z" fill="currentColor"/></svg></button>
+          <button class="gal__nav gal__nav--next" type="button" data-action="g-next" aria-label="Foto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 4.6 16 12l-7.4 7.4 1.4 1.4 8.8-8.8L10 3.2z" fill="currentColor"/></svg></button>
+          <div class="dots" role="group" aria-label="Elegir foto">${imgs.map((_, i) => `<button type="button" data-action="g-go" data-i="${i}" aria-label="Ver foto ${i + 1}" aria-current="${i === 0}"></button>`).join('')}</div>` : ''}
+          <button class="flyerbtn" type="button" data-action="flyer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v2H7.4l4.3 4.3-1.4 1.4L6 7.4V11H4zm16 16h-7v-2h3.6l-4.3-4.3 1.4-1.4 4.3 4.3V13h2z" fill="currentColor"/></svg>Ver en grande</button>
         </div>
         <div class="hero__body">
           <p class="hero__when">Sorteo el ${D.long} · ${esc(c.lottery)} ${D.digits} cifras</p>
@@ -872,10 +909,10 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
             <input class="field" id="${p}-ced" type="text" inputmode="numeric" maxlength="9" placeholder="Ej. 18456732" autocomplete="off" data-in="cedula" aria-labelledby="${p}-idlbl"></div>
           <p class="lookup" data-lookup aria-live="polite">Con tu cédula llenamos el resto.</p>
           <label class="lbl" for="${p}-name">Nombre y apellido</label><input class="field" id="${p}-name" type="text" autocomplete="name" data-in="name">
-          <label class="lbl" for="${p}-phone">WhatsApp</label><input class="field" id="${p}-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0414-555-0000" data-in="phone">
+          <label class="lbl" for="${p}-phone">Teléfono</label><input class="field" id="${p}-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0414-555-0000" data-in="phone">
           <label class="lbl" for="${p}-estado">Estado</label>
           <select class="field" id="${p}-estado" data-in="estado"><option value="">Selecciona tu estado</option>${ESTADOS.map(e => `<option>${e}</option>`).join('')}</select>
-          <label class="lbl" for="${p}-mail">Correo <small>(opcional)</small></label><input class="field" id="${p}-mail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" data-in="email">
+          <label class="lbl" for="${p}-mail">Correo <small>(ahí te llegan tus números)</small></label><input class="field" id="${p}-mail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" data-in="email">
           <p class="err" data-err="data" hidden></p>
           <button class="btn btn--accent btn--block go" type="button" data-action="to-pay"><span>Continuar</span><b data-go-bs></b></button>
         </div>
@@ -905,7 +942,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       <section class="orgcard" data-reveal aria-labelledby="${p}-org">
         <h2 class="sr-only" id="${p}-org">Quién organiza</h2>
         <div class="orgcard__who"><span class="org__mark" aria-hidden="true">${mark}</span><span><b>${org}</b><span>Organiza esta rifa</span></span></div>
-        <dl><dt>Instagram</dt><dd>${esc(c.handle)}</dd><dt>WhatsApp</dt><dd>${esc(c.whatsapp)}</dd><dt>Sorteo</dt><dd>${D.short}, ${D.hour}</dd></dl>
+        <dl><dt>Instagram</dt><dd>${esc(c.handle)}</dd><dt>Soporte</dt><dd>${esc(c.support)}</dd><dt>Sorteo</dt><dd>${D.short}, ${D.hour}</dd></dl>
         <div class="seal"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="var(--ink)"/><path d="M12 20.5l5.5 5.5L29 14.5" fill="none" stroke="var(--bg)" stroke-width="3.4"/></svg>
           <span><b>Autorizada por CONALOT</b>Evento nº ${esc(c.conalot)}</span></div>
       </section>
@@ -953,9 +990,9 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       </div>
     </div>
 
-    <div class="lightbox" data-lightbox hidden role="dialog" aria-label="Flyer completo">
-      <div class="lightbox__bar"><span>Flyer de ${org}</span><button type="button" data-action="close-flyer">Cerrar</button></div>
-      <div class="lightbox__img"><img src="${c.image}" alt="Flyer completo de la rifa: ${prize}"></div>
+    <div class="lightbox" data-lightbox hidden role="dialog" aria-label="Fotos del premio">
+      <div class="lightbox__bar"><span>${imgs.length > 1 ? `${imgs.length} fotos del premio` : 'Foto del premio'}</span><button type="button" data-action="close-flyer">Cerrar</button></div>
+      <div class="lightbox__img" data-lb-scroll>${imgs.map((src, i) => `<img src="${src}" alt="Foto ${i + 1} de ${imgs.length} del premio: ${prize}" loading="lazy">`).join('')}</div>
     </div>
     <div class="verify" data-verify hidden role="status"><h2>Verificando tu pago</h2><p data-verify-line></p><div class="vbar" aria-hidden="true"><span></span></div><p data-verify-note></p></div>
   </section>
@@ -991,9 +1028,10 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       <ol class="steps3" aria-label="Estado de tu pago">
         <li class="is-done"><i aria-hidden="true">✓</i><span><b>Comprobante recibido</b>Tu referencia y tu comprobante llegaron bien.</span></li>
         <li class="is-now" aria-current="step"><i aria-hidden="true">2</i><span><b>En revisión</b>El rifero lo verifica desde su panel, normalmente en menos de 2 horas.</span></li>
-        <li><i aria-hidden="true">3</i><span><b>Aprobado o rechazado</b>Te avisamos por WhatsApp con el resultado.</span></li>
+        <li><i aria-hidden="true">3</i><span><b>Aprobado o rechazado</b>Te avisamos por correo con el resultado.</span></li>
       </ol>
-      <div class="held"><h2 data-held-title></h2><ul data-held-nums></ul></div>
+      <div class="held" data-held-box><h2 data-held-title></h2><ul data-held-nums></ul></div>
+      <div class="held-note" data-held-random><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5h18v14H3zm2 2v.5l7 4.4 7-4.4V7zm0 2.9V17h14V9.9l-7 4.4z"/></svg><span data-held-random-txt></span></div>
       <div class="st-body">
         <p data-held-sent></p>
         <table class="order" aria-label="Detalle de la orden"><tbody data-held-order></tbody></table>
@@ -1020,7 +1058,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       <div class="st-body">
         <div class="why why--note"><p><b>Tus boletos no se apartaron.</b> Si ya hiciste el pago, no lo repitas: corrige los datos y vuelve a verificar.</p></div>
         <button class="btn btn--accent btn--block" type="button" data-action="fix-pay">Corregir datos del pago</button>
-        <div class="support"><span><small>Soporte por WhatsApp</small><b>${esc(c.whatsapp)}</b></span><button type="button" class="copy" data-copy="${esc(c.whatsapp)}">Copiar</button></div>
+        <div class="support"><span><small>Soporte por correo</small><b>${esc(c.support)}</b></span><button type="button" class="copy" data-copy="${esc(c.support)}">Copiar</button></div>
         <button class="btn btn--ghost btn--block" type="button" data-action="home">Volver al inicio</button>
       </div>
     </div>
@@ -1063,10 +1101,12 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       paintLive(this.el); paintClock(this.el);
       this.bind();
       this.setupHome();
+      this.setupGallery();
       if (this.s.cedula) this.fillPerson(personFor(this.s.cedula), false);
       this.syncInputs();
       this.show(this.s.view);
       this.stage(this.s.stage, true);
+      if (init.slide) { const go = () => this.goSlide(init.slide, true); go(); requestAnimationFrame(go); window.addEventListener('load', go, { once: true }); }
       if (init.flyer) this.flyer(true);
       if (init.board) this.board(true);
       if (init.verifying) this.verify(init.hold);
@@ -1141,6 +1181,9 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         case 'home': return this.show('home');
         case 'mine': this.show('mine'); if (this.s.cedula) { this.$('[data-in="mced"]').value = this.s.cedula; this.search(); } return;
         case 'search': return this.search();
+        case 'g-prev': return this.goSlide(this.slide - 1);
+        case 'g-next': return this.goSlide(this.slide + 1);
+        case 'g-go': return this.goSlide(+a.dataset.i);
         case 'flyer': this.flyer(true); this.$('[data-action="close-flyer"]').focus(); return;
         case 'close-flyer': this.flyer(false); this.$('[data-action="flyer"]').focus(); return;
       }
@@ -1170,9 +1213,9 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       const s = this.s, bad = [];
       if (!/^\d{6,9}$/.test(s.cedula)) bad.push(['cedula', 'tu cédula, solo números (de 6 a 9 dígitos)']);
       if (s.name.trim().length < 3) bad.push(['name', 'tu nombre y apellido']);
-      if (s.phone.replace(/\D/g, '').length !== 11) bad.push(['phone', 'tu WhatsApp de 11 dígitos, por ejemplo 0414-555-2190']);
+      if (s.phone.replace(/\D/g, '').length !== 11) bad.push(['phone', 'tu teléfono de 11 dígitos, por ejemplo 0414-555-2190']);
       if (!s.estado) bad.push(['estado', 'tu estado']);
-      if (s.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email)) bad.push(['email', 'un correo válido, o déjalo vacío']);
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email.trim())) bad.push(['email', 'tu correo: ahí te enviamos tus números']);
       bad.forEach(([k]) => this.$(`[data-in="${k}"]`).classList.add('is-bad'));
       const err = this.$('[data-err="data"]');
       if (bad.length) { err.textContent = 'Falta ' + bad[0][1] + '.'; err.hidden = false; this.$(`[data-in="${bad[0][0]}"]`).focus(); return; }
@@ -1362,7 +1405,35 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       this.$$('[data-v]').forEach(v => v.hidden = v.dataset.v !== view);
       if (view === 'ok') this.$('[data-ok-scroller]').scrollTop = 0;
     }
-    flyer(on) { this.$('[data-lightbox]').hidden = !on; this.el.classList.toggle('is-dark-top', on); }
+    flyer(on) {
+      this.$('[data-lightbox]').hidden = !on; this.el.classList.toggle('is-dark-top', on);
+      if (on) { const box = this.$('[data-lb-scroll]'), img = box.children[this.slide || 0]; box.scrollTop = img ? img.offsetTop : 0; }
+    }
+    /* Photo carousel: swipe on phones, arrows and dots for everyone. */
+    setupGallery() {
+      const track = this.$('[data-slides]');
+      this.slide = 0;
+      this.$$('.slide img').forEach(img => { const set = () => img.classList.toggle('is-tall', img.naturalHeight > img.naturalWidth * 1.05); img.complete ? set() : img.addEventListener('load', set, { once: true }); });
+      track.addEventListener('scroll', () => {
+        const i = Math.round(track.scrollLeft / track.clientWidth);
+        if (i !== this.slide) { this.slide = i; this.paintGallery(); }
+      }, { passive: true });
+      track.addEventListener('keydown', e => { if (e.key === 'ArrowRight') this.goSlide(this.slide + 1); if (e.key === 'ArrowLeft') this.goSlide(this.slide - 1); });
+    }
+    goSlide(i, instant) {
+      const track = this.$('[data-slides]'), n = track.children.length;
+      i = Math.max(0, Math.min(n - 1, i));
+      track.scrollTo({ left: i * track.clientWidth, behavior: instant || reduce ? 'auto' : 'smooth' });
+      this.slide = i; this.paintGallery();
+    }
+    paintGallery() {
+      const n = this.$('[data-slides]').children.length, c = this.$('[data-gal-count]');
+      if (!c) return;
+      c.textContent = `${this.slide + 1} / ${n}`;
+      this.$('[data-action="g-prev"]').disabled = this.slide === 0;
+      this.$('[data-action="g-next"]').disabled = this.slide === n - 1;
+      this.$$('[data-action="g-go"]').forEach(d => d.setAttribute('aria-current', +d.dataset.i === this.slide));
+    }
     scrollToSec(key, instant) {
       const t = this.$(`[data-sec="${key}"]`);
       if (!t) return;
@@ -1379,12 +1450,22 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     }
     buildHeld() {
       const s = this.s, q = Math.max(1, this.count()), p = s.name ? s : PEOPLE[0], m = METHODS[s.method], tot = q * CFG.price;
-      const nums = this.pickNumbers(q, 3517);
-      this.$('[data-held-lede]').innerHTML = `${esc(p.name.split(' ')[0])}, apartamos tus <b>${boletos(q)}</b> mientras ${esc(CFG.rifero)} revisa tu pago por ${m.label}.`;
-      this.$('[data-held-nums]').innerHTML = nums.map(n => `<li><b>${n}</b><span>Apartado</span></li>`).join('');
-      this.$('[data-held-title]').textContent = q === 1 ? 'Tu número apartado' : `Tus ${q} números apartados`;
-      this.$('[data-held-sent]').innerHTML = `Cuando se apruebe, te llegan confirmados por WhatsApp al <b>${esc(p.phone)}</b>. Si se rechaza, te escribimos para corregirlo.`;
-      const order = [['Orden', 'LG-' + (48100 + q * 7)], ['Método', m.label], ['Referencia', s.ref || '—'], ['Comprobante', s.file || 'No adjuntado'], ['Total', m.cur === 'bs' ? bs(tot) : this.amount(m, tot)], ['Estado', 'Por verificar']];
+      const chosen = s.mode === 'manual' && s.picks.length > 0, first = esc(p.name.split(' ')[0]), mail = esc(p.email);
+      this.$('[data-held-lede]').innerHTML = chosen
+        ? `${first}, apartamos los <b>${q === 1 ? 'el número' : q + ' números'}</b> que elegiste mientras ${esc(CFG.rifero)} revisa tu pago por ${m.label}.`.replace('los <b>el número</b>', 'el <b>número</b>')
+        : `${first}, tu compra de <b>${boletos(q)}</b> está en revisión: ${esc(CFG.rifero)} verifica tu pago por ${m.label}.`;
+      this.$('[data-held-box]').hidden = !chosen;
+      this.$('[data-held-random]').hidden = chosen;
+      if (chosen) {
+        this.$('[data-held-title]').textContent = q === 1 ? 'Tu número, esperando confirmación' : `Tus ${q} números, esperando confirmación`;
+        this.$('[data-held-nums]').innerHTML = s.picks.map(n => `<li><b>${n}</b><span>Por confirmar</span></li>`).join('');
+      } else {
+        this.$('[data-held-random-txt]').innerHTML = `<b>Tus números llegan por correo</b>Como elegiste al azar, se asignan cuando se apruebe el pago y te los enviamos a <b>${mail}</b>.`;
+      }
+      this.$('[data-held-sent]').innerHTML = chosen
+        ? `Cuando se apruebe, te enviamos la confirmación a <b>${mail}</b>. Si se rechaza, te escribimos al mismo correo para corregirlo.`
+        : `Si el pago se rechaza, te escribimos a <b>${mail}</b> para corregirlo.`;
+      const order = [['Orden', 'LG-' + (48100 + q * 7)], ['Números', chosen ? s.picks.join(', ') : 'Al azar, al aprobar'], ['Método', m.label], ['Referencia', s.ref || '—'], ['Comprobante', s.file || 'No adjuntado'], ['Total', m.cur === 'bs' ? bs(tot) : this.amount(m, tot)], ['Estado', 'Por verificar']];
       this.$('[data-held-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('');
       this.$('[data-held-scroller]').scrollTop = 0;
     }
@@ -1405,7 +1486,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       const nums = this.pickNumbers(q, 4821);
       const digits = n => [...n].map(d => `<i data-d="${d}">${d}</i>`).join('');
       this.$('[data-ok-lede]').innerHTML = `${esc(p.name.split(' ')[0])}, ${q === 1 ? 'tu boleto ya está' : `tus <b>${q} boletos</b> ya están`} en el sorteo del <b>${D.long}</b>.`;
-      this.$('[data-ok-sent]').innerHTML = `Te enviamos tus números por WhatsApp al <b>${esc(p.phone)}</b>${p.email ? ` y a <b>${esc(p.email)}</b>` : ''}.`;
+      this.$('[data-ok-sent]').innerHTML = `Te enviamos tus números a tu correo <b>${esc(p.email)}</b>.`;
       const big = this.$('[data-big-num]'); big.innerHTML = digits(nums[0]); big.setAttribute('aria-label', 'Número ' + nums[0]);
       this.$('[data-stubs-wrap]').hidden = q < 2;
       this.$('[data-stubs-title]').textContent = q === 2 ? 'Tu otro número' : `Tus otros ${q - 1} números`;
@@ -1439,7 +1520,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       res.innerHTML = `
         <p class="mine-who"><b>${esc(p.name)}</b> tiene 7 boletos en esta rifa.</p>
         <div class="ord"><div class="ord__head"><span><b>Orden LG-48035</b><br>Pago Móvil · ${bs(5 * CFG.price)}</span><span class="tag tag--ok">Pagado</span></div><ul>${a.map(n => `<li>${n}</li>`).join('')}</ul></div>
-        <div class="ord"><div class="ord__head"><span><b>Orden LG-48112</b><br>Zelle · ${usd(2 * CFG.price / CFG.rate)}</span><span class="tag tag--wait">Por verificar</span></div><p>2 boletos. Tus números aparecen aquí cuando se verifique el pago, normalmente en menos de 2 horas.</p></div>
+        <div class="ord"><div class="ord__head"><span><b>Orden LG-48112</b><br>Zelle · ${usd(2 * CFG.price / CFG.rate)}</span><span class="tag tag--wait">Por verificar</span></div><p>2 boletos al azar. Los números se asignan cuando se apruebe el pago y te llegan a tu correo.</p></div>
         <p class="hint">Datos de ejemplo. En producción, esta consulta va contra la API de LottoGE.</p>`;
     }
     setupHome() {
@@ -1510,7 +1591,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   const fillForm = () => {
     form.querySelectorAll('[data-cfg]').forEach(i => { const v = CFG[i.dataset.cfg]; i.value = i.dataset.cfg === 'rate' ? num(v, 2) : v; i.classList.remove('is-bad'); });
     form.querySelector(`input[name="cfg-accent"][value="${CFG.accent}"]`).checked = true;
-    document.querySelector('[data-thumb]').src = CFG.image;
+    renderThumbs();
     cfgErr.hidden = true;
   };
   /* Each rule returns { v } when the value is usable, or the message to show. */
@@ -1522,7 +1603,8 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     date: x => /^\d{4}-\d{2}-\d{2}$/.test(x) ? { v: x } : 'Elige la fecha del sorteo.',
     time: x => /^\d{2}:\d{2}$/.test(x) ? { v: x } : 'Elige la hora del sorteo.',
     prize: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre del 1er premio.',
-    rifero: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre de la marca del rifero.'
+    rifero: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre de la marca del rifero.',
+    support: x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x.trim()) ? { v: x.trim() } : 'Escribe un correo de soporte válido.'
   };
   let tm;
   const commit = () => { D = derive(CFG); live.bump = 0; mountAll(); paintLive(); };
@@ -1539,16 +1621,22 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     clearTimeout(tm); tm = setTimeout(commit, 350);
   });
   form.addEventListener('submit', e => e.preventDefault());
+  const thumbs = document.querySelector('[data-thumbs]');
+  const renderThumbs = () => {
+    thumbs.innerHTML = CFG.images.map((src, i) => `<li><img src="${src}" alt="Foto ${i + 1}" width="64" height="64">${i === 0 ? '<small>Portada</small>' : ''}${CFG.images.length > 1 ? `<button type="button" data-rm="${i}" aria-label="Quitar la foto ${i + 1}">×</button>` : ''}</li>`).join('');
+  };
+  thumbs.addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; CFG.images.splice(+b.dataset.rm, 1); renderThumbs(); commit(); });
   document.querySelector('[data-cfg-img]').addEventListener('change', e => {
-    const f = e.target.files && e.target.files[0];
-    if (!f) return;
-    if (!/^image\//.test(f.type)) { cfgErr.textContent = 'El archivo debe ser una imagen (JPG o PNG).'; cfgErr.hidden = false; return; }
-    if (f.size > 8 * 1024 * 1024) { cfgErr.textContent = 'La imagen pesa más de 8 MB. Usa una más liviana.'; cfgErr.hidden = false; return; }
-    const rd = new FileReader();
-    rd.onload = () => { CFG.image = rd.result; document.querySelector('[data-thumb]').src = CFG.image; commit(); };
-    rd.readAsDataURL(f);
+    const files = [...(e.target.files || [])];
+    e.target.value = '';
+    if (!files.length) return;
+    const bad = files.find(f => !/^image\//.test(f.type)) ? 'Todos los archivos deben ser imágenes (JPG o PNG).' : files.find(f => f.size > 8 * 1024 * 1024) ? 'Hay una foto de más de 8 MB. Usa una más liviana.' : CFG.images.length + files.length > 10 ? `Puedes tener hasta 10 fotos; ya hay ${CFG.images.length}.` : '';
+    if (bad) { cfgErr.textContent = bad; cfgErr.hidden = false; return; }
+    cfgErr.hidden = true;
+    Promise.all(files.map(f => new Promise(res => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsDataURL(f); })))
+      .then(urls => { CFG.images.push(...urls); renderThumbs(); commit(); });
   });
-  document.querySelector('[data-cfg-sample-img]').addEventListener('click', () => { CFG.image = SAMPLE.image; document.querySelector('[data-thumb]').src = CFG.image; commit(); });
+  document.querySelector('[data-cfg-sample-img]').addEventListener('click', () => { CFG.images = [...SAMPLE.images]; renderThumbs(); commit(); });
   document.querySelector('[data-cfg-reset]').addEventListener('click', () => { CFG = JSON.parse(JSON.stringify(SAMPLE)); fillForm(); applyAccent(); commit(); });
 
   fillForm(); applyAccent(); mountAll();
