@@ -1,9 +1,13 @@
-<title>LottoGE Plantilla Elegante</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Front de compra de rifas LottoGE: todo en la misma página, con selección de boletos, datos y pago en el mismo lugar. Configurable en vivo.">
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rifa · LottoGE</title>
+<meta name="description" content="Compra de boletos de la rifa, sobre la plataforma LottoGE.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet">
 <style>
 /* Layout: a neutral platform shell that steps back so each rifero's flyer and brand colour carry the page.
    The whole purchase happens inside one box on the landing: tickets, then buyer data, then payment, in the same place. */
@@ -523,287 +527,241 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   .ticker__viewport { overflow-x: auto; scrollbar-width: none; }
   .ticker__track, .dot { animation: none !important; }
 }
-/* ================= Plantilla ELEGANTE =================
-   Calm and trustworthy: white paper, a serif for names and amounts, soft rounded cards that float on
-   a light shadow, the rifero's colour only on the action. Same structure and logic as the minimalist template. */
+/* ================= Plantilla POP =================
+   Comic and sticker shop: a sky page cut into bright bands, thick black outlines with solid offset shadows,
+   zigzag edges, shapes floating around, a spinning price star, "¡COMPRA YA!" ribbons, and everything
+   bounces in and squishes when touched. Same structure and logic. */
 :root, .force-light {
-  --bg: #ffffff;
-  --surface: #f3f4f6;
-  --surface-2: #e4e6ea;
-  --ink: #17181c;
-  --muted: #5f636c;
-  --lift: 0 1px 2px rgba(17, 18, 22, .06), 0 12px 32px rgba(17, 18, 22, .08);
-  --font: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
-  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --bg: #c4e9ff;
+  --surface: #ffffff;
+  --surface-2: #eef4f8;
+  --ink: #111111;
+  --muted: #3c4350;
+  --line: #111111;
+  --on-pop: #111111;
+  --c1: #ff6b6b;
+  --c2: #ffd23f;
+  --c3: #7be38a;
+  --c4: #ff9ecd;
+  --c5: #5ec8ff;
+  --pop-sh: 5px 5px 0 var(--line);
+  --font: "Bricolage Grotesque", "Arial Rounded MT Bold", "Helvetica Neue", Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #121315; --surface: #1c1d20; --surface-2: #2b2c31; --ink: #f2f2f4; --muted: #a2a5ad;
-    --lift: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .45);
+    --bg: #151b33; --surface: #222a4a; --surface-2: #2d375e; --ink: #f6f6f6; --muted: #bcc3da; --line: #000000;
   }
 }
 :root[data-theme="dark"], .force-dark {
-  --bg: #121315; --surface: #1c1d20; --surface-2: #2b2c31; --ink: #f2f2f4; --muted: #a2a5ad;
-  --lift: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .45);
+  --bg: #151b33; --surface: #222a4a; --surface-2: #2d375e; --ink: #f6f6f6; --muted: #bcc3da; --line: #000000;
+}
+/* bright bands always carry dark text, whatever the mode */
+.hero, .clock, .sold, .prizes, .orgcard, .fx-ribbon, .p23, .rank li:first-child, .tkt, .cd div {
+  --ink: #111111; --muted: #353a44; --surface: #ffffff; --surface-2: #f1f1f1; color: #111111;
 }
 
-/* serif for names, amounts and headings; sans for everything you read or tap */
-.wide, .h2, .buy__h, .hero__title, .price__bs, .sold__pct, .p1 b, .p23 b, .num, .cd b, .tkt__prize, .rank__pos,
-.verify h2, .mine-body h2, .board__head h2, .recap b, .held li b, .qbtn b {
-  font-family: var(--serif); font-weight: 400; font-stretch: 100%; text-transform: none; letter-spacing: -0.01em;
+.wide, .hero__title, .price__bs, .h2, .buy__h, .p1 b, .p23 b, .cd b, .sold__pct, .num, .tkt__prize, .verify h2,
+.mine-body h2, .board__head h2, .qbtn b, .rank__pos, .recap b, .held li b {
+  font-family: var(--font); font-stretch: 100%; font-weight: 800; letter-spacing: -0.03em; text-transform: none;
 }
-.wide { line-height: 1; }
-.top h1 { font-size: clamp(52px, 9vw, 140px); }
+.top h1 { text-transform: none; letter-spacing: -0.04em; }
 
-/* shapes */
-.app .btn { border-radius: 14px; font-weight: 600; }
-.chip, .gal__count, .flyerbtn, .series button, .tag { border-radius: 999px; }
-.gal__nav, .board__x, .st-icon { border-radius: 50%; }
-.org__mark { border-radius: 10px; }
-.copy { border-radius: 8px; }
-.lightbox__bar button { border-radius: 10px; }
+/* outlines, offset shadows, squishy buttons */
+.app .btn { border: 3px solid var(--line); border-radius: 16px; box-shadow: 4px 4px 0 var(--line); font-weight: 800; font-size: 17px; transition: transform .12s ease, box-shadow .12s ease, background .2s; }
+.app .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--line); }
+.app .btn:hover:not(:disabled) { animation: wobble .5s ease; }
+.app .btn:disabled { box-shadow: none; border-style: dashed; }
+.chip, .flyerbtn, .gal__nav, .copy, .series button, .rand button, .board__x, .lightbox__bar button { border: 2.5px solid var(--line); box-shadow: 3px 3px 0 var(--line); }
+.chip, .flyerbtn, .copy, .series button, .tag, .gal__count { border-radius: 999px; }
+.gal__nav, .board__x, .org__mark { border-radius: 50%; }
+.org__mark { border: 2.5px solid var(--line); }
+.nav { background: var(--bg); box-shadow: 0 3px 0 var(--line); }
 
-/* top */
-.nav { height: 60px; }
-.ticker { margin: 0 16px; height: 40px; border-radius: 999px; background: var(--surface); color: var(--ink); }
-.ticker__label { background: transparent; color: var(--good); padding-left: 16px; }
-.hero__img { margin: 14px 16px 0; border-radius: 22px; overflow: hidden; box-shadow: var(--lift); }
-.hero__body { padding: 22px 20px 28px; }
-.hero__title { font-size: 46px; line-height: 1; }
-.hero__extra { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 24px; }
-.price__bs { font-size: 50px; line-height: .9; }
+/* ticker */
+.ticker { background: var(--line); color: var(--c2); font-weight: 700; }
+.ticker__label { background: var(--c1); color: #111111; border-right: 3px solid var(--line); }
 
-/* countdown, sold, prizes */
-.clock p { color: var(--muted); font-weight: 500; }
-.cd { gap: 8px; }
-.cd div { background: var(--surface); color: var(--ink); border-radius: 16px; padding: 14px 0 10px; }
-.cd b { font-size: 40px; }
-.cd span { opacity: 1; color: var(--muted); }
-.sold__pct { font-size: 42px; }
-.bar { height: 8px; border-radius: 999px; }
-.bar span { border-radius: 999px; }
+/* hero: pink band, tilted picture, spinning price star, floating shapes */
+.hero { position: relative; isolation: isolate; background: var(--c4); padding: 24px 0 0; }
+.hero__img { margin: 0 20px; border: 3px solid var(--line); border-radius: 24px; overflow: hidden; box-shadow: 7px 7px 0 var(--line); transform: rotate(-1.5deg); }
+.hero__body { padding: 26px 20px 34px; }
+.hero__when { font-weight: 700; }
+.hero__title { font-size: 46px; line-height: .95; }
+.hero__extra { justify-self: start; margin-top: 12px; background: var(--c2); border: 3px solid var(--line); border-radius: 999px; padding: 4px 14px; font-weight: 800; transform: rotate(-2deg); box-shadow: 3px 3px 0 var(--line); }
+.price { margin: 22px 0 20px; }
+.price__bs { display: inline-block; background: #ffffff; border: 3px solid var(--line); border-radius: 16px; padding: 8px 12px; box-shadow: 4px 4px 0 var(--line); font-size: 38px; transform: rotate(1.5deg); }
+.hero .btn--accent::after { content: "↓"; display: inline-block; margin-left: 4px; animation: nudge 1s ease-in-out infinite; }
+.live .dot { color: var(--c1); }
+.fx-badge { position: absolute; z-index: 3; right: 10px; top: 4px; width: 104px; height: 104px; display: grid; place-content: center; text-align: center; color: #111111; line-height: 1;
+  background: var(--c2); clip-path: polygon(50% 0, 61% 18%, 82% 9%, 80% 31%, 100% 38%, 86% 54%, 98% 72%, 76% 75%, 72% 96%, 54% 84%, 36% 98%, 30% 77%, 8% 76%, 18% 56%, 2% 40%, 22% 31%, 18% 9%, 40% 18%);
+  animation: spinwobble 6s ease-in-out infinite; filter: drop-shadow(3px 3px 0 #111); }
+.fx-badge b { font-size: 13px; font-weight: 800; text-transform: uppercase; }
+.fx-badge span { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+
+/* floating shapes */
+.fx-shape { position: absolute; z-index: -1; display: block; border: 3px solid var(--line); animation: bob 5s ease-in-out infinite; }
+.fx-shape.s-circle { border-radius: 50%; }
+.fx-shape.s-ring { border-radius: 50%; border-width: 8px; background: transparent !important; }
+.fx-shape.s-star { border: 0; clip-path: polygon(50% 0, 62% 35%, 100% 38%, 70% 60%, 80% 100%, 50% 76%, 20% 100%, 30% 60%, 0 38%, 38% 35%); filter: drop-shadow(3px 3px 0 #111); animation-name: bobspin; }
+.fx-shape.s-pill { border-radius: 999px; }
+.fx-shape.s-tri { border: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); filter: drop-shadow(3px 3px 0 #111); }
+
+/* ribbons */
+.fx-ribbon { position: relative; z-index: 2; margin: -10px -30px 0; padding: 12px 0; overflow: hidden; transform: rotate(-3deg); background: var(--c2); border-block: 3px solid var(--line); }
+.fx-ribbon--b { transform: rotate(2.5deg); background: var(--c1); margin-top: 48px; margin-bottom: -18px; }
+.fx-ribbon__track { display: flex; width: max-content; font-size: 19px; font-weight: 800; text-transform: uppercase; white-space: nowrap; animation: marquee 16s linear infinite; }
+.fx-ribbon--b .fx-ribbon__track { animation-direction: reverse; }
+.fx-ribbon__track span { padding: 0 12px; }
+
+/* countdown + sold: a yellow band with a zigzag top */
+.clock { position: relative; background: var(--c2); padding-top: 40px; }
+.clock::before, .afoot::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 15px;
+  background: linear-gradient(135deg, var(--zz, var(--c2)) 50%, transparent 50%) 0 0 / 20px 20px, linear-gradient(225deg, var(--zz, var(--c2)) 50%, transparent 50%) 0 0 / 20px 20px; }
+.clock p { font-weight: 800; font-size: 17px; }
+.cd { gap: 8px; perspective: 400px; }
+.cd div { border: 3px solid var(--line); border-radius: 18px; box-shadow: 4px 4px 0 var(--line); }
+.cd div:nth-child(1) { background: var(--c1); transform: rotate(-3deg); }
+.cd div:nth-child(2) { background: var(--c3); transform: rotate(2deg); }
+.cd div:nth-child(3) { background: var(--c5); transform: rotate(-2deg); }
+.cd div:nth-child(4) { background: #ffffff; transform: rotate(3deg); }
+.cd b { font-size: 34px; color: #111111; }
+.cd b.tick { animation: flipPop .45s cubic-bezier(.2,.8,.3,1.5); }
+.cd span { color: #111111; opacity: .8; font-weight: 700; }
+.sold { background: var(--c2); padding-bottom: 40px; }
+.sold__pct { font-size: 40px; }
+.bar { height: 22px; border: 3px solid var(--line); border-radius: 999px; background: #ffffff; }
+.bar span { border-right: 3px solid var(--line); background: repeating-linear-gradient(-45deg, var(--c1) 0 10px, #ffffff 10px 20px); background-size: 28px 28px; animation: stripes 1s linear infinite; }
+.sold__left b { background: var(--c1); padding: 0 6px; border-radius: 6px; }
+
+/* prizes: a green band with stickers */
+.prizes { position: relative; isolation: isolate; background: var(--c3); padding: 40px 20px 46px; }
 .h2 { font-size: 34px; }
-.p1 { background: var(--surface); color: var(--ink); border-radius: 20px; padding: 20px; }
-.p1 b { font-size: 34px; line-height: 1.02; }
-.p1 small, .p23 small { color: var(--muted); opacity: 1; }
-.p23 { border-radius: 18px; }
-.p23 b { font-size: 24px; }
+.prizes .h2 { display: inline-block; background: #ffffff; border: 3px solid var(--line); border-radius: 14px; padding: 2px 12px; box-shadow: 4px 4px 0 var(--line); transform: rotate(-2deg); }
+.p1 { background: #ffffff; color: #111111; border: 3px solid var(--line); border-radius: 22px; box-shadow: 6px 6px 0 var(--line); transform: rotate(1deg); }
+.p1 b { font-size: 32px; line-height: 1; }
+.p23row { gap: 12px; margin-top: 14px; }
+.p23 { border: 3px solid var(--line); border-radius: 20px; box-shadow: 4px 4px 0 var(--line); }
+.p23:nth-child(1) { background: var(--c5); transform: rotate(-1.5deg); }
+.p23:nth-child(2) { background: var(--c4); transform: rotate(1.5deg); }
+.p23 small { opacity: .85; }
+.p23 b { font-size: 22px; }
 
-/* the purchase box: a card that floats */
-.buy { margin: 52px 16px 0; padding: 26px 20px 28px; border-radius: 26px; background: var(--bg); box-shadow: var(--lift); }
-.buy__h { font-size: 34px; }
-.seg { background: var(--surface); border-radius: 14px; }
-.seg button { border-radius: 11px; font-weight: 600; }
-.quick { gap: 8px; }
-.qbtn, .stepper button, .method, .paybox, .upload, .recap { background: var(--surface); }
-.qbtn { border-radius: 16px; }
-.qbtn b { font-size: 38px; }
-.qbtn em { top: 8px; right: 8px; border-radius: 999px; font-size: 11px; padding: 2px 8px; }
-.stepper button { border-radius: 14px; }
-.field { border-radius: 12px; background: var(--bg); }
-.stepper .field { font-family: var(--serif); font-weight: 400; font-size: 28px; }
-.go { border-radius: 14px; }
-.go b { font-weight: 600; }
-.chips li { border-radius: 999px; padding-left: 14px; }
-.recap { border-radius: 14px; }
-.recap b { font-size: 26px; }
-.method { border-radius: 16px; }
-.mico { border-radius: 10px; }
-.paybox { border-radius: 16px; }
-.paybox tr + tr td { border-top-color: var(--bg); }
-.copy { background: var(--bg); }
-.copyall { border-radius: 12px; }
-.upload { border-radius: 14px; }
+/* the purchase box: a big sticker card */
+.buy { position: relative; isolation: isolate; margin: 56px 14px 0; padding: 26px 18px 28px; background: var(--surface); border: 3px solid var(--line); border-radius: 26px; box-shadow: 8px 8px 0 var(--line); }
+.buy__h { display: inline-block; justify-self: start; font-size: 28px; background: var(--c2); color: #111111; border: 3px solid var(--line); border-radius: 14px; padding: 2px 12px; transform: rotate(-2deg); box-shadow: 3px 3px 0 var(--line); }
+.seg { background: transparent; border: 3px solid var(--line); border-radius: 16px; padding: 3px; }
+.seg button { border-radius: 11px; font-weight: 800; }
+.seg button[aria-checked="true"] { background: var(--c5); color: #111111; }
+.quick { gap: 10px; margin-top: 18px; }
+.qbtn { background: var(--surface); border: 3px solid var(--line); border-radius: 18px; box-shadow: 4px 4px 0 var(--line); text-align: center; place-items: center; transition: transform .12s, box-shadow .12s; }
+.qbtn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--line); }
+.qbtn b { font-size: 34px; }
+.qbtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); animation: jelly .55s ease; }
+.qbtn em { top: -12px; right: -8px; background: var(--c1); color: #111111; border: 2.5px solid var(--line); border-radius: 999px; padding: 2px 8px; transform: rotate(8deg); animation: wiggle 1.6s ease-in-out infinite; }
+.stepper button { background: var(--surface); border: 3px solid var(--line); border-radius: 14px; box-shadow: 3px 3px 0 var(--line); }
+.stepper button:active { transform: translate(3px, 3px); box-shadow: none; }
+.field { border: 3px solid var(--line); border-radius: 14px; background: var(--surface); }
+.field:focus { border-color: var(--line); box-shadow: 4px 4px 0 var(--c5); }
+.field.is-bad { box-shadow: 4px 4px 0 var(--c1); }
+.go { min-height: 66px; border-radius: 18px; }
+.chips li { border: 2.5px solid var(--line); border-radius: 999px; padding-left: 14px; background: var(--c3); color: #111111; box-shadow: 3px 3px 0 var(--line); }
+.chips li:nth-child(3n+2) { background: var(--c4); }
+.chips li:nth-child(3n) { background: var(--c5); }
+.recap { background: var(--c2); color: #111111; border: 3px solid var(--line); border-radius: 16px; }
+.recap span { color: #111111; }
+.method { background: var(--surface); border: 3px solid var(--line); border-radius: 18px; box-shadow: 4px 4px 0 var(--line); transition: transform .15s; }
+.method[aria-checked="true"] { background: var(--c5); color: #111111; transform: rotate(-1.5deg); animation: jelly .55s ease; }
+.method[aria-checked="true"] span, .method[aria-checked="true"] em { color: #111111; }
+.mico { border: 2.5px solid var(--line); border-radius: 12px; }
+.paybox, .upload { background: var(--surface-2); border: 3px solid var(--line); border-radius: 16px; }
+.copy { background: var(--surface); }
+.copyall { border: 3px solid var(--line); border-radius: 14px; box-shadow: 4px 4px 0 var(--line); background: var(--c2); color: #111111; }
+.back { font-weight: 800; }
 
 /* number board */
-.board { border-radius: 26px 26px 0 0; overflow: hidden; box-shadow: var(--lift); }
-.board__head h2 { font-size: 30px; }
-.grid button { border-radius: 10px; font-weight: 600; }
-.rand button { border-radius: 12px; }
+.board { border: 3px solid var(--line); border-bottom: 0; border-radius: 26px 26px 0 0; }
+.board__head h2 { font-size: 28px; }
+.grid button { border: 2.5px solid var(--line); border-radius: 12px; }
+.grid button:disabled { border-style: dashed; }
+.grid button[aria-pressed="true"] { animation: jelly .5s ease; }
+.board__foot { border-top: 3px solid var(--line); }
 
 /* rest of the page */
-.orgcard { margin: 52px 16px 0; border-radius: 22px; }
-.seal { border-radius: 14px; }
-.rank li { border-radius: 16px; }
-.rank li:first-child { background: var(--ink); color: var(--bg); }
-.rank__pos { font-size: 30px; }
-.acc__item { border-radius: 16px; overflow: hidden; }
-.afoot { margin: 72px 16px 0; border-radius: 26px 26px 0 0; background: var(--surface); color: var(--ink); }
-.afoot p { opacity: .75; }
-.buybar { left: 12px; right: 12px; bottom: 26px; padding: 10px 10px 10px 18px; border-radius: 20px; transform: translateY(170%); box-shadow: var(--lift); }
-.buybar.is-on { transform: none; }
+.orgcard { margin: 56px 14px 0; background: var(--c5); border: 3px solid var(--line); border-radius: 24px; box-shadow: 6px 6px 0 var(--line); transform: rotate(-1deg); }
+.seal { border: 2.5px solid var(--line); border-radius: 14px; }
+.rank li { border: 3px solid var(--line); border-radius: 18px; box-shadow: 4px 4px 0 var(--line); background: var(--surface); }
+.rank li:first-child { background: var(--c2); transform: rotate(-1deg); }
+.rank li:nth-child(2) { transform: rotate(1deg); }
+.acc__item { border: 3px solid var(--line); border-radius: 18px; box-shadow: 4px 4px 0 var(--line); overflow: hidden; }
+.acc__item:has(button[aria-expanded="true"]) { background: var(--c4); color: #111111; }
+.acc { gap: 10px; }
+.afoot { position: relative; margin-top: 90px; --zz: var(--line); background: var(--line); color: #ffffff; }
+.afoot .lgmark { color: var(--c2); }
+.buybar { left: 10px; right: 10px; bottom: 26px; padding: 10px 10px 10px 20px; border: 3px solid var(--line); border-radius: 20px; background: var(--c2); color: #111111; transform: translateY(170%); box-shadow: 5px 5px 0 var(--line); }
+.buybar.is-on { transform: none; animation: jelly .6s ease; }
 
 /* results */
-.ok-head h1 { font-size: 76px; }
-.st-head h1 { font-size: 48px; line-height: 1; }
-.tkt { border-radius: 22px; box-shadow: var(--lift); }
-.tkt__prize { font-size: 30px; }
-.num { font-size: 76px; }
-.stubs .num { font-size: 32px; }
-.stubs li { border-radius: 14px; }
-.order { border-collapse: separate; border-spacing: 0; border-radius: 16px; overflow: hidden; }
-.steps3 li, .held li { border-radius: 16px; }
-.why, .support, .held-note, .ord { border-radius: 18px; }
-.held li b { font-size: 34px; }
-.verify h2 { font-size: 44px; }
-.vbar, .vbar span { border-radius: 999px; }
-.mine-body h2 { font-size: 38px; }
+.ok-head h1 { font-size: 80px; color: var(--ink); text-shadow: 4px 4px 0 var(--c1), 8px 8px 0 var(--c5); }
+.st-head h1 { font-size: 46px; line-height: .95; }
+.tkt { border: 3px solid var(--line); border-radius: 22px; box-shadow: 7px 7px 0 var(--line); transform: rotate(-2deg); animation: dropIn .8s cubic-bezier(.2,.8,.3,1.4) both; }
+.tkt::before, .tkt::after { border: 3px solid var(--line); }
+.tkt__stub { border-top: 3px dashed var(--line); }
+.tkt__prize { font-size: 28px; }
+.num { font-size: 72px; }
+.num i { min-width: .58em; }
+.stubs li { border: 3px solid var(--line); border-radius: 16px; box-shadow: 3px 3px 0 var(--line); text-align: center; }
+.stubs li:nth-child(3n+1) { background: var(--c3); color: #111111; }
+.stubs li:nth-child(3n+2) { background: var(--c4); color: #111111; }
+.stubs li:nth-child(3n) { background: var(--c5); color: #111111; }
+.order { border-collapse: separate; border-spacing: 0; border: 3px solid var(--line); border-radius: 18px; overflow: hidden; }
+.steps3 li, .held li, .why, .support, .held-note, .ord { border: 3px solid var(--line); border-radius: 18px; }
+.steps3 li.is-now { background: var(--c2); color: #111111; transform: rotate(-1deg); }
+.st-icon { border: 3px solid var(--line); border-radius: 50%; animation: bob 2s ease-in-out infinite; }
+.held li b { font-size: 32px; }
+.verify h2 { font-size: 40px; }
+.vbar { border: 3px solid var(--on-island); border-radius: 999px; height: 16px; }
+.vbar span { border-radius: 999px; background: repeating-linear-gradient(-45deg, var(--c2) 0 8px, var(--c1) 8px 16px); }
+.mine-body h2 { font-size: 36px; }
 
-.num i { min-width: .5em; }
+/* motion */
+.rise { animation: bounceIn .75s cubic-bezier(.2,.8,.3,1.3) both; }
+.stage.is-in { animation: stagePop .5s cubic-bezier(.2,.8,.3,1.4) both; }
+@keyframes bounceIn { from { opacity: 0; transform: translateY(40px) scale(.9) rotate(-3deg); } 65% { opacity: 1; transform: translateY(-6px) scale(1.02) rotate(1deg); } to { opacity: 1; transform: none; } }
+@keyframes stagePop { from { opacity: 0; transform: scale(.85) rotate(-4deg); } to { opacity: 1; transform: none; } }
+@keyframes jelly { 0% { transform: scale(1); } 30% { transform: scale(1.12, .88); } 50% { transform: scale(.92, 1.08); } 70% { transform: scale(1.04, .96); } 100% { transform: scale(1); } }
+@keyframes wobble { 25% { transform: rotate(-2deg); } 75% { transform: rotate(2deg); } }
+@keyframes wiggle { 0%, 70%, 100% { transform: rotate(8deg); } 80% { transform: rotate(-10deg) scale(1.12); } 90% { transform: rotate(12deg) scale(1.12); } }
+@keyframes spinwobble { 0%, 100% { transform: rotate(-12deg) scale(1); } 50% { transform: rotate(14deg) scale(1.08); } }
+@keyframes bob { 50% { transform: translateY(-10px) rotate(6deg); } }
+@keyframes bobspin { 50% { transform: translateY(-10px) rotate(40deg); } }
+@keyframes nudge { 50% { transform: translateY(4px); } }
+@keyframes flipPop { from { transform: rotateX(90deg) scale(1.3); opacity: .3; } }
+@keyframes stripes { to { background-position: 28px 0; } }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-60px) rotate(-12deg); } to { opacity: 1; transform: rotate(-2deg); } }
+/* while a phone is off screen only the endless decorative loops pause; entrances always finish */
+.fx-paused .fx-shape, .fx-paused .fx-badge, .fx-paused .fx-ribbon__track, .fx-paused .ticker__track, .fx-paused .bar span, .fx-paused .qbtn em, .fx-paused .hero .btn--accent::after, .fx-paused .st-icon, .fx-paused .dot { animation-play-state: paused !important; }
+
+
+/* ---------- Página completa (sin marcos de iPhone) ---------- */
+html, body { height: 100%; }
+body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
+[hidden] { display: none !important; }
+.shell { position: relative; height: 100%; max-width: 560px; margin: 0 auto; }
+@media (min-width: 600px) { body.standalone { background: var(--surface); } }
+.screen--full { width: 100%; height: 100%; border-radius: 0; }
+.standalone .island, .standalone .sbar, .standalone .homebar { display: none; }
+.standalone .scroller { inset: 0; padding-top: env(safe-area-inset-top, 0px); }
+.standalone .verify { inset: 0; }
+.standalone .lightbox { grid-template-rows: env(safe-area-inset-top, 0px) 56px minmax(0, 1fr); }
+.standalone .buybar, .standalone .board__foot { padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
+.standalone .afoot { padding-bottom: 110px; }
+.standalone .board { height: calc(100% - 40px); }
 </style>
-
-<div class="wrap">
-  <header class="top">
-    <div class="top__bar">
-      <span class="lgmark"><i aria-hidden="true"></i>LottoGE</span>
-      <button class="themebtn" type="button" data-global-theme aria-label="Cambiar entre modo claro y oscuro">
-        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"/></svg>
-        <span data-theme-label>Modo oscuro</span>
-      </button>
-    </div>
-    <h1 class="wide">Plantilla elegante</h1>
-    <div class="top__row">
-      <p class="top__lede">La plantilla sobria de LottoGE: fondo blanco, títulos con serifa y tarjetas suaves; el color del rifero solo donde se compra. El mismo flujo de compra que la minimalista. Cambia la rifa en el panel y todos los teléfonos se actualizan.</p>
-      <p class="top__note">Ejemplo cargado: el flyer del Toyota Agya 2026, sorteo del jueves 22 de octubre.</p>
-    </div>
-  </header>
-</div>
-
-<section class="cfg" aria-labelledby="cfg-h">
-  <div class="wrap cfg__in">
-    <div class="cfg__intro">
-      <h2 id="cfg-h">Configura la rifa</h2>
-      <p>Así lo cargaría el rifero desde su panel. La misma plantilla sirve para un carro, una moto, efectivo o un viaje.</p>
-      <p class="top__note">Demo: nada de esto se guarda ni sale de tu navegador.</p>
-    </div>
-    <form data-cfg-form novalidate>
-      <fieldset>
-        <legend>Rifero</legend>
-        <div class="f"><label for="cfg-rifero">Nombre de la marca</label><input class="in" id="cfg-rifero" data-cfg="rifero" maxlength="40"></div>
-        <div class="f2">
-          <div class="f"><label for="cfg-handle">Instagram</label><input class="in" id="cfg-handle" data-cfg="handle" maxlength="30"></div>
-          <div class="f"><label for="cfg-support">Correo de soporte</label><input class="in" id="cfg-support" data-cfg="support" type="email" inputmode="email" maxlength="60"></div>
-        </div>
-        <div class="f"><label for="cfg-conalot">Autorización CONALOT</label><input class="in" id="cfg-conalot" data-cfg="conalot" maxlength="40"></div>
-      </fieldset>
-      <fieldset>
-        <legend>Premios</legend>
-        <div class="f"><label for="cfg-prize">1er premio</label><input class="in" id="cfg-prize" data-cfg="prize" maxlength="48"></div>
-        <div class="f"><label for="cfg-extra">Extra del 1er premio (opcional)</label><input class="in" id="cfg-extra" data-cfg="prizeExtra" maxlength="48"></div>
-        <div class="f2">
-          <div class="f"><label for="cfg-second">2do premio</label><input class="in" id="cfg-second" data-cfg="second" maxlength="32"></div>
-          <div class="f"><label for="cfg-third">3er premio</label><input class="in" id="cfg-third" data-cfg="third" maxlength="32"></div>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Venta</legend>
-        <div class="f2">
-          <div class="f"><label for="cfg-price">Precio por boleto (Bs)</label><input class="in" id="cfg-price" data-cfg="price" inputmode="numeric" maxlength="9"></div>
-          <div class="f"><label for="cfg-rate">Tasa BCV (Bs por $)</label><input class="in" id="cfg-rate" data-cfg="rate" inputmode="decimal" maxlength="9"></div>
-        </div>
-        <div class="f2">
-          <div class="f"><label for="cfg-total">Cantidad de números</label>
-            <select class="in" id="cfg-total" data-cfg="total"><option value="100">100 (2 cifras)</option><option value="1000">1.000 (3 cifras)</option><option value="10000">10.000 (4 cifras)</option></select></div>
-          <div class="f"><label for="cfg-sold">Vendido hasta ahora (%)</label><input class="in" id="cfg-sold" data-cfg="soldPct" inputmode="numeric" maxlength="2"></div>
-        </div>
-        <p class="cfg__err" data-cfg-err hidden></p>
-      </fieldset>
-      <fieldset>
-        <legend>Sorteo</legend>
-        <div class="f2">
-          <div class="f"><label for="cfg-date">Fecha</label><input class="in" id="cfg-date" data-cfg="date" type="date"></div>
-          <div class="f"><label for="cfg-time">Hora del 1er premio</label><input class="in" id="cfg-time" data-cfg="time" type="time"></div>
-        </div>
-        <div class="f"><label for="cfg-lottery">Lotería con la que juega</label><input class="in" id="cfg-lottery" data-cfg="lottery" maxlength="30"></div>
-      </fieldset>
-      <fieldset style="grid-column: 1 / -1">
-        <legend>Marca e imagen</legend>
-        <div class="f"><span id="cfg-color-l">Color de la marca</span><div class="swatches" role="radiogroup" aria-labelledby="cfg-color-l" data-swatches></div></div>
-        <div class="f"><span>Fotos del premio <small>(se deslizan en la página; la primera es la portada, hasta 10)</small></span>
-          <ul class="thumbs" data-thumbs aria-label="Fotos cargadas"></ul>
-          <div class="imgrow">
-            <input class="sr-only" id="cfg-img" type="file" accept="image/*" multiple data-cfg-img>
-            <label class="pbtn" for="cfg-img">Agregar fotos</label>
-            <button class="pbtn pbtn--ghost" type="button" data-cfg-sample-img>Usar fotos de ejemplo</button>
-          </div>
-        </div>
-      </fieldset>
-      <div class="cfg__foot">
-        <button class="pbtn" type="button" data-cfg-reset>Restaurar el ejemplo</button>
-        <p>Los cambios se aplican al terminar de escribir. Cada teléfono vuelve a su pantalla inicial.</p>
-      </div>
-    </form>
-  </div>
-</section>
-
-<div class="wrap">
-  <main>
-    <section class="group" aria-labelledby="g1">
-      <div class="group__head">
-        <h2 id="g1">La página de la rifa</h2>
-        <p>Una sola página. El botón “Comprar boletos” baja hasta el recuadro de compra, que está debajo de los premios.</p>
-      </div>
-      <div class="gallery">
-        <figure class="device" data-init='{"view":"home"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Inicio</h3><p>Las fotos del premio en un carrusel, el premio, la fecha y el precio en Bs y $.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home","slide":1}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Fotos deslizables</h3><p>El rifero sube las fotos que quiera: por fuera, por dentro, de lado. Se deslizan con el dedo o con las flechas.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home","scrollTo":"clock"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Cuenta regresiva y premios</h3><p>Tiempo para el cierre, porcentaje vendido y los tres premios, como en el flyer.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home","flyer":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Fotos en grande</h3><p>“Ver en grande” muestra todas las fotos completas, una debajo de otra, empezando por la que se estaba viendo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-      </div>
-    </section>
-
-    <section class="group" aria-labelledby="g2">
-      <div class="group__head">
-        <h2 id="g2">La compra, en el mismo recuadro</h2>
-        <p>Elige boletos y toca “Participar”: en ese mismo lugar aparecen los datos y después el pago. Siempre se puede volver a cambiar la cantidad.</p>
-      </div>
-      <div class="gallery">
-        <figure class="device" data-init='{"view":"home","scrollTo":"buy","qty":2}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Al azar</h3><p>Cantidades rápidas, − y +, y el botón “Participar” con el total.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home","scrollTo":"buy","mode":"manual","picks":["first","second","third"]}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Manual</h3><p>Desaparecen las cantidades rápidas: la cantidad es la de números elegidos.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home","scrollTo":"buy","mode":"manual","picks":["first","second"],"board":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Tablero de números</h3><p>Buscar, elegir al azar, ir por series. Los vendidos salen tachados.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"data","qty":2,"cedula":"18456732","estado":"Zulia"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Tus datos</h3><p>Tras “Participar”, en el mismo recuadro. Con la cédula se llenan nombre, teléfono y correo, donde llegan los números.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Pago</h3><p>Cada método con su color. Los datos para pagar se copian uno a uno o todos de una vez.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190","verifying":true,"hold":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Verificando el pago</h3><p>En la demo se queda aquí; en las otras pantallas avanza sola a los números.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-      </div>
-    </section>
-
-    <section class="group" aria-labelledby="g3">
-      <div class="group__head">
-        <h2 id="g3">Después de pagar</h2>
-        <p>Pago Móvil al instante se verifica solo con el banco y entrega los números de una vez, o rechaza la compra si un dato no coincide. Los pagos manuales quedan reservados hasta que el rifero los revise.</p>
-      </div>
-      <div class="gallery">
-        <figure class="device" data-init='{"view":"ok","qty":2,"cedula":"18456732","method":"pm-auto","ref":"004821"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>¡Listo! Números revelados</h3><p>Dígito a dígito y con confeti. Se envían al correo del comprador.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"held","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Reservados, al azar</h3><p>Pago manual con boletos al azar: no se muestran números. Se asignan al aprobar el pago y llegan por correo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"held","mode":"manual","picks":["first","second"],"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Reservados, números elegidos</h3><p>Si eligió sus números, los ve apartados mientras el rifero aprueba o rechaza el comprobante desde su panel.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"rej","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004820","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Compra rechazada</h3><p>Pago Móvil al instante con un dato mal: el banco no encuentra el pago. En la demo, una referencia que termina en 0 da este resultado.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"mine","cedula":"18456732","searched":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Mis boletos</h3><p>Consulta por cédula, sin cuenta ni contraseña: pagados y por verificar.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-        <figure class="device" data-init='{"view":"home"}'><div class="frame" data-flip><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3 data-flip-title>Inicio en el otro modo</h3><p>La misma página en el modo contrario al de esta vista. El color del rifero se mantiene.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
-      </div>
-    </section>
-  </main>
-
-  <footer class="foot">
-    <p><strong>Prototipo de demostración.</strong> No procesa pagos ni guarda datos. El rifero (Rifas La Bendición), los compradores, cuentas, montos, el nº CONALOT y la tasa BCV son de ejemplo.</p>
-    <p>El flyer del Toyota Agya 2026 y las fotos de ejemplo del carrusel son material de prueba aportado por el cliente.</p>
-  </footer>
-</div>
-
+</head>
+<body class="standalone">
+<!-- Generado con build_front.py a partir de vista-previa/index.html. No editar a mano: cambia la vista previa y vuelve a generar. -->
+<div class="shell"><div class="screen screen--full" id="app"></div></div>
+<script src="config.js"></script>
 <script>
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -823,7 +781,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   const ESTADOS = ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital',
     'Falcón', 'Guárico', 'La Guaira', 'Lara', 'Mérida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo',
     'Yaracuy', 'Zulia', 'Fuera del país'];
-  let CFG = JSON.parse(JSON.stringify(SAMPLE));
+  let CFG = Object.assign(JSON.parse(JSON.stringify(SAMPLE)), window.LOTTOGE_RIFA || {});
 
   /* ---------- formatting (es-VE) ---------- */
   const group = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -871,16 +829,17 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     root.querySelectorAll('[data-live="bar"]').forEach(n => n.style.width = (s / CFG.total * 100).toFixed(1) + '%');
     root.querySelectorAll('[data-live-bar]').forEach(n => n.setAttribute('aria-valuenow', pct));
   };
+  const tick = (n, v) => { if (n.textContent === v) return; n.textContent = v; n.classList.remove('tick'); void n.offsetWidth; n.classList.add('tick'); };
   const paintClock = (root = document) => {
     let t = Math.max(0, D.target - Date.now());
     const d = Math.floor(t / 864e5); t -= d * 864e5;
     const h = Math.floor(t / 36e5); t -= h * 36e5;
     const m = Math.floor(t / 6e4), s = Math.floor((t - m * 6e4) / 1e3);
     const two = v => String(v).padStart(2, '0');
-    root.querySelectorAll('[data-cd="d"]').forEach(n => n.textContent = two(d));
-    root.querySelectorAll('[data-cd="h"]').forEach(n => n.textContent = two(h));
-    root.querySelectorAll('[data-cd="m"]').forEach(n => n.textContent = two(m));
-    root.querySelectorAll('[data-cd="s"]').forEach(n => n.textContent = two(s));
+    root.querySelectorAll('[data-cd="d"]').forEach(n => tick(n, two(d)));
+    root.querySelectorAll('[data-cd="h"]').forEach(n => tick(n, two(h)));
+    root.querySelectorAll('[data-cd="m"]').forEach(n => tick(n, two(m)));
+    root.querySelectorAll('[data-cd="s"]').forEach(n => tick(n, two(s)));
   };
   setInterval(() => paintClock(), 1000);
   setInterval(() => {
@@ -1229,6 +1188,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       this.bind();
       this.setupHome();
       this.setupGallery();
+      themeFx(this);
       if (this.s.cedula) this.fillPerson(personFor(this.s.cedula), false);
       this.syncInputs();
       this.show(this.s.view);
@@ -1247,7 +1207,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       }
     }
 
-    destroy() { this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
+    destroy() { this.fxio && this.fxio.disconnect(); this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
     later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
 
     bind() {
@@ -1685,99 +1645,50 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     app.raf = requestAnimationFrame(frame);
   }
 
-  /* ---------- theme ---------- */
-  const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
-  const syncFlip = () => {
-    const dark = isDark();
-    document.querySelectorAll('[data-flip]').forEach(f => { if (!f.dataset.flipped) { f.classList.toggle('force-light', dark); f.classList.toggle('force-dark', !dark); } });
-    document.querySelectorAll('[data-flip-title]').forEach(h => { const fr = h.closest('.device').querySelector('[data-flip]'); h.textContent = fr.classList.contains('force-dark') ? 'Inicio en modo oscuro' : 'Inicio en modo claro'; });
-    const l = document.querySelector('[data-theme-label]'); if (l) l.textContent = dark ? 'Modo claro' : 'Modo oscuro';
-  };
-  function toggleTheme(device) {
-    const f = device && device.querySelector('.force-dark, .force-light');
-    if (f) { const d = f.classList.contains('force-dark'); f.classList.toggle('force-dark', !d); f.classList.toggle('force-light', d); f.dataset.flipped = '1'; syncFlip(); return; }
-    document.documentElement.dataset.theme = isDark() ? 'light' : 'dark';
-    document.querySelectorAll('[data-flip]').forEach(fr => delete fr.dataset.flipped);
-    syncFlip();
+  /* ---------- Pop: decorations added on top of the shared page ---------- */
+  function themeFx(app) {
+    const el = app.el;
+    const shapes = (host, list) => host && host.insertAdjacentHTML('afterbegin', list.map(([cls, style]) => `<i class="fx-shape ${cls}" style="${style}" aria-hidden="true"></i>`).join(''));
+    const hero = el.querySelector('.hero');
+    hero.insertAdjacentHTML('beforeend', `<div class="fx-badge" aria-hidden="true"><b>Solo</b><span>Bs ${num(CFG.price)}</span></div>`);
+    shapes(hero, [
+      ['s-circle', 'width:58px;height:58px;left:-18px;top:150px;background:var(--c2)'],
+      ['s-star', 'width:54px;height:54px;right:6px;top:300px;background:var(--c3);animation-delay:-1.2s'],
+      ['s-ring', 'width:70px;height:70px;right:-26px;bottom:170px;animation-delay:-2.5s'],
+      ['s-pill', 'width:84px;height:24px;left:-24px;top:8px;background:var(--c5);animation-delay:-.8s']
+    ]);
+    shapes(el.querySelector('.prizes'), [
+      ['s-tri', 'width:48px;height:42px;right:22px;top:26px;background:var(--c1)'],
+      ['s-circle', 'width:34px;height:34px;left:46%;top:22px;background:var(--c4);animation-delay:-1.6s']
+    ]);
+    shapes(el.querySelector('[data-sec="buy"]'), [
+      ['s-star', 'width:46px;height:46px;right:-14px;top:-20px;background:var(--c1);animation-delay:-.4s'],
+      ['s-circle', 'width:30px;height:30px;left:-12px;bottom:60px;background:var(--c3);animation-delay:-2s']
+    ]);
+    const words = ['¡Compra ya!', CFG.prize, `Solo Bs ${num(CFG.price)}`, `Sorteo ${D.short}`].map(esc);
+    const ribbon = cls => `<div class="fx-ribbon ${cls}" aria-hidden="true"><div class="fx-ribbon__track">${words.map(w => `<span>${w}</span><span>★</span>`).join('').repeat(2)}</div></div>`;
+    hero.insertAdjacentHTML('afterend', ribbon(''));
+    el.querySelector('[data-sec="buy"]').insertAdjacentHTML('beforebegin', ribbon('fx-ribbon--b'));
+    // pause the fun while this phone is off screen
+    app.fxio = new IntersectionObserver(([e]) => el.classList.toggle('fx-paused', !e.isIntersecting));
+    app.fxio.observe(app.device);
   }
-  document.querySelector('[data-global-theme]').addEventListener('click', () => toggleTheme(null));
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncFlip);
-  syncFlip();
 
-  /* ---------- phones ---------- */
-  const devices = [...document.querySelectorAll('.device')];
-  const mount = dev => { if (dev._app) dev._app.destroy(); dev._app = new App(dev.querySelector('.screen'), JSON.parse(dev.dataset.init || '{}'), dev); };
-  const mountAll = () => devices.forEach(mount);
-  devices.forEach(dev => dev.querySelector('.reset').addEventListener('click', () => mount(dev)));
 
-  /* ---------- configuration panel ---------- */
-  const form = document.querySelector('[data-cfg-form]'), cfgErr = document.querySelector('[data-cfg-err]');
-  document.querySelector('[data-swatches]').innerHTML = Object.entries(ACCENTS).map(([k, [c, ci, name]]) =>
-    `<label class="sw" style="--c:${c};--ci:${ci}"><input type="radio" name="cfg-accent" value="${k}"><span>${name}</span></label>`).join('');
-  const applyAccent = () => { const [c, ci] = ACCENTS[CFG.accent]; document.documentElement.style.setProperty('--accent', c); document.documentElement.style.setProperty('--accent-ink', ci); };
-  const fillForm = () => {
-    form.querySelectorAll('[data-cfg]').forEach(i => { const v = CFG[i.dataset.cfg]; i.value = i.dataset.cfg === 'rate' ? num(v, 2) : v; i.classList.remove('is-bad'); });
-    form.querySelector(`input[name="cfg-accent"][value="${CFG.accent}"]`).checked = true;
-    renderThumbs();
-    cfgErr.hidden = true;
-  };
-  /* Each rule returns { v } when the value is usable, or the message to show. */
-  const RULES = {
-    price: x => /^\d{1,9}$/.test(x) && +x >= 1 ? { v: +x } : 'El precio debe ser un número entero de 1 o más.',
-    rate: x => { const n = parseFloat(x.includes(',') ? x.replace(/\./g, '').replace(',', '.') : x); return /^[\d.,]+$/.test(x) && n > 0 ? { v: n } : 'La tasa debe ser un número mayor que cero, por ejemplo 881,88.'; },
-    soldPct: x => /^\d{1,2}$/.test(x) ? { v: +x } : 'El porcentaje vendido va de 0 a 99.',
-    total: x => ({ v: +x }),
-    date: x => /^\d{4}-\d{2}-\d{2}$/.test(x) ? { v: x } : 'Elige la fecha del sorteo.',
-    time: x => /^\d{2}:\d{2}$/.test(x) ? { v: x } : 'Elige la hora del sorteo.',
-    prize: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre del 1er premio.',
-    rifero: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre de la marca del rifero.',
-    support: x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x.trim()) ? { v: x.trim() } : 'Escribe un correo de soporte válido.'
-  };
-  let tm;
-  const commit = () => { D = derive(CFG); live.bump = 0; mountAll(); paintLive(); };
-  form.addEventListener('input', e => {
-    const i = e.target, k = i.dataset.cfg;
-    if (i.name === 'cfg-accent') { CFG.accent = i.value; applyAccent(); return; }
-    if (!k) return;
-    const r = RULES[k] ? RULES[k](i.value) : { v: i.value.trim() };
-    const bad = typeof r === 'string';
-    i.classList.toggle('is-bad', bad);
-    if (bad) { cfgErr.textContent = r; cfgErr.hidden = false; return; }
-    if (!form.querySelector('.is-bad')) cfgErr.hidden = true;
-    CFG[k] = r.v;
-    clearTimeout(tm); tm = setTimeout(commit, 350);
-  });
-  form.addEventListener('submit', e => e.preventDefault());
-  const thumbs = document.querySelector('[data-thumbs]');
-  const renderThumbs = () => {
-    thumbs.innerHTML = CFG.images.map((src, i) => `<li><img src="${src}" alt="Foto ${i + 1}" width="64" height="64">${i === 0 ? '<small>Portada</small>' : ''}${CFG.images.length > 1 ? `<button type="button" data-rm="${i}" aria-label="Quitar la foto ${i + 1}">×</button>` : ''}</li>`).join('');
-  };
-  thumbs.addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; CFG.images.splice(+b.dataset.rm, 1); renderThumbs(); commit(); });
-  document.querySelector('[data-cfg-img]').addEventListener('change', e => {
-    const files = [...(e.target.files || [])];
-    e.target.value = '';
-    if (!files.length) return;
-    const bad = files.find(f => !/^image\//.test(f.type)) ? 'Todos los archivos deben ser imágenes (JPG o PNG).' : files.find(f => f.size > 8 * 1024 * 1024) ? 'Hay una foto de más de 8 MB. Usa una más liviana.' : CFG.images.length + files.length > 10 ? `Puedes tener hasta 10 fotos; ya hay ${CFG.images.length}.` : '';
-    if (bad) { cfgErr.textContent = bad; cfgErr.hidden = false; return; }
-    cfgErr.hidden = true;
-    Promise.all(files.map(f => new Promise(res => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsDataURL(f); })))
-      .then(urls => { CFG.images.push(...urls); renderThumbs(); commit(); });
-  });
-  document.querySelector('[data-cfg-sample-img]').addEventListener('click', () => { CFG.images = [...SAMPLE.images]; renderThumbs(); commit(); });
-  document.querySelector('[data-cfg-reset]').addEventListener('click', () => { CFG = JSON.parse(JSON.stringify(SAMPLE)); fillForm(); applyAccent(); commit(); });
+  /* ---------- tema claro / oscuro ---------- */
+  const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+  function toggleTheme() { document.documentElement.dataset.theme = isDark() ? 'light' : 'dark'; }
 
-  fillForm(); applyAccent(); mountAll();
+  /* ---------- color de la marca: un nombre de ACCENTS o un hex propio ---------- */
+  const [ac, aci] = ACCENTS[CFG.accent] || [CFG.accent, CFG.accentInk || '#ffffff'];
+  document.documentElement.style.setProperty('--accent', ac);
+  document.documentElement.style.setProperty('--accent-ink', aci);
+  document.title = `${CFG.prize} · ${CFG.rifero}`;
 
-  /* ---------- fit the phones to the width ---------- */
-  const fit = () => {
-    const W = document.querySelector('main').clientWidth, gap = 48, FW = 417;
-    let z;
-    if (W >= 3 * FW * .8 + 2 * gap) z = Math.min(.86, (W - 2 * gap) / (3 * FW));
-    else if (W >= 2 * FW * .66 + gap) z = Math.min(.86, (W - gap) / (2 * FW));
-    else z = Math.min(.92, W / FW);
-    document.documentElement.style.setProperty('--z', z.toFixed(4));
-  };
-  fit();
-  new ResizeObserver(fit).observe(document.querySelector('main'));
+  /* ---------- montar la página ---------- */
+  const host = document.getElementById('app');
+  new App(host, { view: 'home' }, host);
 })();
 </script>
+</body>
+</html>

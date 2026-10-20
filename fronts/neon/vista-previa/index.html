@@ -1,13 +1,9 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rifa · LottoGE</title>
-<meta name="description" content="Compra de boletos de la rifa, sobre la plataforma LottoGE.">
+<title>LottoGE Plantilla Neón</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Front de compra de rifas LottoGE: todo en la misma página, con selección de boletos, datos y pago en el mismo lugar. Configurable en vivo.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Unbounded:wght@500..900&display=swap" rel="stylesheet">
 <style>
 /* Layout: a neutral platform shell that steps back so each rifero's flyer and brand colour carry the page.
    The whole purchase happens inside one box on the landing: tickets, then buyer data, then payment, in the same place. */
@@ -527,156 +523,354 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   .ticker__viewport { overflow-x: auto; scrollbar-width: none; }
   .ticker__track, .dot { animation: none !important; }
 }
-/* ================= Plantilla VIBRANTE =================
-   The rifero's colour as whole fields, condensed shouting type, round chunky "game" buttons
-   that press down, stickers for urgency. Same structure and logic as the minimalist template. */
+/* ================= Plantilla NEÓN =================
+   A night fair: drifting aurora behind the page, neon-lit titles, light rays turning behind the prize,
+   diagonal ribbons running the prize and price, a rainbow border spinning around the purchase box,
+   shine sweeping the buttons, a countdown that flips every second. Same structure and logic. */
+@property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 :root, .force-light {
-  --bg: #fbfaf7;
-  --surface: #efece6;
-  --surface-2: #e0dcd3;
-  --ink: #141216;
-  --muted: #5a5560;
-  --hot: #ff2e55;
+  --bg: #f1efff;
+  --surface: #ffffff;
+  --surface-2: #e4e1fa;
+  --ink: #15132e;
+  --muted: #57567c;
+  --hot: #e5129d;
   --hot-ink: #ffffff;
-  --shade: rgba(20, 18, 22, .28);
-  --font: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --cyan: #0a8fc2;
+  --glow: .45;
+  --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --display: "Unbounded", "Archivo Black", Impact, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #100f13; --surface: #1d1b22; --surface-2: #2b2832; --ink: #fbf9fd; --muted: #aaa4b2;
-    --hot: #ff4d6d; --hot-ink: #ffffff; --shade: rgba(0, 0, 0, .55);
+    --bg: #07081a; --surface: #121433; --surface-2: #1f2250; --ink: #f6f5ff; --muted: #a9abd8;
+    --hot: #ff2bd6; --hot-ink: #ffffff; --cyan: #22e4ff; --glow: .85;
   }
 }
 :root[data-theme="dark"], .force-dark {
-  --bg: #100f13; --surface: #1d1b22; --surface-2: #2b2832; --ink: #fbf9fd; --muted: #aaa4b2;
-  --hot: #ff4d6d; --hot-ink: #ffffff; --shade: rgba(0, 0, 0, .55);
+  --bg: #07081a; --surface: #121433; --surface-2: #1f2250; --ink: #f6f5ff; --muted: #a9abd8;
+  --hot: #ff2bd6; --hot-ink: #ffffff; --cyan: #22e4ff; --glow: .85;
 }
-.wide { font-stretch: 62%; font-weight: 900; letter-spacing: 0; line-height: .88; }
 
-/* buttons: pills that press down */
-.app .btn { border-radius: 999px; font-weight: 800; font-stretch: 100%; text-transform: uppercase; letter-spacing: .02em; }
-.app .btn--accent, .app .btn--ink { box-shadow: 0 5px 0 var(--shade); }
-.app .btn--accent:active, .app .btn--ink:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--shade); }
-.app .btn:disabled { box-shadow: none; }
+/* display face */
+.wide, .hero__title, .price__bs, .h2, .buy__h, .p1 b, .p23 b, .cd b, .sold__pct, .num, .tkt__prize, .verify h2,
+.mine-body h2, .board__head h2, .qbtn b, .rank__pos, .recap b, .held li b, .fx-ribbon__track {
+  font-family: var(--display); font-stretch: 100%; font-weight: 800; letter-spacing: -0.03em; text-transform: uppercase;
+}
+.top h1 { font-size: clamp(40px, 8vw, 128px); line-height: .95; }
+
+/* the aurora: three soft lights drifting behind every page */
+.view { background: var(--bg); }
+.fx-aurora { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.fx-aurora i { position: absolute; width: 420px; height: 420px; border-radius: 50%; opacity: var(--glow); }
+.fx-aurora i:nth-child(1) { background: radial-gradient(circle, var(--hot) 0, transparent 62%); left: -180px; top: 80px; animation: drift1 16s ease-in-out infinite alternate; }
+.fx-aurora i:nth-child(2) { background: radial-gradient(circle, var(--cyan) 0, transparent 62%); right: -200px; top: 360px; animation: drift2 19s ease-in-out infinite alternate; }
+.fx-aurora i:nth-child(3) { background: radial-gradient(circle, var(--accent) 0, transparent 62%); left: 0; bottom: -200px; animation: drift3 22s ease-in-out infinite alternate; }
+.scroller { z-index: 1; }
+.nav { background: color-mix(in srgb, var(--bg) 82%, transparent); }
+
+/* buttons: pills with a sweeping shine and a breathing glow */
+.app .btn { border-radius: 999px; position: relative; overflow: hidden; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 15px; }
+.app .btn--accent { animation: glowpulse 2.6s ease-in-out infinite; }
+.app .btn--accent::after, .app .btn--ink::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%); transform: translateX(-130%); animation: shine 3.2s ease-in-out infinite; pointer-events: none; }
+.app .btn:disabled { animation: none; }
+.app .btn:disabled::after { display: none; }
 .app .btn--ghost { border-radius: 999px; }
-.chip, .flyerbtn, .gal__count, .gal__nav, .lightbox__bar button, .copy, .copyall, .series button, .rand button, .tag { border-radius: 999px; }
+.chip, .flyerbtn, .gal__count, .gal__nav, .lightbox__bar button, .copy, .copyall, .series button, .rand button, .tag, .seg, .seg button { border-radius: 999px; }
 .org__mark, .board__x, .st-icon { border-radius: 50%; }
+.org__mark { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--hot), 0 0 18px var(--hot); }
 
-/* top: hot ticker, accent hero */
-.ticker { background: var(--hot); color: var(--hot-ink); }
-.ticker__label { background: var(--ink); color: var(--bg); border-radius: 0 999px 999px 0; }
-.hero { background: var(--accent); color: var(--accent-ink); padding: 14px 14px 0; border-radius: 0 0 34px 34px; }
-.hero__img { border-radius: 26px; overflow: hidden; }
-.hero__body { padding: 18px 6px 28px; }
-.hero__when { color: inherit; opacity: .8; font-weight: 600; }
-.hero__title { font-size: 58px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .88; letter-spacing: 0; }
-.hero__extra { justify-self: start; margin-top: 12px; background: var(--ink); color: var(--bg); padding: 6px 14px; border-radius: 999px; transform: rotate(-2deg); font-weight: 800; font-size: 18px; }
-.price { margin: 24px 0 20px; }
-.price__bs { font-size: 54px; font-weight: 900; font-stretch: 62%; letter-spacing: 0; }
-.price__usd, .price__usd b, .live, .live b { color: inherit; }
-.price__usd { opacity: .85; }
-.hero .btn--accent { background: var(--ink); color: var(--bg); }
-.live .dot { color: var(--hot); }
+/* ticker: a moving colour bar */
+.ticker { background: linear-gradient(90deg, var(--hot), var(--cyan), var(--accent), var(--hot)); background-size: 300% 100%; animation: bgslide 8s linear infinite; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+.ticker__label { background: var(--ink); color: var(--bg); border-radius: 0 999px 999px 0; text-shadow: none; }
 
-/* countdown, sold, prizes */
-.clock { padding-top: 28px; }
-.clock p, .sold__n { font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
-.cd { gap: 8px; }
-.cd div { background: var(--surface); color: var(--ink); border-radius: 20px; padding: 14px 0 12px; }
-.cd b { font-size: 44px; font-weight: 900; font-stretch: 62%; }
-.cd span { font-weight: 700; }
-.sold__pct { font-size: 52px; font-weight: 900; font-stretch: 62%; letter-spacing: 0; }
-.bar { height: 18px; border-radius: 999px; }
-.bar span { border-radius: 999px; background: var(--hot); }
+/* hero: light rays turning behind a floating picture, neon title */
+.hero { position: relative; isolation: isolate; overflow: hidden; }
+.hero::before { content: ""; position: absolute; left: 50%; top: 190px; width: 900px; height: 900px; margin: -450px 0 0 -450px; z-index: -1;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--accent) 28%, transparent) 0 9deg, transparent 9deg 18deg); animation: spin 40s linear infinite; }
+.hero::after { content: "✦     ✧        ✦   ✧      ✦"; position: absolute; left: 0; right: 0; top: 6px; z-index: 2; white-space: pre; text-align: center; color: var(--accent); font-size: 20px; text-shadow: 0 0 12px var(--accent); animation: twinkle 2.4s ease-in-out infinite; pointer-events: none; }
+.hero__img { margin: 26px 18px 0; border-radius: 26px; overflow: hidden; box-shadow: 0 0 0 2px var(--accent), 0 0 46px color-mix(in srgb, var(--accent) 70%, transparent); animation: floaty 6s ease-in-out infinite; }
+.hero__body { padding: 24px 20px 30px; }
+.hero__when { color: var(--cyan); font-weight: 700; }
+.hero__title { font-size: 34px; line-height: 1.02; text-shadow: 0 0 10px color-mix(in srgb, var(--hot) 70%, transparent), 0 0 32px color-mix(in srgb, var(--hot) 45%, transparent); animation: flicker 5s linear infinite; }
+.hero__extra { justify-self: start; background: linear-gradient(90deg, var(--hot), var(--cyan), var(--accent), var(--hot)); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; font-size: 22px; animation: bgslide 5s linear infinite; }
+.price__bs { font-size: 40px; color: var(--accent); text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 60%, transparent); }
+.live .dot { color: var(--hot); box-shadow: 0 0 10px var(--hot); }
+
+/* ribbons */
+.fx-ribbon { margin: 40px -30px 0; padding: 12px 0; overflow: hidden; transform: rotate(-4deg); background: var(--accent); color: var(--accent-ink); box-shadow: 0 0 34px color-mix(in srgb, var(--accent) 55%, transparent); }
+.fx-ribbon--b { transform: rotate(3deg); background: var(--hot); color: var(--hot-ink); box-shadow: 0 0 34px color-mix(in srgb, var(--hot) 55%, transparent); }
+.fx-ribbon__track { display: flex; width: max-content; font-size: 17px; white-space: nowrap; animation: marquee 18s linear infinite; }
+.fx-ribbon--b .fx-ribbon__track { animation-direction: reverse; }
+.fx-ribbon__track span { padding: 0 12px; }
+
+/* countdown and sold */
+.clock { padding-top: 36px; }
+.clock p { color: var(--cyan); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.cd { gap: 8px; perspective: 400px; }
+.cd div { background: var(--surface); color: var(--ink); border-radius: 18px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cyan) 50%, transparent), 0 0 22px color-mix(in srgb, var(--cyan) 30%, transparent); }
+.cd b { font-size: 30px; color: var(--cyan); text-shadow: 0 0 14px color-mix(in srgb, var(--cyan) 75%, transparent); }
+.cd b.tick { animation: flip .5s cubic-bezier(.2,.8,.3,1.3); }
+.cd span { opacity: 1; color: var(--muted); }
+.sold__pct { font-size: 38px; }
+.bar { height: 16px; border-radius: 999px; }
+.bar span { border-radius: 999px; background: repeating-linear-gradient(45deg, var(--hot) 0 12px, color-mix(in srgb, var(--hot) 55%, #ffffff) 12px 24px); background-size: 34px 34px; animation: stripes .9s linear infinite; box-shadow: 0 0 18px var(--hot); }
 .sold__left b { color: var(--hot); }
-.h2, .buy__h { font-size: 38px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; letter-spacing: 0; line-height: .95; }
-.p1 { background: var(--accent); color: var(--accent-ink); border-radius: 26px; padding: 22px 20px 24px; }
-.p1 b { font-size: 40px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .92; letter-spacing: 0; }
-.p23row { gap: 8px; margin-top: 8px; }
-.p23 { border-radius: 22px; }
-.p23 b { font-size: 24px; font-weight: 900; font-stretch: 75%; }
 
-/* the purchase box */
-.buy { margin: 52px 12px 0; padding: 26px 18px 28px; border-radius: 30px; background: var(--surface); box-shadow: 0 0 0 4px var(--accent); }
-.seg, .seg button { border-radius: 999px; }
-.seg button { font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: .02em; }
+/* prizes: a holographic first prize */
+.h2 { font-size: 26px; }
+.prizes .h2 { color: var(--accent); text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 60%, transparent); }
+.p1 { border-radius: 24px; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,.35); background: linear-gradient(120deg, var(--hot), var(--cyan), var(--accent), var(--hot)); background-size: 300% 300%; animation: bgslide 7s ease-in-out infinite; }
+.p1 small { opacity: .9; }
+.p1 b { font-size: 26px; line-height: 1.05; }
+.p23row { gap: 8px; margin-top: 8px; }
+.p23 { border-radius: 20px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent); }
+.p23 b { font-size: 14px; line-height: 1.2; overflow-wrap: normal; }
+
+/* the purchase box: a rainbow border that never stops turning */
+.buy { position: relative; isolation: isolate; margin: 56px 12px 0; padding: 28px 18px 30px; border-radius: 28px; background: transparent; }
+.buy::before { content: ""; position: absolute; inset: 0; z-index: -2; border-radius: 28px; background: conic-gradient(from var(--ang), var(--accent), var(--hot), var(--cyan), var(--accent)); animation: spinang 4s linear infinite; box-shadow: 0 0 50px color-mix(in srgb, var(--hot) 35%, transparent); }
+.buy::after { content: ""; position: absolute; inset: 3px; z-index: -1; border-radius: 25px; background: var(--surface); }
+.buy__h { font-size: 24px; line-height: 1.05; }
+.seg { background: var(--surface-2); }
 .quick { gap: 10px; margin-top: 18px; }
-.qbtn { border-radius: 22px; text-align: center; place-items: center; padding: 18px 6px 14px; }
-.qbtn b { font-size: 40px; font-weight: 900; font-stretch: 62%; }
-.qbtn em { top: -10px; right: -6px; border-radius: 999px; background: var(--hot); color: var(--hot-ink); transform: rotate(7deg); padding: 3px 10px; }
-.qbtn[aria-pressed="true"] { box-shadow: 0 5px 0 var(--shade); transform: translateY(-3px); }
-.stepper { gap: 8px; }
-.stepper button { border-radius: 50%; font-weight: 700; }
-.field { border-radius: 16px; }
-.stepper .field { border-radius: 999px; font-weight: 900; font-stretch: 75%; font-size: 26px; }
-.go { border-radius: 999px; min-height: 68px; padding: 0 26px; }
-.go b { font-size: 20px; }
-.chips li { border-radius: 999px; padding-left: 14px; background: var(--accent); color: var(--accent-ink); }
-.recap { border-radius: 18px; }
-.recap b { font-size: 22px; font-weight: 900; font-stretch: 75%; }
-.method { border-radius: 22px; }
-.method[aria-checked="true"] { box-shadow: 0 0 0 3px var(--accent); }
-.mico { border-radius: 14px; }
-.paybox { border-radius: 20px; }
-.copyall { min-height: 50px; box-shadow: 0 4px 0 var(--shade); }
-.upload { border-radius: 18px; }
-.back { font-weight: 700; }
+.qbtn { background: var(--surface-2); border-radius: 20px; text-align: center; place-items: center; transition: transform .3s cubic-bezier(.2,.8,.3,1.5), background .2s, box-shadow .3s; }
+.qbtn b { font-size: 26px; }
+.qbtn[aria-pressed="true"] { transform: scale(1.07) rotate(-2deg); box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--accent), 0 0 30px var(--accent); }
+.qbtn em { top: -10px; right: -6px; border-radius: 999px; background: var(--hot); color: var(--hot-ink); padding: 3px 9px; box-shadow: 0 0 14px var(--hot); animation: wiggle 1.8s ease-in-out infinite; }
+.stepper button { background: var(--surface-2); border-radius: 50%; }
+.field { border-radius: 16px; background: var(--surface); }
+.stepper .field { border-radius: 999px; font-family: var(--display); font-weight: 800; }
+.field:focus { border-color: var(--cyan); box-shadow: 0 0 0 4px color-mix(in srgb, var(--cyan) 25%, transparent); }
+.go { border-radius: 999px; min-height: 66px; }
+.chips li { border-radius: 999px; padding-left: 14px; background: var(--accent); color: var(--accent-ink); box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 60%, transparent); }
+.recap { border-radius: 18px; background: var(--surface-2); }
+.recap b { font-size: 20px; color: var(--accent); }
+.method { border-radius: 20px; background: var(--surface-2); transition: transform .3s cubic-bezier(.2,.8,.3,1.5), box-shadow .3s; }
+.method[aria-checked="true"] { transform: scale(1.03); box-shadow: 0 0 0 3px var(--accent), 0 0 26px color-mix(in srgb, var(--accent) 55%, transparent); }
+.mico { border-radius: 14px; box-shadow: 0 0 14px color-mix(in srgb, var(--mc) 70%, transparent); }
+.paybox, .upload { border-radius: 18px; background: var(--surface-2); }
+.copy { background: var(--surface); }
+.copyall { background: linear-gradient(90deg, var(--hot), var(--cyan)); color: #ffffff; }
 
 /* number board */
-.board { border-radius: 30px 30px 0 0; overflow: hidden; }
-.board__head h2 { font-size: 30px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
-.grid button { border-radius: 14px; font-weight: 800; }
+.board { border-radius: 30px 30px 0 0; box-shadow: 0 -10px 60px color-mix(in srgb, var(--hot) 40%, transparent); }
+.board__head h2 { font-size: 22px; }
+.grid button { border-radius: 12px; }
+.grid button[aria-pressed="true"] { box-shadow: 0 0 18px var(--accent); animation: pop .35s cubic-bezier(.2,.8,.3,1.5); }
 
 /* rest of the page */
-.orgcard { margin: 52px 12px 0; border-radius: 26px; }
-.seal { border-radius: 18px; }
-.rank li { border-radius: 20px; }
-.rank li:first-child { box-shadow: 0 5px 0 var(--shade); }
-.rank__pos { font-size: 30px; font-weight: 900; font-stretch: 62%; }
-.acc__item { border-radius: 20px; overflow: hidden; }
-.acc__item button { font-weight: 700; }
-.afoot { border-radius: 34px 34px 0 0; background: var(--accent); color: var(--accent-ink); }
-.afoot .lgmark { font-stretch: 62%; font-size: 26px; }
-.buybar { left: 10px; right: 10px; bottom: 26px; padding: 10px 10px 10px 22px; border-radius: 999px; transform: translateY(170%); box-shadow: 0 8px 0 var(--shade); }
+.orgcard, .rank li, .acc__item { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent); }
+.orgcard { margin: 56px 12px 0; border-radius: 24px; }
+.seal { border-radius: 16px; }
+.rank .h2 { color: var(--hot); text-shadow: 0 0 18px color-mix(in srgb, var(--hot) 55%, transparent); }
+.rank li { border-radius: 18px; }
+.rank li:first-child { box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 55%, transparent); }
+.rank__pos { font-size: 22px; }
+.acc__item { border-radius: 18px; overflow: hidden; }
+.afoot { position: relative; background: var(--surface); color: var(--ink); border-radius: 30px 30px 0 0; box-shadow: 0 -2px 0 var(--hot), 0 -14px 40px color-mix(in srgb, var(--hot) 30%, transparent); }
+.afoot .lgmark { color: var(--accent); text-shadow: 0 0 18px var(--accent); }
+.buybar { left: 10px; right: 10px; bottom: 26px; padding: 10px 10px 10px 22px; border-radius: 999px; transform: translateY(170%); background: var(--surface); color: var(--ink); box-shadow: 0 0 0 2px var(--accent), 0 0 40px color-mix(in srgb, var(--accent) 50%, transparent); }
 .buybar.is-on { transform: none; }
 
 /* results */
-.ok-head h1 { font-size: 92px; }
-.st-head h1 { font-size: 52px; }
-.tkt { border-radius: 26px; transform: rotate(-1.5deg); }
-.num { font-weight: 900; font-stretch: 62%; }
-.tkt__prize { font-size: 34px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
-.stubs li { border-radius: 16px; text-align: center; }
+.ok-head h1 { font-size: 54px; background: linear-gradient(90deg, var(--hot), var(--cyan), var(--accent), var(--hot)); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: bgslide 4s linear infinite; }
+.st-head h1 { font-size: 30px; }
+.tkt { border-radius: 24px; box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 60%, transparent); animation: floaty 5s ease-in-out infinite; }
+.tkt__main { position: relative; overflow: hidden; border-radius: 24px 24px 0 0; }
+.tkt__main::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.6) 50%, transparent 65%); transform: translateX(-130%); animation: shine 3.6s ease-in-out infinite; }
+.tkt__prize { font-size: 22px; }
+.num { font-size: 56px; }
+.num i { min-width: .7em; }
+.stubs li { border-radius: 16px; text-align: center; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cyan) 40%, transparent); }
+.stubs .num { font-size: 22px; color: var(--cyan); }
 .order { border-collapse: separate; border-spacing: 0; border-radius: 18px; overflow: hidden; }
-.steps3 li, .held li { border-radius: 18px; }
-.why, .support, .held-note, .ord { border-radius: 20px; }
-.held li b { font-weight: 900; font-stretch: 62%; font-size: 34px; }
-.verify h2 { font-size: 46px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .92; }
-.vbar, .vbar span { border-radius: 999px; }
-.mine-body h2 { font-size: 40px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
+.steps3 li, .held li, .why, .support, .held-note, .ord { border-radius: 18px; }
+.st-icon { animation: ring 1.8s ease-out infinite; }
+.held li b { font-size: 24px; }
+.verify h2 { font-size: 28px; text-shadow: 0 0 20px var(--hot); }
+.vbar { border-radius: 999px; }
+.vbar span { border-radius: 999px; background: linear-gradient(90deg, var(--hot), var(--cyan)); box-shadow: 0 0 16px var(--cyan); }
+.mine-body h2 { font-size: 26px; }
 
-.num i { min-width: .5em; }
+/* motion */
+.rise { animation: neonIn .8s cubic-bezier(.2,.8,.2,1) both; }
+.p1.rise { animation: neonIn .8s cubic-bezier(.2,.8,.2,1) both, bgslide 7s ease-in-out infinite; }
+.stage.is-in { animation: stageNeon .55s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes neonIn { from { opacity: 0; transform: translateY(34px) scale(.92); } 60% { opacity: 1; } to { opacity: 1; transform: none; } }
+@keyframes stageNeon { from { opacity: 0; transform: perspective(900px) rotateY(-28deg) translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes drift1 { to { transform: translate(140px, 220px) scale(1.25); } }
+@keyframes drift2 { to { transform: translate(-160px, 260px) scale(1.15); } }
+@keyframes drift3 { to { transform: translate(120px, -300px) scale(1.3); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spinang { to { --ang: 360deg; } }
+@keyframes shine { 0%, 55% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+@keyframes glowpulse { 50% { box-shadow: 0 0 26px color-mix(in srgb, var(--accent) 75%, transparent); } }
+@keyframes bgslide { to { background-position: 300% 0; } }
+@keyframes twinkle { 50% { opacity: .25; } }
+@keyframes floaty { 50% { transform: translateY(-8px); } }
+@keyframes flicker { 0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; } 20%, 63% { opacity: .55; } }
+@keyframes flip { from { transform: rotateX(90deg); opacity: .2; } }
+@keyframes stripes { to { background-position: 34px 0; } }
+@keyframes wiggle { 0%, 70%, 100% { transform: rotate(6deg); } 80% { transform: rotate(-8deg) scale(1.1); } 90% { transform: rotate(10deg) scale(1.1); } }
+@keyframes ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--wait) 60%, transparent); } 100% { box-shadow: 0 0 0 18px transparent; } }
+/* while a phone is off screen only the endless decorative loops pause; entrances always finish */
+.fx-paused .fx-aurora i, .fx-paused .fx-ribbon__track, .fx-paused .ticker, .fx-paused .ticker__track, .fx-paused .hero::before, .fx-paused .hero::after, .fx-paused .hero__img, .fx-paused .hero__title, .fx-paused .hero__extra, .fx-paused .btn, .fx-paused .btn::after, .fx-paused .bar span, .fx-paused .buy::before, .fx-paused .qbtn em, .fx-paused .tkt, .fx-paused .tkt__main::after, .fx-paused .ok-head h1, .fx-paused .st-icon, .fx-paused .dot { animation-play-state: paused !important; }
 
-/* ---------- Página completa (sin marcos de iPhone) ---------- */
-html, body { height: 100%; }
-body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
-[hidden] { display: none !important; }
-.shell { position: relative; height: 100%; max-width: 560px; margin: 0 auto; }
-@media (min-width: 600px) { body.standalone { background: var(--surface); } }
-.screen--full { width: 100%; height: 100%; border-radius: 0; }
-.standalone .island, .standalone .sbar, .standalone .homebar { display: none; }
-.standalone .scroller { inset: 0; padding-top: env(safe-area-inset-top, 0px); }
-.standalone .verify { inset: 0; }
-.standalone .lightbox { grid-template-rows: env(safe-area-inset-top, 0px) 56px minmax(0, 1fr); }
-.standalone .buybar, .standalone .board__foot { padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
-.standalone .afoot { padding-bottom: 110px; }
-.standalone .board { height: calc(100% - 40px); }
 </style>
-</head>
-<body class="standalone">
-<!-- Generado con build_front.py a partir de vista-previa/index.html. No editar a mano: cambia la vista previa y vuelve a generar. -->
-<div class="shell"><div class="screen screen--full" id="app"></div></div>
-<script src="config.js"></script>
+
+<div class="wrap">
+  <header class="top">
+    <div class="top__bar">
+      <span class="lgmark"><i aria-hidden="true"></i>LottoGE</span>
+      <button class="themebtn" type="button" data-global-theme aria-label="Cambiar entre modo claro y oscuro">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"/></svg>
+        <span data-theme-label>Modo oscuro</span>
+      </button>
+    </div>
+    <h1 class="wide">Plantilla Neón</h1>
+    <div class="top__row">
+      <p class="top__lede">Una noche de feria: auroras de color que se mueven detrás de la página, títulos que brillan como letreros, rayos girando detrás del premio, cintas que corren y un borde arcoíris alrededor del recuadro de compra. El mismo flujo de compra que la minimalista. Cambia la rifa en el panel y todos los teléfonos se actualizan.</p>
+      <p class="top__note">Ejemplo cargado: el flyer del Toyota Agya 2026, sorteo del jueves 22 de octubre.</p>
+    </div>
+  </header>
+</div>
+
+<section class="cfg" aria-labelledby="cfg-h">
+  <div class="wrap cfg__in">
+    <div class="cfg__intro">
+      <h2 id="cfg-h">Configura la rifa</h2>
+      <p>Así lo cargaría el rifero desde su panel. La misma plantilla sirve para un carro, una moto, efectivo o un viaje.</p>
+      <p class="top__note">Demo: nada de esto se guarda ni sale de tu navegador.</p>
+    </div>
+    <form data-cfg-form novalidate>
+      <fieldset>
+        <legend>Rifero</legend>
+        <div class="f"><label for="cfg-rifero">Nombre de la marca</label><input class="in" id="cfg-rifero" data-cfg="rifero" maxlength="40"></div>
+        <div class="f2">
+          <div class="f"><label for="cfg-handle">Instagram</label><input class="in" id="cfg-handle" data-cfg="handle" maxlength="30"></div>
+          <div class="f"><label for="cfg-support">Correo de soporte</label><input class="in" id="cfg-support" data-cfg="support" type="email" inputmode="email" maxlength="60"></div>
+        </div>
+        <div class="f"><label for="cfg-conalot">Autorización CONALOT</label><input class="in" id="cfg-conalot" data-cfg="conalot" maxlength="40"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Premios</legend>
+        <div class="f"><label for="cfg-prize">1er premio</label><input class="in" id="cfg-prize" data-cfg="prize" maxlength="48"></div>
+        <div class="f"><label for="cfg-extra">Extra del 1er premio (opcional)</label><input class="in" id="cfg-extra" data-cfg="prizeExtra" maxlength="48"></div>
+        <div class="f2">
+          <div class="f"><label for="cfg-second">2do premio</label><input class="in" id="cfg-second" data-cfg="second" maxlength="32"></div>
+          <div class="f"><label for="cfg-third">3er premio</label><input class="in" id="cfg-third" data-cfg="third" maxlength="32"></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Venta</legend>
+        <div class="f2">
+          <div class="f"><label for="cfg-price">Precio por boleto (Bs)</label><input class="in" id="cfg-price" data-cfg="price" inputmode="numeric" maxlength="9"></div>
+          <div class="f"><label for="cfg-rate">Tasa BCV (Bs por $)</label><input class="in" id="cfg-rate" data-cfg="rate" inputmode="decimal" maxlength="9"></div>
+        </div>
+        <div class="f2">
+          <div class="f"><label for="cfg-total">Cantidad de números</label>
+            <select class="in" id="cfg-total" data-cfg="total"><option value="100">100 (2 cifras)</option><option value="1000">1.000 (3 cifras)</option><option value="10000">10.000 (4 cifras)</option></select></div>
+          <div class="f"><label for="cfg-sold">Vendido hasta ahora (%)</label><input class="in" id="cfg-sold" data-cfg="soldPct" inputmode="numeric" maxlength="2"></div>
+        </div>
+        <p class="cfg__err" data-cfg-err hidden></p>
+      </fieldset>
+      <fieldset>
+        <legend>Sorteo</legend>
+        <div class="f2">
+          <div class="f"><label for="cfg-date">Fecha</label><input class="in" id="cfg-date" data-cfg="date" type="date"></div>
+          <div class="f"><label for="cfg-time">Hora del 1er premio</label><input class="in" id="cfg-time" data-cfg="time" type="time"></div>
+        </div>
+        <div class="f"><label for="cfg-lottery">Lotería con la que juega</label><input class="in" id="cfg-lottery" data-cfg="lottery" maxlength="30"></div>
+      </fieldset>
+      <fieldset style="grid-column: 1 / -1">
+        <legend>Marca e imagen</legend>
+        <div class="f"><span id="cfg-color-l">Color de la marca</span><div class="swatches" role="radiogroup" aria-labelledby="cfg-color-l" data-swatches></div></div>
+        <div class="f"><span>Fotos del premio <small>(se deslizan en la página; la primera es la portada, hasta 10)</small></span>
+          <ul class="thumbs" data-thumbs aria-label="Fotos cargadas"></ul>
+          <div class="imgrow">
+            <input class="sr-only" id="cfg-img" type="file" accept="image/*" multiple data-cfg-img>
+            <label class="pbtn" for="cfg-img">Agregar fotos</label>
+            <button class="pbtn pbtn--ghost" type="button" data-cfg-sample-img>Usar fotos de ejemplo</button>
+          </div>
+        </div>
+      </fieldset>
+      <div class="cfg__foot">
+        <button class="pbtn" type="button" data-cfg-reset>Restaurar el ejemplo</button>
+        <p>Los cambios se aplican al terminar de escribir. Cada teléfono vuelve a su pantalla inicial.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="wrap">
+  <main>
+    <section class="group" aria-labelledby="g1">
+      <div class="group__head">
+        <h2 id="g1">La página de la rifa</h2>
+        <p>Una sola página. El botón “Comprar boletos” baja hasta el recuadro de compra, que está debajo de los premios.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"home"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Inicio</h3><p>Las fotos del premio en un carrusel, el premio, la fecha y el precio en Bs y $.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","slide":1}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Fotos deslizables</h3><p>El rifero sube las fotos que quiera: por fuera, por dentro, de lado. Se deslizan con el dedo o con las flechas.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"clock"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Cuenta regresiva y premios</h3><p>Tiempo para el cierre, porcentaje vendido y los tres premios, como en el flyer.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","flyer":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Fotos en grande</h3><p>“Ver en grande” muestra todas las fotos completas, una debajo de otra, empezando por la que se estaba viendo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="g2">
+      <div class="group__head">
+        <h2 id="g2">La compra, en el mismo recuadro</h2>
+        <p>Elige boletos y toca “Participar”: en ese mismo lugar aparecen los datos y después el pago. Siempre se puede volver a cambiar la cantidad.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","qty":2}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Al azar</h3><p>Cantidades rápidas, − y +, y el botón “Participar” con el total.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","mode":"manual","picks":["first","second","third"]}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Manual</h3><p>Desaparecen las cantidades rápidas: la cantidad es la de números elegidos.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","mode":"manual","picks":["first","second"],"board":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Tablero de números</h3><p>Buscar, elegir al azar, ir por series. Los vendidos salen tachados.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"data","qty":2,"cedula":"18456732","estado":"Zulia"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Tus datos</h3><p>Tras “Participar”, en el mismo recuadro. Con la cédula se llenan nombre, teléfono y correo, donde llegan los números.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Pago</h3><p>Cada método con su color. Los datos para pagar se copian uno a uno o todos de una vez.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190","verifying":true,"hold":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Verificando el pago</h3><p>En la demo se queda aquí; en las otras pantallas avanza sola a los números.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="g3">
+      <div class="group__head">
+        <h2 id="g3">Después de pagar</h2>
+        <p>Pago Móvil al instante se verifica solo con el banco y entrega los números de una vez, o rechaza la compra si un dato no coincide. Los pagos manuales quedan reservados hasta que el rifero los revise.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"ok","qty":2,"cedula":"18456732","method":"pm-auto","ref":"004821"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>¡Listo! Números revelados</h3><p>Dígito a dígito y con confeti. Se envían al correo del comprador.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"held","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Reservados, al azar</h3><p>Pago manual con boletos al azar: no se muestran números. Se asignan al aprobar el pago y llegan por correo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"held","mode":"manual","picks":["first","second"],"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Reservados, números elegidos</h3><p>Si eligió sus números, los ve apartados mientras el rifero aprueba o rechaza el comprobante desde su panel.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"rej","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004820","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Compra rechazada</h3><p>Pago Móvil al instante con un dato mal: el banco no encuentra el pago. En la demo, una referencia que termina en 0 da este resultado.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"mine","cedula":"18456732","searched":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Mis boletos</h3><p>Consulta por cédula, sin cuenta ni contraseña: pagados y por verificar.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home"}'><div class="frame" data-flip><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3 data-flip-title>Inicio en el otro modo</h3><p>La misma página en el modo contrario al de esta vista. El color del rifero se mantiene.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p><strong>Prototipo de demostración.</strong> No procesa pagos ni guarda datos. El rifero (Rifas La Bendición), los compradores, cuentas, montos, el nº CONALOT y la tasa BCV son de ejemplo.</p>
+    <p>El flyer del Toyota Agya 2026 y las fotos de ejemplo del carrusel son material de prueba aportado por el cliente.</p>
+  </footer>
+</div>
+
 <script>
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -696,7 +890,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
   const ESTADOS = ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital',
     'Falcón', 'Guárico', 'La Guaira', 'Lara', 'Mérida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo',
     'Yaracuy', 'Zulia', 'Fuera del país'];
-  let CFG = Object.assign(JSON.parse(JSON.stringify(SAMPLE)), window.LOTTOGE_RIFA || {});
+  let CFG = JSON.parse(JSON.stringify(SAMPLE));
 
   /* ---------- formatting (es-VE) ---------- */
   const group = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -744,16 +938,17 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
     root.querySelectorAll('[data-live="bar"]').forEach(n => n.style.width = (s / CFG.total * 100).toFixed(1) + '%');
     root.querySelectorAll('[data-live-bar]').forEach(n => n.setAttribute('aria-valuenow', pct));
   };
+  const tick = (n, v) => { if (n.textContent === v) return; n.textContent = v; n.classList.remove('tick'); void n.offsetWidth; n.classList.add('tick'); };
   const paintClock = (root = document) => {
     let t = Math.max(0, D.target - Date.now());
     const d = Math.floor(t / 864e5); t -= d * 864e5;
     const h = Math.floor(t / 36e5); t -= h * 36e5;
     const m = Math.floor(t / 6e4), s = Math.floor((t - m * 6e4) / 1e3);
     const two = v => String(v).padStart(2, '0');
-    root.querySelectorAll('[data-cd="d"]').forEach(n => n.textContent = two(d));
-    root.querySelectorAll('[data-cd="h"]').forEach(n => n.textContent = two(h));
-    root.querySelectorAll('[data-cd="m"]').forEach(n => n.textContent = two(m));
-    root.querySelectorAll('[data-cd="s"]').forEach(n => n.textContent = two(s));
+    root.querySelectorAll('[data-cd="d"]').forEach(n => tick(n, two(d)));
+    root.querySelectorAll('[data-cd="h"]').forEach(n => tick(n, two(h)));
+    root.querySelectorAll('[data-cd="m"]').forEach(n => tick(n, two(m)));
+    root.querySelectorAll('[data-cd="s"]').forEach(n => tick(n, two(s)));
   };
   setInterval(() => paintClock(), 1000);
   setInterval(() => {
@@ -1102,6 +1297,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       this.bind();
       this.setupHome();
       this.setupGallery();
+      themeFx(this);
       if (this.s.cedula) this.fillPerson(personFor(this.s.cedula), false);
       this.syncInputs();
       this.show(this.s.view);
@@ -1120,7 +1316,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       }
     }
 
-    destroy() { this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
+    destroy() { this.fxio && this.fxio.disconnect(); this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
     later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
 
     bind() {
@@ -1558,21 +1754,112 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
     app.raf = requestAnimationFrame(frame);
   }
 
+  /* ---------- Neón: decorations added on top of the shared page ---------- */
+  function themeFx(app) {
+    const el = app.el, home = el.querySelector('[data-v="home"]');
+    home.insertAdjacentHTML('afterbegin', '<div class="fx-aurora" aria-hidden="true"><i></i><i></i><i></i></div>');
+    const words = [CFG.prize, `Solo Bs ${num(CFG.price)}`, `Sorteo ${D.short}`, '¡Nueva oportunidad!'].map(esc);
+    const ribbon = cls => `<div class="fx-ribbon ${cls}" aria-hidden="true"><div class="fx-ribbon__track">${words.map(w => `<span>${w}</span><span>✦</span>`).join('').repeat(2)}</div></div>`;
+    el.querySelector('.hero').insertAdjacentHTML('afterend', ribbon(''));
+    el.querySelector('[data-sec="buy"]').insertAdjacentHTML('beforebegin', ribbon('fx-ribbon--b'));
+    // pause the light show while this phone is off screen
+    app.fxio = new IntersectionObserver(([e]) => el.classList.toggle('fx-paused', !e.isIntersecting));
+    app.fxio.observe(app.device);
+  }
 
-  /* ---------- tema claro / oscuro ---------- */
+  /* ---------- theme ---------- */
   const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
-  function toggleTheme() { document.documentElement.dataset.theme = isDark() ? 'light' : 'dark'; }
+  const syncFlip = () => {
+    const dark = isDark();
+    document.querySelectorAll('[data-flip]').forEach(f => { if (!f.dataset.flipped) { f.classList.toggle('force-light', dark); f.classList.toggle('force-dark', !dark); } });
+    document.querySelectorAll('[data-flip-title]').forEach(h => { const fr = h.closest('.device').querySelector('[data-flip]'); h.textContent = fr.classList.contains('force-dark') ? 'Inicio en modo oscuro' : 'Inicio en modo claro'; });
+    const l = document.querySelector('[data-theme-label]'); if (l) l.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+  };
+  function toggleTheme(device) {
+    const f = device && device.querySelector('.force-dark, .force-light');
+    if (f) { const d = f.classList.contains('force-dark'); f.classList.toggle('force-dark', !d); f.classList.toggle('force-light', d); f.dataset.flipped = '1'; syncFlip(); return; }
+    document.documentElement.dataset.theme = isDark() ? 'light' : 'dark';
+    document.querySelectorAll('[data-flip]').forEach(fr => delete fr.dataset.flipped);
+    syncFlip();
+  }
+  document.querySelector('[data-global-theme]').addEventListener('click', () => toggleTheme(null));
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncFlip);
+  syncFlip();
 
-  /* ---------- color de la marca: un nombre de ACCENTS o un hex propio ---------- */
-  const [ac, aci] = ACCENTS[CFG.accent] || [CFG.accent, CFG.accentInk || '#ffffff'];
-  document.documentElement.style.setProperty('--accent', ac);
-  document.documentElement.style.setProperty('--accent-ink', aci);
-  document.title = `${CFG.prize} · ${CFG.rifero}`;
+  /* ---------- phones ---------- */
+  const devices = [...document.querySelectorAll('.device')];
+  const mount = dev => { if (dev._app) dev._app.destroy(); dev._app = new App(dev.querySelector('.screen'), JSON.parse(dev.dataset.init || '{}'), dev); };
+  const mountAll = () => devices.forEach(mount);
+  devices.forEach(dev => dev.querySelector('.reset').addEventListener('click', () => mount(dev)));
 
-  /* ---------- montar la página ---------- */
-  const host = document.getElementById('app');
-  new App(host, { view: 'home' }, host);
+  /* ---------- configuration panel ---------- */
+  const form = document.querySelector('[data-cfg-form]'), cfgErr = document.querySelector('[data-cfg-err]');
+  document.querySelector('[data-swatches]').innerHTML = Object.entries(ACCENTS).map(([k, [c, ci, name]]) =>
+    `<label class="sw" style="--c:${c};--ci:${ci}"><input type="radio" name="cfg-accent" value="${k}"><span>${name}</span></label>`).join('');
+  const applyAccent = () => { const [c, ci] = ACCENTS[CFG.accent]; document.documentElement.style.setProperty('--accent', c); document.documentElement.style.setProperty('--accent-ink', ci); };
+  const fillForm = () => {
+    form.querySelectorAll('[data-cfg]').forEach(i => { const v = CFG[i.dataset.cfg]; i.value = i.dataset.cfg === 'rate' ? num(v, 2) : v; i.classList.remove('is-bad'); });
+    form.querySelector(`input[name="cfg-accent"][value="${CFG.accent}"]`).checked = true;
+    renderThumbs();
+    cfgErr.hidden = true;
+  };
+  /* Each rule returns { v } when the value is usable, or the message to show. */
+  const RULES = {
+    price: x => /^\d{1,9}$/.test(x) && +x >= 1 ? { v: +x } : 'El precio debe ser un número entero de 1 o más.',
+    rate: x => { const n = parseFloat(x.includes(',') ? x.replace(/\./g, '').replace(',', '.') : x); return /^[\d.,]+$/.test(x) && n > 0 ? { v: n } : 'La tasa debe ser un número mayor que cero, por ejemplo 881,88.'; },
+    soldPct: x => /^\d{1,2}$/.test(x) ? { v: +x } : 'El porcentaje vendido va de 0 a 99.',
+    total: x => ({ v: +x }),
+    date: x => /^\d{4}-\d{2}-\d{2}$/.test(x) ? { v: x } : 'Elige la fecha del sorteo.',
+    time: x => /^\d{2}:\d{2}$/.test(x) ? { v: x } : 'Elige la hora del sorteo.',
+    prize: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre del 1er premio.',
+    rifero: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre de la marca del rifero.',
+    support: x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x.trim()) ? { v: x.trim() } : 'Escribe un correo de soporte válido.'
+  };
+  let tm;
+  const commit = () => { D = derive(CFG); live.bump = 0; mountAll(); paintLive(); };
+  form.addEventListener('input', e => {
+    const i = e.target, k = i.dataset.cfg;
+    if (i.name === 'cfg-accent') { CFG.accent = i.value; applyAccent(); return; }
+    if (!k) return;
+    const r = RULES[k] ? RULES[k](i.value) : { v: i.value.trim() };
+    const bad = typeof r === 'string';
+    i.classList.toggle('is-bad', bad);
+    if (bad) { cfgErr.textContent = r; cfgErr.hidden = false; return; }
+    if (!form.querySelector('.is-bad')) cfgErr.hidden = true;
+    CFG[k] = r.v;
+    clearTimeout(tm); tm = setTimeout(commit, 350);
+  });
+  form.addEventListener('submit', e => e.preventDefault());
+  const thumbs = document.querySelector('[data-thumbs]');
+  const renderThumbs = () => {
+    thumbs.innerHTML = CFG.images.map((src, i) => `<li><img src="${src}" alt="Foto ${i + 1}" width="64" height="64">${i === 0 ? '<small>Portada</small>' : ''}${CFG.images.length > 1 ? `<button type="button" data-rm="${i}" aria-label="Quitar la foto ${i + 1}">×</button>` : ''}</li>`).join('');
+  };
+  thumbs.addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; CFG.images.splice(+b.dataset.rm, 1); renderThumbs(); commit(); });
+  document.querySelector('[data-cfg-img]').addEventListener('change', e => {
+    const files = [...(e.target.files || [])];
+    e.target.value = '';
+    if (!files.length) return;
+    const bad = files.find(f => !/^image\//.test(f.type)) ? 'Todos los archivos deben ser imágenes (JPG o PNG).' : files.find(f => f.size > 8 * 1024 * 1024) ? 'Hay una foto de más de 8 MB. Usa una más liviana.' : CFG.images.length + files.length > 10 ? `Puedes tener hasta 10 fotos; ya hay ${CFG.images.length}.` : '';
+    if (bad) { cfgErr.textContent = bad; cfgErr.hidden = false; return; }
+    cfgErr.hidden = true;
+    Promise.all(files.map(f => new Promise(res => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsDataURL(f); })))
+      .then(urls => { CFG.images.push(...urls); renderThumbs(); commit(); });
+  });
+  document.querySelector('[data-cfg-sample-img]').addEventListener('click', () => { CFG.images = [...SAMPLE.images]; renderThumbs(); commit(); });
+  document.querySelector('[data-cfg-reset]').addEventListener('click', () => { CFG = JSON.parse(JSON.stringify(SAMPLE)); fillForm(); applyAccent(); commit(); });
+
+  fillForm(); applyAccent(); mountAll();
+
+  /* ---------- fit the phones to the width ---------- */
+  const fit = () => {
+    const W = document.querySelector('main').clientWidth, gap = 48, FW = 417;
+    let z;
+    if (W >= 3 * FW * .8 + 2 * gap) z = Math.min(.86, (W - 2 * gap) / (3 * FW));
+    else if (W >= 2 * FW * .66 + gap) z = Math.min(.86, (W - gap) / (2 * FW));
+    else z = Math.min(.92, W / FW);
+    document.documentElement.style.setProperty('--z', z.toFixed(4));
+  };
+  fit();
+  new ResizeObserver(fit).observe(document.querySelector('main'));
 })();
 </script>
-</body>
-</html>

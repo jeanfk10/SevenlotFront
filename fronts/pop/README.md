@@ -1,0 +1,40 @@
+# Front Pop — LottoGE
+
+Estilo cómic y sticker. La página es celeste, cortada en franjas de colores: rosado para el premio, amarillo con borde en zigzag para la cuenta regresiva y verde para los premios. Todo lleva bordes negros gruesos con sombra sólida y está un poco inclinado, como stickers pegados. Una estrella amarilla con el precio se balancea sobre la foto, y alrededor flotan círculos, estrellas, anillos y triángulos. Las cintas dicen "¡Compra ya!" con el premio y el precio. Los botones se hunden al tocarlos, y las cantidades y métodos rebotan como gelatina al elegirlos. Las secciones entran con rebote y la cuenta regresiva salta cada segundo. El boleto final cae girando.
+
+**Flujo y lógica:** idénticos a la plantilla [minimalista](../minimalista/README.md):
+- compra en el mismo recuadro (boletos, datos y pago);
+- modo al azar o manual con tablero de números;
+- autocompletado por cédula;
+- 4 métodos de pago con copiar todos los datos;
+- resultados aprobado, reservado y rechazado;
+- entrega solo por correo;
+- "Mis boletos", carrusel de fotos y modo claro y oscuro.
+
+Solo cambian el diseño y las animaciones.
+
+- **Tipografía:** Bricolage Grotesque (Google Fonts).
+- **Recomendada para:** rifas familiares, combos, electrodomésticos y efectivo; públicos jóvenes; riferos con marca alegre.
+
+## Carpeta
+
+```
+pop/
+├── front/            ← lo que se carga en la plataforma (index.html generado, config.js, img/)
+├── vista-previa/     todas las pantallas en iPhones + panel de configuración en vivo
+├── build_front.py    regenera front/index.html desde la vista previa
+└── README.md
+```
+
+## Uso
+
+1. **Probar:** abre `front/index.html`. Para ver todas las pantallas, abre `vista-previa/index.html`.
+2. **Configurar:** edita `front/config.js`. Es el mismo formato en todas las plantillas, así que una rifa cambia de plantilla copiando su `config.js` y sus fotos.
+3. **Publicar:** `front/` es una carpeta estática y se sube tal cual.
+4. **Cambiar el diseño:** edita `vista-previa/index.html` y ejecuta `python3 build_front.py`.
+   - La capa de diseño de esta plantilla está al final del `<style>`.
+   - Los adornos que se agregan a la página (cintas, figuras, auroras) están en la función `themeFx` del `<script>`.
+
+Las animaciones respetan `prefers-reduced-motion`. En la vista previa, los adornos en bucle se pausan cuando el teléfono no está en pantalla.
+
+Para los campos de `config.js`, lo que está simulado y qué conectar a la API, ver el [README de la minimalista](../minimalista/README.md).

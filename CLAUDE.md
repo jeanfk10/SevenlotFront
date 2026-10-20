@@ -4,7 +4,7 @@ Fronts de compra de rifas para la plataforma **LottoGE** (Venezuela). Cada front
 
 ## Estructura
 
-- `fronts/<nombre>/` — un front por carpeta. Hoy: `minimalista` (la base), `vibrante` (llamativa) y `elegante` (sobria). Las tres comparten la misma lógica y el mismo `config.js`; `vibrante` y `elegante` son la minimalista con una capa de diseño al final del `<style>` de su vista previa.
+- `fronts/<nombre>/` — un front por carpeta. Hoy: `minimalista` (la base), `neon` y `pop`. Las tres comparten la misma lógica y el mismo `config.js`; `neon` y `pop` son la minimalista con una capa de diseño al final del `<style>` de su vista previa y sus adornos en la función `themeFx` del `<script>`.
   - `vista-previa/index.html` — fuente del diseño y la lógica, mostrada dentro de iPhones y con panel de configuración.
   - `front/` — lo exportable: `index.html` (generado), `config.js` (datos de la rifa) e `img/`.
   - `build_front.py` — regenera `front/index.html` desde la vista previa.
