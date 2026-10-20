@@ -19,6 +19,8 @@ src = SRC.read_text(encoding="utf-8")
 css = src[src.index("<style>") + len("<style>"):src.index("</style>")]
 script = src[src.index("<script>") + len("<script>"):src.index("</script>")]
 core = script[:script.index("  /* ---------- theme ---------- */")]
+# Each template brings its own Google Fonts link; reuse it as is.
+font_link = next(line for line in src.splitlines() if "fonts.googleapis.com/css2" in line)
 
 # The rifero's configuration comes from config.js; anything missing falls back to the sample.
 old_cfg = "  let CFG = JSON.parse(JSON.stringify(SAMPLE));"
@@ -68,7 +70,7 @@ page = f"""<!doctype html>
 <meta name="description" content="Compra de boletos de la rifa, sobre la plataforma LottoGE.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=TikTok+Sans:wdth,wght@75..150,300..900&display=swap" rel="stylesheet">
+{font_link}
 <style>{css}{STANDALONE_CSS}</style>
 </head>
 <body class="standalone">
