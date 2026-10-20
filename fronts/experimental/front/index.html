@@ -7,7 +7,7 @@
 <meta name="description" content="Compra de boletos de la rifa, sobre la plataforma LottoGE.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&family=Syne:wght@500..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
 <style>
 /* Layout: a neutral platform shell that steps back so each rifero's flyer and brand colour carry the page.
    The whole purchase happens inside one box on the landing: tickets, then buyer data, then payment, in the same place. */
@@ -537,8 +537,8 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   --surface-2: #e6e3dc;
   --ink: #141414;
   --muted: #5d5b56;
-  --font: "Figtree", "Helvetica Neue", Arial, system-ui, sans-serif;
-  --display: "Syne", "Arial Black", "Helvetica Neue", sans-serif;
+  --font: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) { --bg: #0f0f0f; --surface: #1b1b1b; --surface-2: #2a2a2a; --ink: #f1efe9; --muted: #a6a39b; }
@@ -547,9 +547,9 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 
 .wide, .hero__title, .price__bs, .h2, .buy__h, .p1 b, .p23 b, .cd b, .sold__pct, .num, .tkt__prize, .verify h2,
 .mine-body h2, .board__head h2, .qbtn b, .rank__pos, .recap b, .held li b {
-  font-family: var(--display); font-stretch: 100%; font-weight: 800; letter-spacing: -0.02em; text-transform: none;
+  font-family: var(--display); font-stretch: 75%; font-weight: 800; letter-spacing: -0.01em; text-transform: none;
 }
-.wide { line-height: .95; }
+.wide { line-height: .92; }
 .app .btn { border-radius: 999px; font-weight: 700; }
 .chip, .flyerbtn, .copy, .copyall, .series button, .rand button, .tag, .seg, .seg button { border-radius: 999px; }
 .org__mark, .board__x, .st-icon { border-radius: 50%; }
@@ -579,10 +579,10 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 .xp .flyerbtn { top: 80px; bottom: auto; right: 14px; z-index: 4; background: rgba(0,0,0,.45); color: #ffffff; }
 .xp .hero__body { position: absolute; z-index: 2; left: 0; right: 0; bottom: 40px; padding: 0 20px; }
 .xp .hero__when { font-weight: 600; }
-.xp .hero__title { font-size: 40px; line-height: .98; }
+.xp .hero__title { font-size: 50px; line-height: .92; }
 .xp .hero__extra { font-size: 19px; }
 .xp .price { margin: 16px 0 16px; }
-.xp .price__bs { font-size: 34px; white-space: nowrap; }
+.xp .price__bs { font-size: 44px; white-space: nowrap; }
 .xp .hero .btn--accent { min-height: 58px; }
 .xp .hero .btn--accent::after { content: "↓"; margin-left: 6px; display: inline-block; animation: nudge 1.2s ease-in-out infinite; }
 .xp .live .dot { color: var(--accent); }
@@ -592,9 +592,8 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 .xp-grab { display: block; width: 44px; height: 5px; border-radius: 3px; background: var(--surface-2); margin: 0 auto 14px; }
 .xp .ticker { margin: 0 16px; height: 40px; border-radius: 999px; background: var(--surface); color: var(--ink); }
 .xp .ticker__label { background: var(--ink); color: var(--bg); border-radius: 999px; }
-.xp-stats { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 14px 16px 4px; }
-.xp-stats::-webkit-scrollbar { display: none; }
-.xp-stats > section { flex: 0 0 84%; scroll-snap-align: start; background: var(--surface); border-radius: 24px; padding: 18px 16px !important; }
+.xp-stats { display: grid; gap: 10px; padding: 14px 16px 4px; }
+.xp-stats > section { margin: 0; background: var(--surface); border-radius: 24px; padding: 18px 16px !important; }
 .xp .clock p { color: var(--muted); }
 .xp .cd div { background: var(--surface-2); color: var(--ink); border-radius: 14px; }
 .xp .cd b { font-size: 30px; }
@@ -672,9 +671,9 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 .ok-head h1 { font-size: 82px; }
 .tkt { margin-top: -48px; border-radius: 24px; }
 .tkt__prize { font-size: 24px; }
-.num { font-size: 54px; letter-spacing: -0.03em; }
+.num { font-size: 66px; letter-spacing: -0.02em; }
 .num i { min-width: .62em; }
-.st-head h1 { font-size: 32px; }
+.st-head h1 { font-size: 42px; }
 .stubs li, .order, .steps3 li, .held li, .why, .support, .held-note, .ord { border-radius: 18px; }
 .order { border-collapse: separate; border-spacing: 0; overflow: hidden; }
 .board { border-radius: 28px 28px 0 0; }
@@ -693,8 +692,6 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 
 /* keep the scrolling pill row from widening the buy box */
 .xp .stage > *, .xp [data-panel="random"] > * { min-width: 0; }
-/* Syne runs wide: the showcase title steps down so it fits a phone */
-.top h1 { font-size: clamp(32px, 8vw, 128px); }
 
 
 /* ---------- Página completa (sin marcos de iPhone) ---------- */
@@ -1627,12 +1624,12 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
 
     // the sheet: live ticker, swipeable figures, sticky tabs and three panels
     const tabs = [['buy', 'Comprar'], ['prizes', 'Premios'], ['info', 'Info']];
-    hero.insertAdjacentHTML('afterend', `<div class="xp-sheet"><span class="xp-grab" aria-hidden="true"></span><div class="xp-stats" aria-label="Cifras de la rifa"></div>
+    hero.insertAdjacentHTML('afterend', `<div class="xp-sheet"><span class="xp-grab" aria-hidden="true"></span><div class="xp-stats" data-sec="stats" aria-label="Cifras de la rifa"></div>
       <div class="xp-tabs" role="tablist" aria-label="Secciones">${tabs.map(([k, t], i) => `<button type="button" role="tab" data-xp-tab="${k}" aria-selected="${i === 0}">${t}</button>`).join('')}</div>
       ${tabs.map(([k], i) => `<div data-xp-panel="${k}" role="tabpanel"${i ? ' hidden' : ''}></div>`).join('')}</div>`);
     const sheet = $('.xp-sheet');
     sheet.insertBefore($('.ticker'), $('.xp-stats'));
-    $('.xp-stats').append($('.clock'), $('.sold'));
+    $('.xp-stats').append($('.sold'), $('.clock'));
     $('[data-xp-panel="buy"]').append($('[data-sec="buy"]'));
     const prizes = $('.prizes'); prizes.dataset.sec = 'prizes';
     prizes.classList.add('is-seen'); // the steps slide out each time the tab opens
