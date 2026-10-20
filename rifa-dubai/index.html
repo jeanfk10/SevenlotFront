@@ -1,0 +1,1580 @@
+<title>LottoGE Rifa Dubái</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Prototipo para iPhone de la página de compra de la rifa Viaje a Dubái de LottoGE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=TikTok+Sans:wdth,wght@75..150,300..900&display=swap" rel="stylesheet">
+<style>
+/* Layout: a presentation board of iPhones on a quiet ground. Inside each phone the raffle is dressed as an airline:
+   a deep Gulf-teal field over bone, the prizes as a departures board, every ticket a boarding pass. Square edges. */
+:root, .force-light {
+  --bg: #eef0ea;
+  --surface: #e1e5de;
+  --surface-2: #d2d9d1;
+  --ink: #141a18;
+  --muted: #4c5550;
+  --accent: #1e6e62;
+  --accent-ink: #f3f4ee;
+  --field: #0e3534;
+  --field-ink: #ebeae2;
+  --field-soft: #a9c6bf;
+  --band: #a9d8ca;
+  --band-ink: #10201c;
+  --paper: #fbfaf5;
+  --paper-ink: #141a18;
+  --paper-soft: #59605b;
+  --t2: #1d5a55;
+  --t3: #6ea79d;
+  --good: #1f7a4d;
+  --good-ink: #f3f4ee;
+  --danger: #b3261e;
+  --titanium: #5a605d;
+  --bezel: #050606;
+  --island: #000000;
+  --font: "TikTok Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161c1a; --surface: #1f2725; --surface-2: #2a3431; --ink: #e3e2da; --muted: #9ba29b;
+    --accent: #9fd3c4; --accent-ink: #10201c; --field: #0f3332; --field-ink: #ebeae2; --field-soft: #9dbdb5;
+    --band: #e3e2da; --band-ink: #141a18; --paper: #ebe9e0; --paper-ink: #161c1a; --paper-soft: #5b625d;
+    --t2: #1d5a55; --t3: #6ea79d; --good: #7cc79f; --good-ink: #10201c; --danger: #ff8f80;
+    --titanium: #3d4341; --bezel: #050606; --island: #000000;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"], .force-dark {
+  --bg: #161c1a; --surface: #1f2725; --surface-2: #2a3431; --ink: #e3e2da; --muted: #9ba29b;
+  --accent: #9fd3c4; --accent-ink: #10201c; --field: #0f3332; --field-ink: #ebeae2; --field-soft: #9dbdb5;
+  --band: #e3e2da; --band-ink: #141a18; --paper: #ebe9e0; --paper-ink: #161c1a; --paper-soft: #5b625d;
+  --t2: #1d5a55; --t3: #6ea79d; --good: #7cc79f; --good-ink: #10201c; --danger: #ff8f80;
+  --titanium: #3d4341; --bezel: #050606; --island: #000000;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font); font-size: 16px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.display { font-weight: 800; font-stretch: 150%; text-transform: uppercase; letter-spacing: -0.01em; line-height: 0.92; }
+.tab { font-variant-numeric: tabular-nums; }
+
+/* ---------- Presentation board ---------- */
+.wrap {
+  max-width: 1320px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.top { padding-block: 28px 72px; display: grid; gap: 28px; }
+.top__bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.mark { font-weight: 800; font-stretch: 150%; font-size: 22px; letter-spacing: -0.01em; }
+.themebtn {
+  border: 0; background: var(--surface); padding: 10px 16px; font-size: 15px; font-weight: 500;
+  display: inline-flex; gap: 10px; align-items: center; transition: background .2s;
+}
+.themebtn:hover { background: var(--surface-2); }
+.themebtn:active { transform: scale(.97); }
+.top__title { margin: 24px 0 0; font-size: clamp(46px, 9.4vw, 150px); text-wrap: balance; max-width: 11ch; }
+.top__row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+.top__lede { margin: 0; font-size: clamp(18px, 1.2vw + 12px, 24px); line-height: 1.4; max-width: 46ch; }
+.top__facts { margin: 0; color: var(--muted); font-size: 16px; }
+@media (min-width: 900px) {
+  .top__row { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: end; }
+  .top__facts { text-align: right; }
+}
+.group { padding-block: 0 140px; }
+.group__head { display: grid; gap: 12px; margin-bottom: 44px; }
+.group__head h2 { margin: 0; font-size: clamp(30px, 3vw + 10px, 52px); line-height: 1.02; letter-spacing: -0.02em; font-weight: 800; font-stretch: 125%; text-wrap: balance; }
+.group__head p { margin: 0; max-width: 60ch; font-size: 18px; }
+.gallery { display: flex; flex-wrap: wrap; gap: 64px 48px; }
+.device { margin: 0; display: grid; gap: 18px; width: min-content; }
+.device figcaption { display: grid; gap: 6px; }
+.device h3 { margin: 0; font-size: 19px; line-height: 1.25; font-weight: 600; }
+.device figcaption p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.45; }
+.reset {
+  justify-self: start; margin-top: 6px; border: 0; background: none; padding: 6px 0;
+  font-size: 15px; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: 4px;
+}
+.reset:hover { text-decoration-thickness: 2px; }
+.foot { padding-block: 0 72px; display: grid; gap: 14px; color: var(--muted); font-size: 15px; max-width: 80ch; }
+.foot p { margin: 0; }
+.foot a { color: inherit; }
+.foot strong { color: var(--ink); }
+
+/* ---------- The iPhone ---------- */
+.frame {
+  zoom: var(--z, .8); width: 417px; height: 876px; flex: none;
+  border-radius: 68px; background: var(--titanium); padding: 4px; position: relative;
+}
+.frame::before, .frame::after { content: ""; position: absolute; background: var(--titanium); width: 4px; border-radius: 2px; }
+.frame::before { left: -4px; top: 190px; height: 64px; }
+.frame::after { right: -4px; top: 250px; height: 100px; }
+.bezel { width: 100%; height: 100%; border-radius: 64px; background: var(--bezel); padding: 8px; }
+.screen {
+  position: relative; width: 393px; height: 852px; border-radius: 56px; overflow: hidden;
+  background: var(--bg); color: var(--ink); isolation: isolate; font-size: 16px; line-height: 1.45;
+}
+
+/* ---------- App shell ---------- */
+.app { position: absolute; inset: 0; }
+.island { position: absolute; z-index: 60; top: 11px; left: 50%; width: 124px; height: 36px; margin-left: -62px; border-radius: 20px; background: var(--island); }
+.sbar {
+  position: absolute; z-index: 50; inset: 0 0 auto; height: 54px; padding: 18px 30px 0 46px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  background: var(--bg); color: var(--ink); font-weight: 600; font-size: 17px; line-height: 1;
+}
+.app[data-view="home"] .sbar, .app[data-view="success"] .sbar { background: var(--field); color: var(--field-ink); }
+.sbar__icons { display: flex; gap: 6px; align-items: center; padding-top: 1px; }
+.sbar svg { display: block; fill: currentColor; }
+.homebar { position: absolute; z-index: 70; bottom: 8px; left: 50%; width: 136px; margin-left: -68px; height: 5px; border-radius: 3px; background: var(--ink); opacity: .9; pointer-events: none; }
+.app[data-view="success"] .homebar { background: var(--ink); }
+.view { position: absolute; inset: 0; }
+.scroller { position: absolute; inset: 54px 0 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.scroller::-webkit-scrollbar { display: none; }
+
+.btn {
+  border: 0; border-radius: 0; min-height: 56px; padding: 0 22px; font-weight: 700; font-size: 17px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  transition: transform .15s ease, background .2s ease, color .2s ease;
+}
+.btn:active { transform: scale(.97); }
+.btn--accent { background: var(--accent); color: var(--accent-ink); }
+.btn--accent:hover { background: var(--ink); color: var(--bg); }
+.btn--field { background: var(--field); color: var(--field-ink); }
+.btn--field:hover { background: var(--ink); color: var(--bg); }
+.btn--ink { background: var(--ink); color: var(--bg); }
+.btn--ink:hover { background: var(--accent); color: var(--accent-ink); }
+.btn--ghost { background: var(--surface); color: var(--ink); }
+.btn--ghost:hover { background: var(--surface-2); }
+.btn--block { width: 100%; }
+
+/* ---------- Home ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 20; height: 52px; padding: 0 20px;
+  display: flex; align-items: center; gap: 12px; background: var(--field); color: var(--field-ink);
+}
+.nav .mark { font-size: 20px; margin-right: auto; }
+.live { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--field-soft); font-variant-numeric: tabular-nums; }
+.live b { color: var(--field-ink); font-weight: 600; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--band); flex: none; animation: pulse 1.8s ease-in-out infinite; }
+.iconbtn { border: 0; background: none; width: 40px; height: 40px; display: grid; place-items: center; color: inherit; margin-right: -8px; transition: transform .15s; }
+.iconbtn:active { transform: scale(.9); }
+.iconbtn svg { width: 22px; height: 22px; }
+
+.hero { position: relative; }
+.hero__field { background: var(--field); color: var(--field-ink); height: 432px; padding: 22px 20px 0; position: relative; }
+.hero__title { margin: 0; font-size: 47px; white-space: nowrap; }
+.hero__route { margin: 14px 0 0; font-size: 16px; color: var(--field-soft); }
+.hero__route b { color: var(--field-ink); font-weight: 600; }
+.cd { margin-top: 40px; width: 160px; display: grid; gap: 2px; }
+.cd p { margin: 0; }
+.cd__label { font-size: 14px; color: var(--field-soft); margin-bottom: 6px !important; }
+.cd__days { font-size: 40px; font-weight: 800; font-stretch: 125%; line-height: 1; letter-spacing: -0.02em; }
+.cd__time { font-size: 32px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.arch {
+  position: absolute; z-index: 3; right: -22px; top: 204px; width: 232px; height: 304px; margin: 0;
+  transform: rotate(5deg); transform-origin: 50% 100%;
+}
+.arch__clip { width: 100%; height: 100%; overflow: hidden; border-radius: 50% 50% 0 0 / 38% 38% 0 0; animation: shutter 1.1s cubic-bezier(.7,0,.2,1) .25s both; }
+.arch img { width: 100%; height: 100%; object-fit: cover; object-position: 45% 50%; display: block; animation: settle 1.4s cubic-bezier(.2,.7,.2,1) .25s both; }
+.hero__band { background: var(--band); color: var(--band-ink); padding: 98px 20px 26px; display: grid; gap: 18px; }
+.hero__band p { margin: 0; font-size: 17px; line-height: 1.45; }
+
+.ticker { background: var(--surface); display: flex; align-items: center; height: 52px; overflow: hidden; font-size: 15px; }
+.ticker__label { flex: none; height: 100%; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 20px; background: var(--surface-2); font-weight: 600; z-index: 1; }
+.ticker__label .dot { background: var(--accent); }
+.ticker__viewport { overflow: hidden; flex: 1; min-width: 0; }
+.ticker__track { display: flex; width: max-content; animation: marquee 48s linear infinite; }
+.ticker__track span { padding: 0 22px; white-space: nowrap; }
+.ticker__track b { font-weight: 600; }
+
+.sold { padding: 56px 20px 64px; display: grid; gap: 14px; }
+.sold p { margin: 0; }
+.sold__pct { font-size: 64px; font-weight: 800; font-stretch: 125%; line-height: .95; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.sold__pct small { font-size: 22px; font-weight: 600; font-stretch: 100%; letter-spacing: 0; margin-left: 6px; }
+.bar { height: 14px; background: var(--surface-2); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); transition: width .8s ease; }
+.sold__left { font-size: 18px; }
+.sold__watch { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--muted); }
+.sold__watch .dot { background: var(--accent); }
+.sold__watch b { color: var(--ink); }
+
+.board { padding: 0 8px; display: grid; gap: 4px; }
+.row {
+  border: 0; text-align: left; width: 100%; min-height: 64px; padding: 0 12px 0 14px; background: var(--surface); color: var(--ink);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 64px; align-items: center; column-gap: 12px;
+  transition: background .25s ease, color .25s ease;
+}
+.row:hover { background: var(--surface-2); }
+.row__name { font-size: 20px; font-weight: 700; line-height: 1.15; }
+.row__status { font-size: 14px; font-weight: 700; padding: 7px 10px; background: var(--surface-2); color: var(--ink); white-space: nowrap; }
+.row__status--good { background: var(--good); color: var(--good-ink); }
+.row__more { display: none; grid-column: 1 / -1; margin: 0; padding: 0 0 18px; list-style: none; font-size: 16px; line-height: 1.5; }
+.row[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); grid-template-rows: 76px auto; }
+.row[aria-expanded="true"] .row__name { font-size: 26px; font-weight: 800; font-stretch: 125%; letter-spacing: -0.02em; }
+.row[aria-expanded="true"] .row__status { background: var(--accent-ink); color: var(--accent); }
+.row[aria-expanded="true"] .row__more { display: block; }
+
+.worth { padding: 120px 20px 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+.h2 { margin: 0; font-size: 30px; line-height: 1.08; font-weight: 800; letter-spacing: -0.02em; font-stretch: 112%; text-wrap: balance; }
+.note { margin: 10px 0 0; font-size: 16px; color: var(--muted); max-width: 34ch; }
+.worth__total { margin: 36px 0 0; font-size: 100px; font-weight: 800; font-stretch: 100%; line-height: .8; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.worth__cap { margin: 16px 0 28px; font-size: 17px; }
+.slip { background: var(--paper); color: var(--paper-ink); padding: 26px 20px 40px; clip-path: var(--zig-bottom); }
+.slip table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+.slip th { text-align: left; font-weight: 700; padding: 18px 0 6px; font-size: 15px; }
+.slip tr:first-child th { padding-top: 0; }
+.slip td { padding: 4px 0; vertical-align: bottom; }
+.slip td:last-child { text-align: right; padding-left: 8px; white-space: nowrap; }
+.lead { display: flex; align-items: baseline; gap: 6px; }
+.lead::after { content: ""; flex: 1; min-width: 12px; border-bottom: 3px dotted var(--paper-soft); transform: translateY(-4px); opacity: .55; }
+.slip .total td { background: var(--paper-ink); color: var(--paper); font-weight: 700; padding: 12px 10px; font-size: 17px; }
+.slip .total td:first-child { padding-left: 12px; }
+.slip .spacer td { padding: 8px 0; }
+
+.trip { position: relative; margin-top: 120px; padding: 150px 10px 120px; }
+.trip__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 60%; z-index: -1; }
+.sheet { position: relative; background: var(--paper); color: var(--paper-ink); padding: 44px 26px 46px; clip-path: var(--zig-both); text-align: center; }
+.sheet h2 { margin: 0; font-size: 28px; line-height: 1.1; font-weight: 800; font-stretch: 112%; letter-spacing: -0.02em; text-wrap: balance; }
+.sheet__note { margin: 8px 0 0; font-size: 15px; color: var(--paper-soft); }
+.sheet h3 { margin: 40px 0 14px; font-size: 20px; font-weight: 700; }
+.sheet ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; text-align: left; }
+.sheet li { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; }
+.sheet li b { font-weight: 600; font-size: 16px; }
+.sheet li span { font-size: 16px; font-variant-numeric: tabular-nums; }
+.sheet li small { grid-column: 1 / -1; font-size: 14px; color: var(--paper-soft); line-height: 1.4; margin-top: 2px; }
+.sheet__end { margin: 44px 0 0; font-size: 15px; line-height: 1.5; }
+
+.pics { padding: 120px 0 0; display: grid; gap: 14px; }
+.pic { margin: 0; display: grid; gap: 10px; }
+.pic img { display: block; width: 100%; object-fit: cover; }
+.pic--burj img { aspect-ratio: 4 / 5; object-position: 52% 50%; }
+.pic--creek { width: 78%; justify-self: end; margin-top: 40px; }
+.pic--creek img { aspect-ratio: 4 / 3; }
+.pic figcaption { padding: 0 20px; font-size: 15px; color: var(--muted); }
+.pic--creek figcaption { padding: 0 20px 0 0; }
+
+.rank { padding: 120px 20px 0; }
+.rank ol { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 4px; }
+.rank li { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 14px 14px 14px 12px; background: var(--surface); }
+.rank li:first-child { background: var(--field); color: var(--field-ink); padding-block: 22px; }
+.rank__pos { font-size: 26px; font-weight: 800; font-stretch: 125%; line-height: 1; }
+.rank__who b { display: block; font-weight: 600; font-size: 17px; line-height: 1.25; }
+.rank__who span { font-size: 14px; color: var(--muted); }
+.rank li:first-child .rank__who span { color: var(--field-soft); }
+.rank__n { text-align: right; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.rank__n span { display: block; font-size: 13px; font-weight: 400; }
+
+.how { padding: 120px 20px 0; }
+.how p.lead-p { margin: 12px 0 28px; font-size: 17px; max-width: 34ch; }
+.acc { display: grid; }
+.stage { --c: var(--field); --ci: var(--field-ink); background: var(--c); color: var(--ci); }
+.stage:nth-child(2) { --c: var(--t2); }
+.stage:nth-child(3) { --c: var(--t3); --ci: var(--band-ink); }
+.stage:nth-child(4) { --c: var(--band); --ci: var(--band-ink); }
+.stage button { width: 100%; min-height: 64px; border: 0; background: none; color: inherit; text-align: left; padding: 0 20px; font-size: 18px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+.stage button svg { width: 18px; height: 18px; transition: transform .3s ease; }
+.stage button[aria-expanded="true"] svg { transform: rotate(45deg); }
+.stage__body { padding: 0 20px 26px; font-size: 17px; line-height: 1.5; }
+.stage__body p { margin: 0; max-width: 32ch; }
+
+.faq { padding: 120px 20px 0; }
+.faq .h2 { margin-bottom: 30px; }
+.fcard {
+  --tx: 0px; --c: var(--surface-2); --ci: var(--ink);
+  position: relative; background: var(--c); color: var(--ci); padding: 34px 0 40px;
+  clip-path: polygon(var(--tx) 0, calc(var(--tx) + 124px) 0, calc(var(--tx) + 124px) 34px, 100% 34px, 100% 100%, 0 100%, 0 34px, var(--tx) 34px);
+}
+.fcard + .fcard { margin-top: -30px; }
+.fcard:nth-child(2) { --tx: 48px; --c: var(--band); --ci: var(--band-ink); }
+.fcard:nth-child(3) { --tx: 96px; --c: var(--paper); --ci: var(--paper-ink); }
+.fcard:nth-child(4) { --tx: 144px; --c: var(--surface-2); --ci: var(--ink); }
+.fcard:nth-child(5) { --tx: 192px; --c: var(--band); --ci: var(--band-ink); }
+.fcard__tab { position: absolute; top: 0; left: var(--tx); width: 124px; height: 34px; display: flex; align-items: center; padding-left: 14px; font-size: 15px; font-weight: 600; }
+.fcard button { display: block; width: 100%; border: 0; background: none; color: inherit; text-align: left; padding: 12px 20px 4px; font-size: 19px; font-weight: 600; line-height: 1.3; }
+.fcard button:focus-visible { outline-offset: -4px; outline-color: var(--ci); }
+.fcard__a { padding: 8px 20px 0; font-size: 16px; line-height: 1.5; }
+.fcard__a p { margin: 0; max-width: 46ch; }
+
+.cta {
+  display: grid; grid-template-rows: auto 1fr auto; width: 100%; min-height: 380px; margin-top: 120px; border: 0; padding: 22px 20px 20px;
+  background: var(--accent); color: var(--accent-ink); text-align: left; transition: background .15s, color .15s;
+}
+.cta:hover, .cta:focus-visible { background: var(--ink); color: var(--bg); }
+.cta:focus-visible { outline-offset: -6px; outline-color: var(--accent); }
+.cta__top { display: flex; justify-content: space-between; gap: 20px; font-size: 17px; line-height: 1.4; }
+.cta__top svg { width: 34px; height: 34px; flex: none; }
+.cta__word { align-self: end; font-size: 86px; font-weight: 800; font-stretch: 150%; text-transform: uppercase; letter-spacing: -0.03em; line-height: .78; }
+
+.afoot { background: var(--ink); color: var(--bg); padding: 44px 20px 140px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; }
+.afoot__cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 20px; font-size: 15px; line-height: 1.5; }
+.afoot__cols p { margin: 0; opacity: .78; }
+.afoot__cols p b { display: block; opacity: 1; font-weight: 600; }
+.afoot__cols strong { font-weight: 600; }
+.afoot__cols div p:first-child { opacity: 1; }
+.seal { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: center; background: var(--bg); color: var(--ink); padding: 14px; }
+.seal svg { width: 64px; height: 64px; }
+.seal p { margin: 0; font-size: 14px; line-height: 1.45; }
+.seal b { display: block; font-size: 16px; }
+.afoot__legal { font-size: 13px; line-height: 1.5; opacity: .78; margin: 0; }
+.afoot__legal a { color: inherit; }
+.afoot__word { font-size: 57px; white-space: nowrap; font-weight: 800; font-stretch: 150%; letter-spacing: -0.03em; line-height: .8; margin: 30px 0 0; }
+
+.buybar {
+  position: absolute; z-index: 30; left: 0; right: 0; bottom: 0; padding: 12px 16px 34px 20px;
+  background: var(--ink); color: var(--bg); display: flex; align-items: center; gap: 12px;
+  transform: translateY(105%); transition: transform .35s cubic-bezier(.2,.7,.2,1);
+}
+.buybar.is-on { transform: none; }
+.buybar p { margin: 0 auto 0 0; font-size: 14px; line-height: 1.3; }
+.buybar p b { display: block; font-size: 18px; }
+.buybar .btn { min-height: 52px; background: var(--accent); color: var(--accent-ink); }
+
+/* ---------- Checkout ---------- */
+.view--checkout { display: grid; grid-template-rows: 54px auto minmax(0, 1fr) auto; background: var(--bg); }
+.ck-head { grid-row: 2; padding: 4px 20px 16px; display: grid; gap: 14px; }
+.ck-top { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
+.back { border: 0; background: none; padding: 0 8px 0 0; display: inline-flex; align-items: center; gap: 4px; font-size: 17px; color: var(--accent); min-height: 44px; font-weight: 500; }
+.back svg { width: 22px; height: 22px; }
+.ck-title { margin: 0; font-size: 15px; color: var(--muted); }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 14px; color: var(--muted); }
+.steps li { display: grid; gap: 8px; }
+.steps li::before { content: ""; height: 6px; background: var(--surface-2); transition: background .3s; }
+.steps li.is-done::before { background: var(--accent); }
+.steps li.is-now { color: var(--ink); font-weight: 700; }
+.steps li.is-now::before { background: var(--ink); }
+.ck-body { grid-row: 3; overflow-y: auto; scrollbar-width: none; padding: 8px 20px 28px; }
+.ck-body::-webkit-scrollbar { display: none; }
+.step { display: grid; gap: 0; }
+.ck-h { margin: 6px 0 0; font-size: 30px; line-height: 1.08; font-weight: 800; letter-spacing: -0.02em; font-stretch: 112%; text-wrap: balance; }
+.ck-p { margin: 10px 0 24px; font-size: 16px; color: var(--muted); }
+.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.qbtn {
+  position: relative; border: 0; background: var(--surface); padding: 16px 10px 12px; text-align: left; display: grid; gap: 2px;
+  transition: background .2s, color .2s, transform .15s;
+}
+.qbtn:hover { background: var(--surface-2); }
+.qbtn:active { transform: scale(.96); }
+.qbtn b { font-size: 30px; font-weight: 800; font-stretch: 125%; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.qbtn span { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.qbtn em { position: absolute; top: 0; right: 0; font-style: normal; font-size: 13px; font-weight: 700; padding: 3px 7px; background: var(--field); color: var(--field-ink); }
+.qbtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.qbtn[aria-pressed="true"] span { color: inherit; }
+.qbtn[aria-pressed="true"] em { background: var(--accent-ink); color: var(--accent); }
+.lbl { display: block; margin: 26px 0 8px; font-size: 15px; font-weight: 600; }
+.stepper { display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; gap: 6px; }
+.stepper button { border: 0; background: var(--surface); font-size: 26px; font-weight: 500; transition: background .2s, transform .15s; }
+.stepper button:hover { background: var(--surface-2); }
+.stepper button:active { transform: scale(.94); }
+.field {
+  width: 100%; min-height: 56px; border: 2px solid var(--surface-2); background: var(--bg); padding: 0 14px; font-size: 18px;
+  border-radius: 0; transition: border-color .2s; appearance: none;
+}
+.field:focus { border-color: var(--accent); outline: none; }
+.field:focus-visible { outline: none; }
+.stepper .field { text-align: center; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.field.is-bad { border-color: var(--danger); }
+.err { margin: 8px 0 0; color: var(--danger); font-size: 15px; line-height: 1.4; }
+.hint { margin: 10px 0 0; font-size: 15px; color: var(--muted); line-height: 1.45; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface); padding: 4px; }
+.seg button { border: 0; background: none; min-height: 46px; font-size: 16px; font-weight: 600; color: var(--muted); transition: background .2s, color .2s; }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+.pick { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+.pick .field { font-size: 22px; font-weight: 700; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.sugg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.sugg button { border: 0; background: var(--surface); min-height: 40px; padding: 0 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sugg button:hover { background: var(--surface-2); }
+.chips { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chips li { display: inline-flex; align-items: center; background: var(--field); color: var(--field-ink); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; padding-left: 12px; animation: pop .3s cubic-bezier(.2,.8,.3,1.3); }
+.chips button { border: 0; background: none; color: inherit; width: 40px; height: 40px; font-size: 20px; }
+.idrow { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 6px; }
+.seg--id { grid-template-columns: repeat(3, 1fr); }
+.seg--id button { min-height: 44px; }
+.idrow .field { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lookup { min-height: 24px; margin: 10px 0 0; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.lookup.is-ok { color: var(--good); font-weight: 600; }
+.lookup .spin { width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--surface-2); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+.fields { display: grid; }
+.fields .lbl { margin-top: 18px; }
+.field.is-filled { animation: fill .6s ease; }
+.methods { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.method {
+  position: relative; border: 0; background: var(--surface); padding: 14px 12px 14px; text-align: left; display: grid; gap: 4px; align-content: start; min-height: 104px;
+  transition: background .2s, color .2s, transform .15s;
+}
+.method:hover { background: var(--surface-2); }
+.method:active { transform: scale(.97); }
+.method svg { width: 28px; height: 28px; margin-bottom: 4px; }
+.method b { font-size: 16px; line-height: 1.2; }
+.method span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.method em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--good); }
+.method[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+.method[aria-checked="true"] span { color: inherit; opacity: .8; }
+.method[aria-checked="true"] em { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.paybox { margin-top: 18px; background: var(--surface); padding: 6px 14px; }
+.paybox table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.paybox td { padding: 9px 0; vertical-align: middle; }
+.paybox tr + tr td { border-top: 2px solid var(--bg); }
+.paybox td:first-child { color: var(--muted); width: 38%; padding-right: 8px; }
+.paybox td:nth-child(2) { font-weight: 600; font-variant-numeric: tabular-nums; word-break: break-word; }
+.paybox td:last-child { text-align: right; width: 1%; }
+.copy { border: 0; background: var(--bg); min-height: 34px; padding: 0 10px; font-size: 13px; font-weight: 600; white-space: nowrap; transition: background .2s; }
+.copy:hover { background: var(--surface-2); }
+.copy.is-done { background: var(--good); color: var(--good-ink); }
+.upload { display: flex; align-items: center; gap: 12px; margin-top: 18px; min-height: 64px; padding: 0 14px; background: var(--surface); cursor: pointer; font-size: 15px; font-weight: 600; transition: background .2s; }
+.upload:hover { background: var(--surface-2); }
+.upload svg { width: 24px; height: 24px; flex: none; }
+.upload small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+.upload.has-file { background: var(--field); color: var(--field-ink); }
+.upload.has-file small { color: var(--field-soft); }
+input[type="file"]:focus-visible + .upload { outline: 3px solid var(--accent); outline-offset: 2px; }
+select.field { background-image: none; }
+.sum { width: 100%; margin-top: 24px; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+.sum td { padding: 6px 0; }
+.sum td:last-child { text-align: right; }
+.sum .sum__total td { padding-top: 14px; font-size: 20px; font-weight: 800; border-top: 3px solid var(--ink); }
+.sum .sum__usd td { font-size: 16px; font-weight: 600; }
+.sum .sum__rate td { color: var(--muted); font-size: 13px; }
+
+.ck-foot { grid-row: 4; background: var(--surface); padding: 14px 16px 34px 20px; display: flex; align-items: center; gap: 12px; }
+.ck-sum { margin-right: auto; display: grid; line-height: 1.25; font-variant-numeric: tabular-nums; min-width: 0; }
+.ck-sum span { font-size: 14px; color: var(--muted); }
+.ck-sum b { font-size: 19px; }
+.ck-foot .btn { min-height: 54px; flex: none; }
+.ck-foot .btn[aria-disabled="true"] { background: var(--surface-2); color: var(--muted); }
+
+.verify { position: absolute; inset: 54px 0 0; z-index: 40; background: var(--field); color: var(--field-ink); padding: 0 24px 80px; display: grid; align-content: center; gap: 18px; }
+.verify h2 { margin: 0; font-size: 34px; line-height: 1.02; font-weight: 800; font-stretch: 125%; letter-spacing: -0.02em; text-wrap: balance; }
+.verify p { margin: 0; font-size: 17px; color: var(--field-soft); }
+.verify p b { color: var(--field-ink); }
+.vbar { height: 8px; background: var(--t2); overflow: hidden; margin-top: 10px; }
+.vbar span { display: block; height: 100%; width: 40%; background: var(--band); animation: indet 1.3s ease-in-out infinite; }
+
+/* ---------- Success ---------- */
+.view--success .scroller { background: var(--bg); }
+.ok-head { background: var(--field); color: var(--field-ink); padding: 26px 20px 110px; }
+.ok-head h1 { margin: 0; font-size: 72px; }
+.ok-head p { margin: 14px 0 0; font-size: 17px; line-height: 1.45; max-width: 30ch; }
+.ok-head p b { font-weight: 600; }
+.pass { position: relative; margin: -84px 14px 0; background: var(--paper); color: var(--paper-ink); }
+.pass::before, .pass::after { content: ""; position: absolute; top: 212px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg); }
+.pass::before { left: -12px; }
+.pass::after { right: -12px; }
+.pass__main { padding: 18px 20px 22px; display: grid; gap: 14px; }
+.pass__top { display: flex; justify-content: space-between; font-size: 14px; color: var(--paper-soft); }
+.pass__top b { color: var(--paper-ink); font-weight: 800; font-stretch: 150%; font-size: 15px; }
+.route { display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 10px; }
+.route b { display: block; font-size: 44px; font-weight: 800; font-stretch: 150%; line-height: .9; letter-spacing: -0.02em; }
+.route span { font-size: 14px; color: var(--paper-soft); }
+.route svg { width: 34px; height: 34px; justify-self: center; margin-bottom: 18px; fill: var(--paper-ink); }
+.route div:last-child { text-align: right; }
+.pass__grid { display: grid; grid-template-columns: repeat(3, auto); justify-content: space-between; gap: 10px; font-size: 13px; color: var(--paper-soft); }
+.pass__grid b { display: block; color: var(--paper-ink); font-size: 15px; }
+.pass__stub { border-top: 3px dotted var(--paper-soft); padding: 18px 20px 20px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; align-items: end; }
+.pass__lbl { grid-column: 1 / -1; font-size: 14px; color: var(--paper-soft); }
+.num { display: inline-flex; font-size: 76px; font-weight: 800; font-stretch: 125%; line-height: .85; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.num i { font-style: normal; display: inline-block; min-width: .62em; text-align: center; }
+.num i.is-set { animation: land .35s cubic-bezier(.2,.8,.3,1.3); }
+.barcode { width: 92px; height: 58px; display: block; fill: var(--paper-ink); }
+.stubs-wrap { padding: 28px 14px 0; }
+.stubs-wrap h2 { margin: 0 6px 12px; font-size: 18px; font-weight: 700; }
+.stubs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.stubs li { background: var(--surface); padding: 10px 10px 12px; display: grid; gap: 2px; }
+.stubs li span { font-size: 13px; color: var(--muted); }
+.stubs .num { font-size: 30px; }
+.ok-body { padding: 28px 20px 60px; display: grid; gap: 22px; }
+.ok-body > p { margin: 0; font-size: 17px; line-height: 1.5; }
+.ok-body > p b { font-weight: 600; word-break: break-word; }
+.order { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; background: var(--surface); }
+.order td { padding: 10px 14px; }
+.order tr + tr td { border-top: 2px solid var(--bg); }
+.order td:first-child { color: var(--muted); }
+.order td:last-child { text-align: right; font-weight: 600; }
+.ok-actions { display: grid; gap: 6px; }
+.confetti { position: absolute; inset: 0; z-index: 45; pointer-events: none; width: 100%; height: 100%; }
+
+/* ---------- Motion ---------- */
+.rise { animation: rise .7s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes shutter { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes settle { from { transform: scale(1.12); } to { transform: scale(1); } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes pulse { 50% { opacity: .35; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes indet { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } }
+@keyframes land { from { transform: translateY(-30%); opacity: .2; } }
+@keyframes fill { from { background: var(--band); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  .ticker__viewport { overflow-x: auto; scrollbar-width: none; }
+  .ticker__track { animation: none !important; }
+  .dot { animation: none !important; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="top__bar">
+      <span class="mark">LottoGE</span>
+      <button class="themebtn" type="button" data-global-theme aria-label="Cambiar entre modo claro y oscuro">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"/></svg>
+        <span data-theme-label>Modo oscuro</span>
+      </button>
+    </div>
+    <h1 class="display top__title">Dubái para dos</h1>
+    <div class="top__row">
+      <p class="top__lede">Así se ve en un iPhone la página de compra de la rifa: la página completa, los tres pasos de compra y la confirmación. Cada pantalla funciona. Toca, escribe y avanza.</p>
+      <p class="top__facts">Sorteo <span data-draw="short">vie 23 oct</span>, 10:00 PM · 10.000 números · Bs 4.800 el boleto</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="group" aria-labelledby="g1">
+      <div class="group__head">
+        <h2 id="g1">La página de la rifa</h2>
+        <p>Una sola página que se recorre con el pulgar. Cada teléfono abre en un punto distinto del recorrido; puedes seguir bajando dentro de cualquiera.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"home"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Inicio</h3><p>El premio, la fecha del sorteo y el precio del boleto en la primera pantalla. La cuenta regresiva corre en vivo.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"sold"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Premios y avance de venta</h3><p>Compras en vivo, porcentaje vendido y los tres premios como un tablero de salidas. Toca una fila para abrirla.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"worth"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Lo que vale el viaje</h3><p>El recibo del paquete suma exacto: $9.600 contra un boleto de Bs 4.800. Debajo, el itinerario de siete noches.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"rank"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Top compradores y pasos</h3><p>Ranking de compradores y cómo se participa, explicado en cuatro frases cortas.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"faq"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Preguntas frecuentes</h3><p>Fichas con pestaña, como un archivo. Una abierta a la vez.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"foot"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Cierre, confianza y soporte</h3><p>Sello de autorización CONALOT, WhatsApp de soporte, métodos de pago y aviso de demo.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="g2">
+      <div class="group__head">
+        <h2 id="g2">La compra en tres pasos</h2>
+        <p>Boletos, datos y pago. El total en bolívares y en dólares siempre está a la vista abajo.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"checkout","step":1,"qty":10}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Boletos al azar</h3><p>Cantidades rápidas con la más elegida marcada, o cualquier otra con los botones − y +.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"checkout","step":1,"qty":5,"mode":"manual","picks":["0714","2030"],"pickTry":"1234","ckScroll":"manual"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Elegir número</h3><p>Si el número ya está vendido, la página ofrece los libres más cercanos. Los que falten salen al azar.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"checkout","step":2,"qty":10,"cedula":"18456732"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Datos con la cédula</h3><p>Al escribir la cédula se llenan nombre, teléfono y correo. Prueba con otra cédula.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"checkout","step":3,"qty":10,"cedula":"18456732","method":"pm-auto","ref":"004821","payer":"0414-555-2190"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Pago Móvil automático</h3><p>El método recomendado: se verifica solo y los números salen al instante.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"checkout","step":3,"qty":10,"cedula":"18456732","method":"zelle","ref":"ZL7Q2K","file":"comprobante-zelle.jpg"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Zelle con comprobante</h3><p>Monto en dólares, datos con botón de copiar, referencia y comprobante opcional.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"checkout","step":3,"qty":10,"cedula":"18456732","method":"pm-auto","ref":"004821","payer":"0414-555-2190","verifying":true,"hold":true}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Verificando el pago</h3><p>Pantalla de espera mientras el banco confirma. En la demo se queda aquí; en las otras avanza sola.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="g3">
+      <div class="group__head">
+        <h2 id="g3">Confirmación y modos</h2>
+        <p>Cada boleto llega como un pase de abordar con su número. La página funciona en modo claro y oscuro.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"success","qty":10,"cedula":"18456732","method":"pm-auto","ref":"004821"}'>
+          <div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>¡Listo! Números revelados</h3><p>Los números aparecen dígito a dígito, con confeti. Se envían por correo y WhatsApp.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"home","force":"light"}'>
+          <div class="frame force-light"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Inicio en modo claro</h3><p>Fondo hueso, tinta verde muy oscura y el botón en jade profundo.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+        <figure class="device" data-init='{"view":"home","force":"dark"}'>
+          <div class="frame force-dark"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Inicio en modo oscuro</h3><p>Verde casi negro con letras hueso; el jade pálido queda para la acción de comprar.</p><button class="reset" type="button">Restablecer</button></figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p><strong>Prototipo de demostración.</strong> No procesa pagos ni guarda datos. Nombres, compradores, montos, cuentas, el nº de evento CONALOT y la tasa BCV (Bs 881,88 por dólar) son de ejemplo.</p>
+    <p>Fotos: “Dunes in the Dubai Desert Conservation” de Mlewis114, <a href="https://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0</a>; “Burj Khalifa Night View 01” de Sergei Gussev, <a href="https://creativecommons.org/licenses/by/2.0">CC BY 2.0</a>; “Dubai Creek from an abra 3” de CT Cooper, dominio público; todas vía <a href="https://commons.wikimedia.org/">Wikimedia Commons</a>. La foto de la piscina fue aportada por el cliente.</p>
+  </footer>
+</div>
+
+<template id="app-tpl">
+<div class="app" data-view="home">
+  <div class="island" aria-hidden="true"></div>
+  <div class="sbar" aria-hidden="true">
+    <span>9:41</span>
+    <span class="sbar__icons">
+      <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.6c2.2 0 4.2.8 5.7 2.2l1.2-1.3A10 10 0 0 0 8 .8 10 10 0 0 0 1.1 3.5l1.2 1.3A8.3 8.3 0 0 1 8 2.6Zm0 3.4c1.3 0 2.5.5 3.4 1.3l1.2-1.3A6.6 6.6 0 0 0 8 4.2c-1.8 0-3.4.7-4.6 1.8l1.2 1.3C5.5 6.5 6.7 6 8 6Zm0 3.3c.5 0 1 .2 1.2.5L8 11.2 6.8 9.8c.3-.3.7-.5 1.2-.5Z"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2"/><rect x="24.5" y="4.5" width="1.6" height="4" rx=".8" opacity=".45"/></svg>
+    </span>
+  </div>
+
+  <!-- Inicio -->
+  <section class="view view--home" data-v="home" aria-label="Inicio de la rifa">
+    <div class="scroller" data-scroller>
+      <nav class="nav" aria-label="LottoGE">
+        <span class="mark">LottoGE</span>
+        <span class="live"><span class="dot" aria-hidden="true"></span><span><b data-live="online">1.284</b> en línea</span></span>
+        <button class="iconbtn" type="button" data-action="theme" aria-label="Cambiar entre modo claro y oscuro">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"/></svg>
+        </button>
+      </nav>
+
+      <header class="hero">
+        <div class="hero__field">
+          <h1 class="display hero__title">Dubái<br>para dos</h1>
+          <p class="hero__route"><b>Caracas → Dubái</b> · 7 noches, todo pago</p>
+          <div class="cd" role="timer" aria-label="Tiempo para el cierre de la venta">
+            <p class="cd__label">La venta cierra en</p>
+            <p class="cd__days"><span data-cd="d">2</span> <span data-cd="dl">días</span></p>
+            <p class="cd__time"><span data-cd="h">21</span>:<span data-cd="m">14</span>:<span data-cd="s">08</span></p>
+          </div>
+        </div>
+        <figure class="arch">
+          <div class="arch__clip"><img src="img/pool.jpg" width="516" height="387" alt="Piscina infinita en una azotea de Dubái, con camastros blancos en forma de ola y el Burj Khalifa al fondo"></div>
+        </figure>
+        <div class="hero__band">
+          <p>Sorteo el <b data-draw="long">viernes 23 de octubre</b> a las 10:00 PM. Cada boleto cuesta <b>Bs 4.800</b> ($5,44).</p>
+          <button class="btn btn--field btn--block" type="button" data-action="buy" data-hero-buy>Comprar boletos</button>
+        </div>
+      </header>
+
+      <div class="ticker" aria-label="Compras recientes, datos de ejemplo">
+        <span class="ticker__label"><span class="dot" aria-hidden="true"></span>En vivo</span>
+        <div class="ticker__viewport"><div class="ticker__track" data-ticker></div></div>
+      </div>
+
+      <section class="sold" data-sec="sold" data-reveal aria-label="Avance de la venta">
+        <p class="sold__pct"><span data-live="pct">76</span>%<small>vendido</small></p>
+        <div class="bar" role="progressbar" aria-label="Boletos vendidos" aria-valuemin="0" aria-valuemax="100" aria-valuenow="76" data-live-bar><span data-live="bar" style="width:76%"></span></div>
+        <p class="sold__left">Solo quedan <b data-live="left">2.400</b> de 10.000 boletos.</p>
+        <p class="sold__watch"><span class="dot" aria-hidden="true"></span><span><b data-live="viewing">47</b> personas viendo esta rifa ahora</span></p>
+      </section>
+
+      <h2 class="sr-only">Premios</h2>
+      <div class="board" data-board data-reveal>
+        <button class="row" type="button" aria-expanded="true">
+          <span class="row__name">Dubái para dos</span><span class="row__status">1er premio</span>
+          <ul class="row__more"><li>Vuelos ida y vuelta y 7 noches en hotel 5★</li><li>Desayunos, traslados, safari y Burj Khalifa</li><li>$2.000 en efectivo para gastos</li></ul>
+        </button>
+        <button class="row" type="button" aria-expanded="false">
+          <span class="row__name">$1.500 en efectivo</span><span class="row__status">2do premio</span>
+          <ul class="row__more"><li>En dólares o en bolívares a tasa BCV</li><li>Transferencia en las 48 horas siguientes</li><li>Sin descuentos ni comisiones</li></ul>
+        </button>
+        <button class="row" type="button" aria-expanded="false">
+          <span class="row__name">$700 en efectivo</span><span class="row__status">3er premio</span>
+          <ul class="row__more"><li>En dólares o en bolívares a tasa BCV</li><li>Transferencia en las 48 horas siguientes</li><li>Sin descuentos ni comisiones</li></ul>
+        </button>
+        <button class="row" type="button" aria-expanded="false">
+          <span class="row__name">Sorteo <span data-draw="short">vie 23 oct</span></span><span class="row__status row__status--good">A tiempo</span>
+          <ul class="row__more"><li>Supergana de 4 cifras, 10:00 PM</li><li>10.000 números, del 0000 al 9999</li><li>Transmisión en vivo por Instagram</li></ul>
+        </button>
+      </div>
+
+      <section class="worth" data-sec="worth" data-reveal aria-labelledby="__-worth">
+        <h2 class="h2" id="__-worth">Lo que vale el premio</h2>
+        <p class="note">Valores de referencia del paquete para dos personas, en dólares.</p>
+        <p class="worth__total">$9.600</p>
+        <p class="worth__cap">Todo eso por un boleto de Bs 4.800.</p>
+        <div class="slip">
+          <table>
+            <tbody>
+              <tr><th colspan="2">Viaje</th></tr>
+              <tr><td><span class="lead">Vuelos Caracas–Dubái, ida y vuelta (2)</span></td><td>$2.900</td></tr>
+              <tr><td><span class="lead">Visa de turista (2)</span></td><td>$200</td></tr>
+              <tr><td><span class="lead">Seguro de viaje (2)</span></td><td>$180</td></tr>
+              <tr><td><span class="lead">Traslados aeropuerto–hotel</span></td><td>$180</td></tr>
+              <tr><th colspan="2">Estadía</th></tr>
+              <tr><td><span class="lead">Sahab Sky Hotel 5★, 7 noches</span></td><td>$3.150</td></tr>
+              <tr><td><span class="lead">Desayunos (14)</span></td><td>$420</td></tr>
+              <tr><th colspan="2">Experiencias</th></tr>
+              <tr><td><span class="lead">Safari en el desierto con cena (2)</span></td><td>$260</td></tr>
+              <tr><td><span class="lead">Burj Khalifa, mirador piso 148 (2)</span></td><td>$310</td></tr>
+              <tr><th colspan="2">Para gastar</th></tr>
+              <tr><td><span class="lead">Efectivo</span></td><td>$2.000</td></tr>
+              <tr class="spacer"><td colspan="2"></td></tr>
+              <tr class="total"><td>Total</td><td>$9.600</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="trip" data-sec="trip" aria-labelledby="__-trip">
+        <img class="trip__bg" src="img/dunes.jpg" width="800" height="1067" loading="lazy" alt="Dunas de arena de la reserva del desierto de Dubái bajo un cielo nublado">
+        <div class="sheet" data-reveal>
+          <h2 id="__-trip">Siete noches en Dubái</h2>
+          <p class="sheet__note">Sahab Sky Hotel 5★ · Downtown</p>
+          <h3>Llegada</h3>
+          <ul>
+            <li><b>Vuelo Caracas → Dubái</b><span>Día 1</span><small>Con una escala. Te buscan en el aeropuerto.</small></li>
+            <li><b>Piscina infinita del piso 54</b><span>Día 2</span><small>Desayuno incluido todas las mañanas.</small></li>
+          </ul>
+          <h3>La ciudad</h3>
+          <ul>
+            <li><b>Burj Khalifa, mirador At the Top</b><span>Día 3</span><small>Entradas para el atardecer, piso 148.</small></li>
+            <li><b>Abra por el Dubai Creek</b><span>Día 5</span><small>Y paseo por el zoco del oro.</small></li>
+          </ul>
+          <h3>El desierto</h3>
+          <ul>
+            <li><b>Safari en 4×4 con cena</b><span>Día 4</span><small>Dunas al atardecer y cena bajo las estrellas.</small></li>
+          </ul>
+          <h3>A tu ritmo</h3>
+          <ul>
+            <li><b>Días libres con $2.000</b><span>Días 6 y 7</span><small>Para compras, playa o lo que quieras.</small></li>
+            <li><b>Regreso a Caracas</b><span>Día 8</span><small>Traslado al aeropuerto incluido.</small></li>
+          </ul>
+          <p class="sheet__end">Fechas a convenir con el ganador.<br>Viaja cuando quieras en los 12 meses siguientes.</p>
+        </div>
+      </section>
+
+      <section class="pics" aria-label="Fotos de Dubái">
+        <figure class="pic pic--burj" data-reveal>
+          <img src="img/burj.jpg" width="1000" height="750" loading="lazy" alt="Silueta del Burj Khalifa y los rascacielos de Dubái al atardecer, reflejados en el agua">
+          <figcaption>Día 3: el Burj Khalifa al atardecer.</figcaption>
+        </figure>
+        <figure class="pic pic--creek" data-reveal>
+          <img src="img/creek.jpg" width="900" height="675" loading="lazy" alt="Una abra de madera cruza el Dubai Creek frente a los edificios del viejo Dubái">
+          <figcaption>Día 5: en abra por el Dubai Creek.</figcaption>
+        </figure>
+      </section>
+
+      <section class="rank" data-sec="rank" data-reveal aria-labelledby="__-rank">
+        <h2 class="h2" id="__-rank">Top compradores</h2>
+        <p class="note">Quienes más boletos llevan en esta rifa. Datos de ejemplo.</p>
+        <ol>
+          <li><span class="rank__pos">1</span><span class="rank__who"><b>Yusmary C.</b><span>Maracaibo</span></span><span class="rank__n">320<span>boletos</span></span></li>
+          <li><span class="rank__pos">2</span><span class="rank__who"><b>José Gregorio P.</b><span>Valencia</span></span><span class="rank__n">250<span>boletos</span></span></li>
+          <li><span class="rank__pos">3</span><span class="rank__who"><b>Andreína L.</b><span>Caracas</span></span><span class="rank__n">180<span>boletos</span></span></li>
+          <li><span class="rank__pos">4</span><span class="rank__who"><b>Luis Eduardo M.</b><span>Barquisimeto</span></span><span class="rank__n">150<span>boletos</span></span></li>
+          <li><span class="rank__pos">5</span><span class="rank__who"><b>Rosángela T.</b><span>Puerto Ordaz</span></span><span class="rank__n">120<span>boletos</span></span></li>
+        </ol>
+      </section>
+
+      <section class="how" data-reveal aria-labelledby="__-how">
+        <h2 class="h2" id="__-how">Así de fácil</h2>
+        <p class="lead-p">Comprar toma unos dos minutos y no necesitas crear una cuenta.</p>
+        <div class="acc" data-acc>
+          <div class="stage">
+            <button type="button" aria-expanded="true" aria-controls="__-s1">Elige tus boletos<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M8 2h2v14H8zM2 8h14v2H2z" fill="currentColor"/></svg></button>
+            <div class="stage__body" id="__-s1"><p>Toca la cantidad que quieres o escribe otra. Deja que el sistema escoja tus números o elígelos tú.</p></div>
+          </div>
+          <div class="stage">
+            <button type="button" aria-expanded="false" aria-controls="__-s2">Escribe tu cédula<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M8 2h2v14H8zM2 8h14v2H2z" fill="currentColor"/></svg></button>
+            <div class="stage__body" id="__-s2" hidden><p>Con tu cédula llenamos tu nombre, teléfono y correo. Solo revisas que estén bien.</p></div>
+          </div>
+          <div class="stage">
+            <button type="button" aria-expanded="false" aria-controls="__-s3">Paga como prefieras<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M8 2h2v14H8zM2 8h14v2H2z" fill="currentColor"/></svg></button>
+            <div class="stage__body" id="__-s3" hidden><p>Pago Móvil se verifica solo, al instante. También aceptamos Binance, Zelle y Pago Móvil con comprobante.</p></div>
+          </div>
+          <div class="stage">
+            <button type="button" aria-expanded="false" aria-controls="__-s4">Recibe tus números<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M8 2h2v14H8zM2 8h14v2H2z" fill="currentColor"/></svg></button>
+            <div class="stage__body" id="__-s4" hidden><p>Los ves en pantalla apenas se confirma el pago, y te llegan por correo y por WhatsApp.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="faq" data-sec="faq" data-reveal aria-labelledby="__-faq">
+        <h2 class="h2" id="__-faq">Lo que más nos preguntan</h2>
+        <div data-faq>
+          <div class="fcard">
+            <span class="fcard__tab" aria-hidden="true">Sorteo</span>
+            <button type="button" aria-expanded="true" aria-controls="__-f1">¿Cómo se escoge al ganador?</button>
+            <div class="fcard__a" id="__-f1"><p>Con las 4 cifras de la Supergana de las 10:00 PM. El 1er premio es el número que coincide. El 2do y el 3er premio salen de los sorteos de las 4:00 PM y 7:00 PM del mismo día.</p></div>
+          </div>
+          <div class="fcard">
+            <span class="fcard__tab" aria-hidden="true">Legal</span>
+            <button type="button" aria-expanded="false" aria-controls="__-f2">¿La rifa está autorizada?</button>
+            <div class="fcard__a" id="__-f2" hidden><p>Sí. Es un evento autorizado por CONALOT con el nº CNL-2026-0418 (número de ejemplo en esta demo).</p></div>
+          </div>
+          <div class="fcard">
+            <span class="fcard__tab" aria-hidden="true">Viaje</span>
+            <button type="button" aria-expanded="false" aria-controls="__-f3">¿Quién tramita la visa?</button>
+            <div class="fcard__a" id="__-f3" hidden><p>Nosotros. Tramitamos y pagamos la visa de turista para ti y tu acompañante. Solo necesitas pasaporte vigente.</p></div>
+          </div>
+          <div class="fcard">
+            <span class="fcard__tab" aria-hidden="true">Pagos</span>
+            <button type="button" aria-expanded="false" aria-controls="__-f4">¿Y si pago y no veo mis números?</button>
+            <div class="fcard__a" id="__-f4" hidden><p>Con Pago Móvil automático salen al instante. Con los otros métodos verificamos en menos de 2 horas, de 8:00 AM a 10:00 PM. Si no te llegan, escríbenos por WhatsApp con tu referencia.</p></div>
+          </div>
+          <div class="fcard">
+            <span class="fcard__tab" aria-hidden="true">Premio</span>
+            <button type="button" aria-expanded="false" aria-controls="__-f5">¿Puedo regalar el viaje?</button>
+            <div class="fcard__a" id="__-f5" hidden><p>Sí. Puedes cederlo a otra persona mayor de edad antes de emitir los pasajes. El viaje no se cambia por efectivo.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <button class="cta" type="button" data-action="buy">
+        <span class="cta__top"><span>Elige cuántos boletos quieres y paga en tres pasos.</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 10h24v24h-4V16.8L12.4 38.4l-2.8-2.8L31.2 14H14z" fill="currentColor"/></svg></span>
+        <span></span>
+        <span class="cta__word" aria-hidden="true">Compra</span>
+        <span class="sr-only">Comprar boletos</span>
+      </button>
+
+      <footer class="afoot" data-sec="foot">
+        <div class="afoot__cols">
+          <div><p><b>Soporte</b></p><p>WhatsApp 0412-555-0123</p><p>Todos los días, 8:00 AM a 10:00 PM</p></div>
+          <div><p><b>Sorteo</b></p><p>Supergana, 4 cifras</p><p><span data-draw="short">vie 23 oct</span>, 10:00 PM</p></div>
+          <div><p><b>Pagos</b></p><p>Pago Móvil, Binance, Zelle</p></div>
+          <div><p><b>Tus números</b></p><p>Por correo y WhatsApp al confirmar</p></div>
+        </div>
+        <div class="seal">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="var(--field)"/><circle cx="32" cy="32" r="22" fill="none" stroke="var(--field-ink)" stroke-width="3"/><path d="M22 33l7 7 14-15" fill="none" stroke="var(--field-ink)" stroke-width="4" stroke-linecap="square"/></svg>
+          <p><b>Autorizado por CONALOT</b>Evento nº CNL-2026-0418 (ejemplo). Comisión Nacional de Lotería.</p>
+        </div>
+        <p class="afoot__legal">Prototipo de demostración: no procesa pagos ni guarda datos. Nombres, compradores, montos y cuentas son de ejemplo. Fotos de Dubái: Mlewis114 (CC0), Sergei Gussev (CC BY 2.0) y CT Cooper (dominio público), vía Wikimedia Commons.</p>
+        <p class="afoot__word" aria-hidden="true">LottoGE</p>
+      </footer>
+    </div>
+    <div class="buybar" data-buybar>
+      <p><b>Bs 4.800</b>por boleto · $5,44</p>
+      <button class="btn" type="button" data-action="buy" tabindex="-1">Comprar boletos</button>
+    </div>
+  </section>
+
+  <!-- Compra -->
+  <section class="view view--checkout" data-v="checkout" aria-label="Compra de boletos" hidden>
+    <div class="ck-head">
+      <div class="ck-top">
+        <button class="back" type="button" data-action="back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 4.6 8 12l7.4 7.4-1.4 1.4L5.2 12 14 3.2z" fill="currentColor"/></svg><span data-back-label>Inicio</span></button>
+        <p class="ck-title">Rifa Dubái para dos</p>
+      </div>
+      <ol class="steps" aria-label="Pasos de la compra"><li data-dot="1">Boletos</li><li data-dot="2">Datos</li><li data-dot="3">Pago</li></ol>
+    </div>
+
+    <div class="ck-body" data-ck-body>
+      <!-- Boletos -->
+      <div class="step" data-step="1">
+        <h2 class="ck-h">¿Cuántos boletos quieres?</h2>
+        <p class="ck-p">Cada boleto cuesta Bs 4.800 ($5,44). Mientras más boletos, más chances.</p>
+        <div class="quick" role="group" aria-label="Cantidades rápidas">
+          <button class="qbtn" type="button" data-action="quick" data-q="1" aria-pressed="false"><b>1</b><span>Bs 4.800</span></button>
+          <button class="qbtn" type="button" data-action="quick" data-q="2" aria-pressed="false"><b>2</b><span>Bs 9.600</span></button>
+          <button class="qbtn" type="button" data-action="quick" data-q="5" aria-pressed="false"><b>5</b><span>Bs 24.000</span></button>
+          <button class="qbtn" type="button" data-action="quick" data-q="10" aria-pressed="false"><em>Popular</em><b>10</b><span>Bs 48.000</span></button>
+          <button class="qbtn" type="button" data-action="quick" data-q="20" aria-pressed="false"><b>20</b><span>Bs 96.000</span></button>
+          <button class="qbtn" type="button" data-action="quick" data-q="50" aria-pressed="false"><b>50</b><span>Bs 240.000</span></button>
+        </div>
+        <label class="lbl" for="__-qty">Otra cantidad</label>
+        <div class="stepper">
+          <button type="button" data-action="dec" aria-label="Quitar un boleto">−</button>
+          <input class="field" id="__-qty" type="text" inputmode="numeric" autocomplete="off" data-in="qty" aria-describedby="__-qtyerr">
+          <button type="button" data-action="inc" aria-label="Agregar un boleto">+</button>
+        </div>
+        <p class="err" id="__-qtyerr" data-err="qty" hidden></p>
+        <p class="lbl" id="__-modelbl">¿Cómo quieres tus números?</p>
+        <div class="seg" role="radiogroup" aria-labelledby="__-modelbl">
+          <button type="button" role="radio" data-action="mode" data-mode="random" aria-checked="true">Al azar</button>
+          <button type="button" role="radio" data-action="mode" data-mode="manual" aria-checked="false">Elegir número</button>
+        </div>
+        <div data-panel="random"><p class="hint">El sistema te asigna números libres apenas se confirme tu pago.</p></div>
+        <div data-panel="manual" hidden>
+          <label class="lbl" for="__-pick">Escribe un número del 0000 al 9999</label>
+          <div class="pick">
+            <input class="field" id="__-pick" type="text" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off" data-in="pick" aria-describedby="__-pickerr">
+            <button class="btn btn--ink" type="button" data-action="add-pick">Agregar</button>
+          </div>
+          <div id="__-pickerr" aria-live="polite"><p class="err" data-err="pick" hidden></p><div class="sugg" data-sugg></div></div>
+          <ul class="chips" data-picks aria-label="Números elegidos"></ul>
+          <p class="hint" data-picks-left></p>
+        </div>
+      </div>
+
+      <!-- Datos -->
+      <div class="step" data-step="2" hidden>
+        <h2 class="ck-h">Tus datos</h2>
+        <p class="ck-p">Escribe tu cédula y llenamos el resto por ti.</p>
+        <p class="lbl" id="__-idlbl" style="margin-top:0">Cédula</p>
+        <div class="idrow">
+          <div class="seg seg--id" role="radiogroup" aria-label="Tipo de documento">
+            <button type="button" role="radio" data-action="idtype" data-t="V" aria-checked="true">V</button>
+            <button type="button" role="radio" data-action="idtype" data-t="E" aria-checked="false">E</button>
+            <button type="button" role="radio" data-action="idtype" data-t="J" aria-checked="false">J</button>
+          </div>
+          <input class="field" id="__-ced" type="text" inputmode="numeric" maxlength="10" placeholder="Ej. 18456732" autocomplete="off" data-in="cedula" aria-labelledby="__-idlbl">
+        </div>
+        <p class="lookup" data-lookup aria-live="polite"></p>
+        <div class="fields">
+          <label class="lbl" for="__-name">Nombre y apellido</label>
+          <input class="field" id="__-name" type="text" autocomplete="name" data-in="name">
+          <label class="lbl" for="__-phone">Teléfono con WhatsApp</label>
+          <input class="field" id="__-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0414-555-0000" data-in="phone">
+          <label class="lbl" for="__-mail">Correo</label>
+          <input class="field" id="__-mail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" data-in="email">
+        </div>
+        <p class="err" data-err="data" hidden></p>
+        <p class="hint">Demo: los datos que aparecen son de ejemplo y no se guardan.</p>
+      </div>
+
+      <!-- Pago -->
+      <div class="step" data-step="3" hidden>
+        <h2 class="ck-h">¿Cómo vas a pagar?</h2>
+        <p class="ck-p">Elige un método. Te mostramos a dónde pagar y el monto exacto.</p>
+        <div class="methods" role="radiogroup" aria-label="Método de pago">
+          <button class="method" type="button" role="radio" data-action="method" data-m="pm-auto" aria-checked="false">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="7" y="2" width="14" height="24" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 21h6" stroke="currentColor" stroke-width="2.4"/><path d="M10 11l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>
+            <b>Pago Móvil</b><span>Se verifica solo</span><em>Al instante</em>
+          </button>
+          <button class="method" type="button" role="radio" data-action="method" data-m="binance" aria-checked="false">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3l4 4-4 4-4-4zM7 10l4 4-4 4-4-4zM21 10l4 4-4 4-4-4zM14 17l4 4-4 4-4-4z" fill="currentColor"/></svg>
+            <b>Binance</b><span>USDT con Binance Pay</span>
+          </button>
+          <button class="method" type="button" role="radio" data-action="method" data-m="zelle" aria-checked="false">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 6h14v3.4L11.8 19H21v3H7v-3.4L16.2 9H7z" fill="currentColor"/><path d="M13 3h2v4h-2zM13 21h2v4h-2z" fill="currentColor"/></svg>
+            <b>Zelle</b><span>Dólares desde EE. UU.</span>
+          </button>
+          <button class="method" type="button" role="radio" data-action="method" data-m="pm-manual" aria-checked="false">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 3h11l5 5v17H6z" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 14h8M10 19h8" stroke="currentColor" stroke-width="2.4"/></svg>
+            <b>Pago Móvil manual</b><span>Con comprobante, en menos de 2 h</span>
+          </button>
+        </div>
+        <div class="paybox" data-paybox></div>
+        <div data-f="payer">
+          <label class="lbl" for="__-payer">Teléfono desde el que pagas</label>
+          <input class="field" id="__-payer" type="tel" inputmode="tel" placeholder="0414-555-0000" data-in="payer">
+        </div>
+        <div data-f="bank">
+          <label class="lbl" for="__-bank">Tu banco</label>
+          <select class="field" id="__-bank" data-in="bank">
+            <option>Banesco</option><option>Banco de Venezuela</option><option>Mercantil</option><option>BBVA Provincial</option><option>BNC</option><option>Bancamiga</option>
+          </select>
+        </div>
+        <label class="lbl" for="__-ref" data-ref-label>Número de referencia</label>
+        <input class="field" id="__-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos">
+        <div data-f="file">
+          <input class="sr-only" id="__-file" type="file" accept="image/*,.pdf" data-in="file">
+          <label class="upload" for="__-file" data-upload>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg>
+            <span><span data-file-name>Subir comprobante</span><small data-file-sub>Opcional. Foto o PDF.</small></span>
+          </label>
+        </div>
+        <p class="err" data-err="pay" hidden></p>
+        <table class="sum" aria-label="Resumen de la compra">
+          <tbody>
+            <tr><td data-s="line">10 boletos × Bs 4.800</td><td data-s="bs">Bs 48.000,00</td></tr>
+            <tr class="sum__total"><td>Total</td><td data-s="bs2">Bs 48.000,00</td></tr>
+            <tr class="sum__usd"><td>En dólares</td><td data-s="usd">$54,43</td></tr>
+            <tr class="sum__rate"><td>Tasa BCV de ejemplo</td><td>Bs 881,88 por $</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="ck-foot">
+      <div class="ck-sum" aria-live="polite"><span data-f-qty>10 boletos</span><b data-f-bs>Bs 48.000,00</b><span data-f-usd>$54,43</span></div>
+      <button class="btn btn--accent" type="button" data-action="next" data-next>Continuar</button>
+    </div>
+
+    <div class="verify" data-verify hidden role="status">
+      <h2>Verificando tu pago</h2>
+      <p data-verify-line>Pago Móvil · ref. 004821 · <b>Bs 48.000,00</b></p>
+      <div class="vbar" aria-hidden="true"><span></span></div>
+      <p data-verify-note>Esto toma unos segundos. No cierres esta pantalla.</p>
+    </div>
+  </section>
+
+  <!-- Éxito -->
+  <section class="view view--success" data-v="success" aria-label="Compra confirmada" hidden>
+    <div class="scroller" data-ok-scroller>
+      <header class="ok-head">
+        <h1 class="display">¡Listo!</h1>
+        <p data-ok-lede></p>
+      </header>
+      <div class="pass">
+        <div class="pass__main">
+          <div class="pass__top"><b>LottoGE</b><span>Pase de sorteo</span></div>
+          <div class="route">
+            <div><b>CCS</b><span>Caracas</span></div>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+            <div><b>DXB</b><span>Dubái</span></div>
+          </div>
+          <div class="pass__grid">
+            <span>Pasajero<b data-ok-name>DANIELA ROJAS</b></span>
+            <span>Sorteo<b data-draw="date">23 OCT</b></span>
+            <span>Hora<b>10:00 PM</b></span>
+          </div>
+        </div>
+        <div class="pass__stub">
+          <span class="pass__lbl">Tu número de la suerte</span>
+          <span class="num" data-big-num></span>
+          <svg class="barcode" data-barcode viewBox="0 0 92 58" aria-hidden="true"></svg>
+        </div>
+      </div>
+      <div class="stubs-wrap" data-stubs-wrap>
+        <h2 data-stubs-title>Tus otros números</h2>
+        <ul class="stubs" data-stubs></ul>
+      </div>
+      <div class="ok-body">
+        <p>Te enviamos tus números a <b data-ok-mail></b> y por WhatsApp al <b data-ok-phone></b>.</p>
+        <table class="order" aria-label="Detalle de la orden"><tbody data-order></tbody></table>
+        <div class="ok-actions">
+          <button class="btn btn--accent btn--block" type="button" data-action="again">Comprar más boletos</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="home">Volver al inicio</button>
+        </div>
+      </div>
+    </div>
+    <canvas class="confetti" data-confetti aria-hidden="true"></canvas>
+  </section>
+
+  <div class="homebar" aria-hidden="true"></div>
+</div>
+</template>
+
+<script>
+(() => {
+  const PRICE = 4800, RATE = 881.88, TOTAL = 10000;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- formatting (es-VE) ---------- */
+  const group = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const num = (n, d = 0) => { const [i, f] = n.toFixed(d).split('.'); return f ? group(i) + ',' + f : group(i); };
+  const bs = n => 'Bs ' + num(n, 2);
+  const usd = n => '$' + num(n, 2);
+  const pad4 = n => String(n).padStart(4, '0');
+
+  /* ---------- draw date: three days ahead, 10:00 PM Venezuela (UTC-4) ---------- */
+  const DAY = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  const DAYL = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const MON = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const MONL = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const vet = new Date(Date.now() - 4 * 3600e3);
+  const dd = new Date(Date.UTC(vet.getUTCFullYear(), vet.getUTCMonth(), vet.getUTCDate() + 3));
+  const target = Date.UTC(dd.getUTCFullYear(), dd.getUTCMonth(), dd.getUTCDate(), 26, 0, 0);
+  const DRAW = {
+    short: `${DAY[dd.getUTCDay()]} ${dd.getUTCDate()} ${MON[dd.getUTCMonth()]}`,
+    long: `${DAYL[dd.getUTCDay()]} ${dd.getUTCDate()} de ${MONL[dd.getUTCMonth()]}`,
+    date: `${dd.getUTCDate()} ${MON[dd.getUTCMonth()].toUpperCase()}`
+  };
+  const paintDraw = root => root.querySelectorAll('[data-draw]').forEach(n => { n.textContent = DRAW[n.dataset.draw]; });
+
+  /* ---------- shared live figures (sample) ---------- */
+  const live = { sold: 7600, online: 1284, viewing: 47 };
+  const paintLive = (root = document) => {
+    const pct = Math.floor(live.sold / TOTAL * 100);
+    root.querySelectorAll('[data-live="online"]').forEach(n => n.textContent = num(live.online));
+    root.querySelectorAll('[data-live="viewing"]').forEach(n => n.textContent = live.viewing);
+    root.querySelectorAll('[data-live="pct"]').forEach(n => n.textContent = pct);
+    root.querySelectorAll('[data-live="left"]').forEach(n => n.textContent = num(TOTAL - live.sold));
+    root.querySelectorAll('[data-live="bar"]').forEach(n => n.style.width = (live.sold / TOTAL * 100).toFixed(1) + '%');
+    root.querySelectorAll('[data-live-bar]').forEach(n => n.setAttribute('aria-valuenow', pct));
+  };
+  const paintClock = (root = document) => {
+    let t = Math.max(0, target - Date.now());
+    const d = Math.floor(t / 864e5); t -= d * 864e5;
+    const h = Math.floor(t / 36e5); t -= h * 36e5;
+    const m = Math.floor(t / 6e4); const s = Math.floor((t - m * 6e4) / 1e3);
+    const two = v => String(v).padStart(2, '0');
+    root.querySelectorAll('[data-cd="d"]').forEach(n => n.textContent = d);
+    root.querySelectorAll('[data-cd="dl"]').forEach(n => n.textContent = d === 1 ? 'día' : 'días');
+    root.querySelectorAll('[data-cd="h"]').forEach(n => n.textContent = two(h));
+    root.querySelectorAll('[data-cd="m"]').forEach(n => n.textContent = two(m));
+    root.querySelectorAll('[data-cd="s"]').forEach(n => n.textContent = two(s));
+  };
+  setInterval(() => paintClock(), 1000);
+  setInterval(() => {
+    live.online = Math.max(980, Math.min(1620, live.online + Math.round(Math.random() * 24 - 10)));
+    live.viewing = Math.max(31, Math.min(78, live.viewing + Math.round(Math.random() * 6 - 3)));
+    paintLive();
+  }, 3200);
+  setInterval(() => { if (live.sold < 7890) { live.sold += 1 + Math.floor(Math.random() * 5); paintLive(); } }, 7000);
+
+  /* ---------- numbers already sold (sample rule: 76% of the 10.000) ---------- */
+  const taken = n => ((n * 7919 + 13) % 100) < 76;
+  const freeNear = (n, count) => { const out = []; for (let i = 1; out.length < count && i < 400; i++) { const c = (n + i) % TOTAL; if (!taken(c)) out.push(pad4(c)); } return out; };
+
+  const TICK = [
+    ['Carlos R.', 'Maracay', 5], ['Mariana P.', 'Caracas', 10], ['Yorman S.', 'Barinas', 2], ['Génesis A.', 'Mérida', 20],
+    ['Luis M.', 'Barquisimeto', 1], ['Rosa V.', 'Cumaná', 10], ['Kelvin D.', 'Valencia', 50], ['Andrea T.', 'Puerto La Cruz', 5]
+  ];
+  const tickerHTML = (() => {
+    const one = TICK.map(([n, c, q]) => `<span><b>${n}</b> de ${c} compró ${q} ${q === 1 ? 'boleto' : 'boletos'}</span>`).join('');
+    return one + one.replace(/<span>/g, '<span aria-hidden="true">');
+  })();
+
+  const PEOPLE = [
+    { name: 'Daniela Rojas', phone: '0414-555-2190', email: 'daniela.rojas@ejemplo.com' },
+    { name: 'José Gregorio Pérez', phone: '0424-555-7731', email: 'josegpz@ejemplo.com' },
+    { name: 'Andreína Lugo', phone: '0412-555-4408', email: 'andreina.lugo@ejemplo.com' },
+    { name: 'Luis Eduardo Marcano', phone: '0416-555-0952', email: 'lemarcano@ejemplo.com' }
+  ];
+  const personFor = ced => ced === '18456732' ? PEOPLE[0] : PEOPLE[[...ced].reduce((a, c) => a + +c, 0) % PEOPLE.length];
+
+  const METHODS = {
+    'pm-auto': { label: 'Pago Móvil', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: true, bank: true, file: false, cur: 'bs',
+      rows: [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'Esto toma unos segundos. No cierres esta pantalla.' },
+    'binance': { label: 'Binance Pay', refErr: 'el ID de la orden', ref: 'ID de la orden en Binance', refPh: 'Ej. 2849104772', payer: false, bank: false, file: true, cur: 'usdt',
+      rows: [['Pay ID', '412 908 337'], ['Titular', 'LottoGE Eventos']], note: 'Normalmente tarda menos de 2 horas. En esta demo se aprueba al instante.' },
+    'zelle': { label: 'Zelle', refErr: 'el código de confirmación', ref: 'Código de confirmación', refPh: 'Ej. ZL7Q2K', payer: false, bank: false, file: true, cur: 'usd',
+      rows: [['Correo', 'pagos@lottoge-ejemplo.com'], ['Titular', 'LottoGE Eventos LLC']], note: 'Normalmente tarda menos de 2 horas. En esta demo se aprueba al instante.' },
+    'pm-manual': { label: 'Pago Móvil manual', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: false, bank: true, file: true, cur: 'bs',
+      rows: [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'Normalmente tarda menos de 2 horas. En esta demo se aprueba al instante.' }
+  };
+
+  const zig = (teeth, depth, both) => {
+    const pts = [];
+    if (both) { for (let i = 0; i <= teeth; i++) pts.push(`${(i / teeth * 100).toFixed(2)}% ${i % 2 ? depth + 'px' : '0'}`); }
+    else pts.push('0 0', '100% 0');
+    for (let i = teeth; i >= 0; i--) pts.push(`${(i / teeth * 100).toFixed(2)}% ${i % 2 ? `calc(100% - ${depth}px)` : '100%'}`);
+    return `polygon(${pts.join(',')})`;
+  };
+  document.documentElement.style.setProperty('--zig-bottom', zig(36, 9, false));
+  document.documentElement.style.setProperty('--zig-both', zig(36, 9, true));
+
+  const TPL = document.getElementById('app-tpl').innerHTML;
+  let uid = 0;
+
+  class App {
+    constructor(screen, init, device) {
+      this.root = screen; this.device = device; this.init = init;
+      this.s = Object.assign({ view: 'home', step: 1, qty: 10, mode: 'random', picks: [], idType: 'V', cedula: '', name: '', phone: '', email: '',
+        method: 'pm-auto', ref: '', payer: '', bank: 'Banesco', file: '', numbers: [] }, JSON.parse(JSON.stringify(init)));
+      this.timers = [];
+      const p = 'p' + (++uid);
+      screen.innerHTML = TPL.replace(/__-/g, p + '-');
+      this.el = screen.querySelector('.app');
+      this.$ = q => this.el.querySelector(q);
+      this.$$ = q => [...this.el.querySelectorAll(q)];
+      paintDraw(this.el); paintLive(this.el); paintClock(this.el);
+      this.$('[data-ticker]').innerHTML = tickerHTML;
+      this.bind();
+      this.setupHome();
+      if (this.s.cedula) this.fillPerson(personFor(this.s.cedula), false);
+      this.syncInputs();
+      this.show(this.s.view);
+      if (init.pickTry) { this.$('[data-in="pick"]').value = init.pickTry; this.addPick(); }
+      if (init.verifying) this.verify(init.hold);
+      if (this.s.view === 'success') this.buildSuccess();
+      if (init.scrollTo) this.scrollHome(init.scrollTo);
+      if (init.ckScroll) { const b = this.$('[data-ck-body]'), t = this.$(`[data-panel="${init.ckScroll}"]`); const go = () => { b.scrollTop = t.offsetTop - b.offsetTop - 120; }; go(); requestAnimationFrame(go); document.fonts && document.fonts.ready.then(go); }
+    }
+
+    destroy() { this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
+    later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
+
+    bind() {
+      this.el.addEventListener('click', e => {
+        const a = e.target.closest('[data-action]');
+        if (a) return this.act(a.dataset.action, a, e);
+        const row = e.target.closest('.row');
+        if (row) return this.openOnly(this.$$('.row'), row);
+        const st = e.target.closest('.stage > button, .fcard > button');
+        if (st) {
+          const group = st.closest('.stage') ? this.$$('.stage > button') : this.$$('.fcard > button');
+          return this.openOnly(group, st, true);
+        }
+        const chipX = e.target.closest('[data-unpick]');
+        if (chipX) { this.s.picks = this.s.picks.filter(n => n !== chipX.dataset.unpick); this.renderPicks(); }
+        const sg = e.target.closest('[data-sugg-n]');
+        if (sg) { this.$('[data-in="pick"]').value = sg.dataset.suggN; this.addPick(); }
+        const cp = e.target.closest('[data-copy]');
+        if (cp) this.copy(cp);
+      });
+      this.el.addEventListener('input', e => this.onInput(e.target));
+      this.el.addEventListener('change', e => {
+        const t = e.target;
+        if (t.dataset.in === 'bank') this.s.bank = t.value;
+        if (t.dataset.in === 'file') { this.s.file = t.files && t.files[0] ? t.files[0].name : ''; this.renderFile(); }
+      });
+      this.el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.target.dataset.in === 'pick') { e.preventDefault(); this.addPick(); }
+      });
+    }
+
+    openOnly(list, btn, panels) {
+      const was = btn.getAttribute('aria-expanded') === 'true';
+      list.forEach(b => {
+        const on = b === btn ? (panels ? !was : true) : false;
+        b.setAttribute('aria-expanded', on);
+        if (panels) { const body = this.el.querySelector('#' + b.getAttribute('aria-controls')); if (body) body.hidden = !on; }
+      });
+    }
+
+    act(name, a) {
+      const s = this.s;
+      switch (name) {
+        case 'theme': return toggleTheme(this.device);
+        case 'buy': s.step = 1; return this.show('checkout');
+        case 'back': if (s.step > 1) { s.step--; this.renderStep(); } else this.show('home'); return;
+        case 'next': return this.next();
+        case 'quick': s.qty = +a.dataset.q; this.syncQty(); return;
+        case 'inc': s.qty = (Number.isInteger(s.qty) && s.qty > 0 ? s.qty : 0) + 1; this.syncQty(); return;
+        case 'dec': s.qty = Math.max(1, (Number.isInteger(s.qty) ? s.qty : 2) - 1); this.syncQty(); return;
+        case 'mode': s.mode = a.dataset.mode; this.renderMode(); return;
+        case 'add-pick': return this.addPick();
+        case 'idtype': s.idType = a.dataset.t; this.$$('[data-action="idtype"]').forEach(b => b.setAttribute('aria-checked', b === a)); return;
+        case 'method': s.method = a.dataset.m; this.renderMethod(); return;
+        case 'again': Object.assign(s, { step: 1, picks: [], mode: 'random', ref: '', file: '' }); this.syncInputs(); return this.show('checkout');
+        case 'home': return this.show('home');
+      }
+    }
+
+    onInput(t) {
+      const s = this.s, k = t.dataset.in;
+      if (!k) return;
+      if (k === 'qty') {
+        const clean = t.value.replace(/[^\d]/g, '');
+        if (clean !== t.value) t.value = clean;
+        s.qty = clean === '' ? NaN : parseInt(clean, 10);
+        this.syncQty(true);
+      } else if (k === 'pick') {
+        t.value = t.value.replace(/\D/g, '').slice(0, 4);
+      } else if (k === 'cedula') {
+        t.value = t.value.replace(/\D/g, '').slice(0, 9);
+        s.cedula = t.value;
+        clearTimeout(this.lk);
+        const lk = this.$('[data-lookup]');
+        if (s.cedula.length >= 6) {
+          lk.className = 'lookup'; lk.innerHTML = '<span class="spin" aria-hidden="true"></span>Buscando tus datos…';
+          this.lk = this.later(() => this.fillPerson(personFor(s.cedula), true), 900);
+        } else { lk.className = 'lookup'; lk.textContent = ''; }
+      } else if (k === 'name' || k === 'phone' || k === 'email' || k === 'ref' || k === 'payer') {
+        s[k] = t.value;
+        t.classList.remove('is-bad');
+      }
+    }
+
+    fillPerson(p, animate) {
+      Object.assign(this.s, { name: p.name, phone: p.phone, email: p.email });
+      const lk = this.$('[data-lookup]');
+      lk.className = 'lookup is-ok';
+      lk.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" fill="currentColor"/></svg>Encontramos tus datos. Revísalos.';
+      ['name', 'phone', 'email'].forEach((k, i) => {
+        const f = this.$(`[data-in="${k}"]`);
+        f.value = this.s[k];
+        f.classList.remove('is-bad', 'is-filled');
+        if (animate && !reduce) { void f.offsetWidth; f.style.animationDelay = i * 90 + 'ms'; f.classList.add('is-filled'); }
+      });
+    }
+
+    syncInputs() {
+      const s = this.s;
+      this.$('[data-in="cedula"]').value = s.cedula;
+      this.$$('[data-action="idtype"]').forEach(b => b.setAttribute('aria-checked', b.dataset.t === s.idType));
+      this.$('[data-in="ref"]').value = s.ref;
+      this.$('[data-in="payer"]').value = s.payer;
+      this.$('[data-in="bank"]').value = s.bank;
+      this.syncQty(); this.renderMode(); this.renderMethod(); this.renderFile();
+    }
+
+    syncQty(fromTyping) {
+      const s = this.s, ok = Number.isInteger(s.qty) && s.qty >= 1;
+      const inp = this.$('[data-in="qty"]');
+      if (!fromTyping) inp.value = ok ? s.qty : '';
+      this.$$('[data-action="quick"]').forEach(b => b.setAttribute('aria-pressed', ok && +b.dataset.q === s.qty));
+      const err = this.$('[data-err="qty"]');
+      const msg = !ok ? 'Escribe una cantidad entera de 1 o más.' : s.qty > 500 ? 'El máximo por compra es 500 boletos.' : '';
+      err.textContent = msg; err.hidden = !msg; inp.classList.toggle('is-bad', !!msg);
+      if (ok && s.picks.length > s.qty) s.picks = s.picks.slice(0, s.qty);
+      this.renderPicks(); this.renderTotals();
+    }
+
+    renderTotals() {
+      const s = this.s, ok = Number.isInteger(s.qty) && s.qty >= 1;
+      const q = ok ? s.qty : 0, tot = q * PRICE;
+      this.$('[data-f-qty]').textContent = ok ? `${num(q)} ${q === 1 ? 'boleto' : 'boletos'}` : 'Sin boletos';
+      this.$('[data-f-bs]').textContent = bs(tot);
+      this.$('[data-f-usd]').textContent = usd(tot / RATE);
+      this.$('[data-s="line"]').textContent = `${num(q)} ${q === 1 ? 'boleto' : 'boletos'} × Bs 4.800`;
+      this.$('[data-s="bs"]').textContent = bs(tot);
+      this.$('[data-s="bs2"]').textContent = bs(tot);
+      this.$('[data-s="usd"]').textContent = usd(tot / RATE);
+      this.renderPaybox();
+    }
+
+    renderMode() {
+      const m = this.s.mode;
+      this.$$('[data-action="mode"]').forEach(b => b.setAttribute('aria-checked', b.dataset.mode === m));
+      this.$('[data-panel="random"]').hidden = m !== 'random';
+      this.$('[data-panel="manual"]').hidden = m !== 'manual';
+      this.renderPicks();
+    }
+
+    renderPicks() {
+      const s = this.s;
+      this.$('[data-picks]').innerHTML = s.picks.map(n => `<li>${n}<button type="button" data-unpick="${n}" aria-label="Quitar el ${n}">×</button></li>`).join('');
+      const left = (Number.isInteger(s.qty) ? s.qty : 0) - s.picks.length;
+      this.$('[data-picks-left]').textContent = left > 0
+        ? `Te ${left === 1 ? 'falta 1 número' : `faltan ${left} números`}. Los que no elijas salen al azar.`
+        : 'Listo, elegiste todos tus números.';
+    }
+
+    addPick() {
+      const s = this.s, inp = this.$('[data-in="pick"]'), err = this.$('[data-err="pick"]'), sugg = this.$('[data-sugg]');
+      const raw = inp.value.trim();
+      let msg = '', opts = [];
+      if (!/^\d{1,4}$/.test(raw)) msg = 'Escribe un número de hasta 4 cifras, del 0000 al 9999.';
+      else {
+        const n = pad4(raw);
+        if (s.picks.includes(n)) msg = `Ya agregaste el ${n}.`;
+        else if (Number.isInteger(s.qty) && s.picks.length >= s.qty) msg = `Ya elegiste tus ${s.qty} números. Sube la cantidad para elegir más.`;
+        else if (taken(+n)) { msg = `El ${n} ya está vendido. Estos están libres:`; opts = freeNear(+n, 3); }
+        else { s.picks.push(n); inp.value = ''; }
+      }
+      err.textContent = msg; err.hidden = !msg; inp.classList.toggle('is-bad', !!msg);
+      sugg.innerHTML = opts.map(n => `<button type="button" data-sugg-n="${n}" aria-label="Elegir el ${n}">${n}</button>`).join('');
+      this.renderPicks();
+    }
+
+    renderMethod() {
+      const m = METHODS[this.s.method];
+      this.$$('[data-action="method"]').forEach(b => b.setAttribute('aria-checked', b.dataset.m === this.s.method));
+      this.$('[data-f="payer"]').hidden = !m.payer;
+      this.$('[data-f="bank"]').hidden = !m.bank;
+      this.$('[data-f="file"]').hidden = !m.file;
+      this.$('[data-ref-label]').textContent = m.ref;
+      this.$('[data-in="ref"]').placeholder = m.refPh;
+      this.$('[data-in="ref"]').inputMode = this.s.method === 'zelle' ? 'text' : 'numeric';
+      this.renderPaybox();
+    }
+
+    renderPaybox() {
+      const m = METHODS[this.s.method], q = Number.isInteger(this.s.qty) ? this.s.qty : 0, tot = q * PRICE;
+      const amount = m.cur === 'bs' ? bs(tot) : m.cur === 'usdt' ? num(tot / RATE, 2) + ' USDT' : usd(tot / RATE);
+      const rows = [...m.rows, ['Monto exacto', amount]];
+      this.$('[data-paybox]').innerHTML = `<table aria-label="Datos para pagar con ${m.label}"><tbody>${rows.map(([k, v]) =>
+        `<tr><td>${k}</td><td>${v}</td><td><button type="button" class="copy" data-copy="${v}" aria-label="Copiar ${k.toLowerCase()}">Copiar</button></td></tr>`).join('')}</tbody></table>`;
+    }
+
+    renderFile() {
+      const up = this.$('[data-upload]');
+      up.classList.toggle('has-file', !!this.s.file);
+      this.$('[data-file-name]').textContent = this.s.file || 'Subir comprobante';
+      this.$('[data-file-sub]').textContent = this.s.file ? 'Comprobante listo. Toca para cambiarlo.' : 'Opcional. Foto o PDF.';
+    }
+
+    copy(btn) {
+      const text = btn.dataset.copy.replace(/^Bs /, '');
+      const done = () => { btn.textContent = 'Copiado'; btn.classList.add('is-done'); this.later(() => { btn.textContent = 'Copiar'; btn.classList.remove('is-done'); }, 1600); };
+      try { navigator.clipboard.writeText(text).then(done, done); } catch (e) { done(); }
+    }
+
+    show(view) {
+      const s = this.s;
+      s.view = view;
+      this.el.dataset.view = view;
+      this.$$('[data-v]').forEach(v => v.hidden = v.dataset.v !== view);
+      if (view === 'checkout') this.renderStep();
+      if (view === 'success') this.$('[data-ok-scroller]').scrollTop = 0;
+    }
+
+    renderStep() {
+      const s = this.s;
+      this.$$('[data-step]').forEach(n => n.hidden = +n.dataset.step !== s.step);
+      this.$$('[data-dot]').forEach(n => {
+        const i = +n.dataset.dot;
+        n.className = i < s.step ? 'is-done' : i === s.step ? 'is-now' : '';
+        if (i === s.step) n.setAttribute('aria-current', 'step'); else n.removeAttribute('aria-current');
+      });
+      this.$('[data-back-label]').textContent = s.step === 1 ? 'Inicio' : s.step === 2 ? 'Boletos' : 'Datos';
+      this.$('[data-next]').textContent = s.step === 3 ? 'Confirmar pago' : 'Continuar';
+      this.$('[data-ck-body]').scrollTop = 0;
+      this.$$('.err').forEach(e => { if (e.dataset.err !== 'qty' && e.dataset.err !== 'pick') e.hidden = true; });
+    }
+
+    next() {
+      const s = this.s;
+      if (s.step === 1) {
+        if (!(Number.isInteger(s.qty) && s.qty >= 1 && s.qty <= 500)) { this.syncQty(); this.$('[data-in="qty"]').focus(); return; }
+      }
+      if (s.step === 2) {
+        const bad = [];
+        if (!/^\d{6,9}$/.test(s.cedula)) bad.push(['cedula', 'tu cédula, solo números (de 6 a 9 dígitos)']);
+        if (s.name.trim().length < 3) bad.push(['name', 'tu nombre y apellido']);
+        if (s.phone.replace(/\D/g, '').length !== 11) bad.push(['phone', 'tu teléfono de 11 dígitos, por ejemplo 0414-555-2190']);
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email)) bad.push(['email', 'un correo válido, por ejemplo tu@correo.com']);
+        const err = this.$('[data-err="data"]');
+        bad.forEach(([k]) => this.$(`[data-in="${k}"]`).classList.add('is-bad'));
+        if (bad.length) { err.textContent = 'Falta ' + bad[0][1] + '.'; err.hidden = false; this.$(`[data-in="${bad[0][0]}"]`).focus(); return; }
+      }
+      if (s.step === 3) {
+        const err = this.$('[data-err="pay"]'), m = METHODS[s.method];
+        let msg = '', field = '';
+        if (m.payer && s.payer.replace(/\D/g, '').length !== 11) { msg = 'Escribe el teléfono desde el que hiciste el Pago Móvil (11 dígitos).'; field = 'payer'; }
+        else if (s.ref.trim().length < 4) { msg = `Escribe ${m.refErr} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
+        if (msg) { err.textContent = msg; err.hidden = false; const f = this.$(`[data-in="${field}"]`); f.classList.add('is-bad'); f.focus(); return; }
+        err.hidden = true;
+        return this.verify(false);
+      }
+      s.step++; this.renderStep();
+    }
+
+    verify(hold) {
+      const s = this.s, m = METHODS[s.method], q = s.qty, tot = q * PRICE;
+      const amount = m.cur === 'bs' ? bs(tot) : usd(tot / RATE);
+      this.$('[data-verify-line]').innerHTML = `${m.label} · ref. ${s.ref || '—'} · <b>${amount}</b>`;
+      this.$('[data-verify-note]').textContent = m.note;
+      this.$('[data-verify]').hidden = false;
+      if (hold) return;
+      this.later(() => { this.$('[data-verify]').hidden = true; this.show('success'); this.buildSuccess(true); }, 2400);
+    }
+
+    buildSuccess(playNow) {
+      const s = this.s, q = Number.isInteger(s.qty) && s.qty > 0 ? s.qty : 1;
+      const p = s.name ? s : Object.assign({}, s, PEOPLE[0]);
+      const nums = [...s.picks];
+      let seed = 4821 + q * 37;
+      while (nums.length < q) { seed = (seed * 1103515245 + 12345) % 2147483648; const n = seed % TOTAL; const k = pad4(n); if (!taken(n) && !nums.includes(k)) nums.push(k); }
+      s.numbers = nums;
+      const first = p.name.split(' ')[0];
+      this.$('[data-ok-lede]').innerHTML = `${first}, ${q === 1 ? 'tu boleto ya está' : `tus <b>${q} boletos</b> ya están`} en el sorteo del <b>${DRAW.long}</b> a las 10:00 PM.`;
+      this.$('[data-ok-name]').textContent = p.name.toUpperCase();
+      this.$('[data-ok-mail]').textContent = p.email;
+      this.$('[data-ok-phone]').textContent = p.phone;
+      const digits = n => [...n].map(d => `<i data-d="${d}">${d}</i>`).join('');
+      this.$('[data-big-num]').innerHTML = digits(nums[0]);
+      this.$('[data-big-num]').setAttribute('aria-label', 'Número ' + nums[0]);
+      this.$('[data-stubs-wrap]').hidden = q < 2;
+      this.$('[data-stubs-title]').textContent = q === 2 ? 'Tu otro número' : `Tus otros ${q - 1} números`;
+      this.$('[data-stubs]').innerHTML = nums.slice(1).map(n => `<li><span>CCS → DXB</span><span class="num" aria-label="Número ${n}">${digits(n)}</span></li>`).join('');
+      this.$('[data-barcode]').innerHTML = barcode(nums[0]);
+      const m = METHODS[s.method], tot = q * PRICE;
+      const order = [['Orden', 'LG-2310-' + (48000 + q * 7)], ['Método', m.label], ['Referencia', s.ref || '004821'], ['Total', bs(tot)], ['En dólares', usd(tot / RATE)]];
+      this.$('[data-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+      this.okPlayed = false;
+      if (playNow) this.celebrate();
+      else this.whenVisible(() => this.celebrate());
+    }
+
+    celebrate() {
+      if (this.okPlayed) return; this.okPlayed = true;
+      const cells = this.$$('.view--success .num i');
+      if (!reduce) {
+        cells.forEach((c, i) => {
+          const end = c.dataset.d, stop = 500 + Math.min(i, 24) * 70;
+          const t0 = performance.now();
+          const spin = () => {
+            if (performance.now() - t0 >= stop) { c.textContent = end; c.classList.add('is-set'); return; }
+            c.textContent = Math.floor(Math.random() * 10); this.later(spin, 55);
+          };
+          spin();
+        });
+        confetti(this.$('[data-confetti]'), this);
+      }
+    }
+
+    whenVisible(fn) {
+      this.io2 = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { this.io2.disconnect(); fn(); } }, { threshold: .35 });
+      this.io2.observe(this.device);
+    }
+
+    setupHome() {
+      const sc = this.$('[data-scroller]'), bar = this.$('[data-buybar]');
+      this.io = new IntersectionObserver(es => es.forEach(e => {
+        if (e.target.hasAttribute('data-hero-buy')) { bar.classList.toggle('is-on', !e.isIntersecting && e.boundingClientRect.top < e.rootBounds.top + 200); bar.querySelector('button').tabIndex = e.isIntersecting ? -1 : 0; return; }
+        if (e.isIntersecting && !reduce) {
+          [...e.target.children].forEach((c, i) => { c.style.animationDelay = i * 75 + 'ms'; c.classList.add('rise'); });
+          this.io.unobserve(e.target);
+        }
+      }), { root: sc, rootMargin: '0px 0px 60px 0px' });
+      this.$$('[data-reveal]').forEach(n => this.io.observe(n));
+      this.io.observe(this.$('[data-hero-buy]'));
+    }
+
+    scrollHome(key) {
+      const go = () => {
+        const sc = this.$('[data-scroller]'), t = this.$(`[data-sec="${key}"]`);
+        if (!t) return;
+        sc.scrollTop = t.offsetTop - (key === 'sold' ? 104 : 52);
+      };
+      go(); requestAnimationFrame(go);
+      window.addEventListener('load', go, { once: true });
+      document.fonts && document.fonts.ready.then(go);
+    }
+  }
+
+  function barcode(seedStr) {
+    let x = 0, seed = +seedStr + 97, out = '';
+    while (x < 90) { seed = (seed * 69069 + 1) % 4294967296; const w = 1 + (seed >>> 8) % 3; out += `<rect x="${x}" y="0" width="${w}" height="58"/>`; x += w + 1 + (seed >>> 16) % 3; }
+    return out;
+  }
+
+  function confetti(cv, app) {
+    const r = cv.getBoundingClientRect(), W = cv.width = cv.offsetWidth * 2, H = cv.height = cv.offsetHeight * 2;
+    const ctx = cv.getContext('2d'), cs = getComputedStyle(app.el);
+    const cols = ['--accent', '--band', '--paper', '--field-ink', '--t3'].map(v => cs.getPropertyValue(v).trim() || '#9fd3c4');
+    const P = Array.from({ length: 140 }, () => ({ x: W / 2 + (Math.random() - .5) * W * .3, y: H * .22, vx: (Math.random() - .5) * 26, vy: -Math.random() * 30 - 8,
+      w: 8 + Math.random() * 10, h: 5 + Math.random() * 6, a: Math.random() * 6, va: (Math.random() - .5) * .4, c: cols[Math.floor(Math.random() * cols.length)] }));
+    const t0 = performance.now();
+    const frame = t => {
+      ctx.clearRect(0, 0, W, H);
+      P.forEach(p => { p.vy += .9; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.a += p.va;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore(); });
+      if (t - t0 < 3200) app.raf = requestAnimationFrame(frame); else ctx.clearRect(0, 0, W, H);
+    };
+    app.raf = requestAnimationFrame(frame);
+  }
+
+  /* ---------- theme ---------- */
+  const isDark = el => {
+    const f = el && el.closest('.force-dark, .force-light');
+    if (f) return f.classList.contains('force-dark');
+    const t = document.documentElement.dataset.theme;
+    return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  };
+  const labelTheme = () => { const l = document.querySelector('[data-theme-label]'); if (l) l.textContent = isDark() ? 'Modo claro' : 'Modo oscuro'; };
+  function toggleTheme(device) {
+    const f = device && device.querySelector('.force-dark, .force-light');
+    if (f) { const d = f.classList.contains('force-dark'); f.classList.toggle('force-dark', !d); f.classList.toggle('force-light', d); return; }
+    document.documentElement.dataset.theme = isDark() ? 'light' : 'dark';
+    labelTheme();
+  }
+  document.querySelector('[data-global-theme]').addEventListener('click', () => toggleTheme(null));
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', labelTheme);
+  labelTheme();
+  paintDraw(document);
+
+  /* ---------- mount the phones ---------- */
+  const mount = dev => {
+    if (dev._app) dev._app.destroy();
+    dev._app = new App(dev.querySelector('.screen'), JSON.parse(dev.dataset.init || '{}'), dev);
+  };
+  const devices = [...document.querySelectorAll('.device')];
+  devices.forEach(dev => { mount(dev); dev.querySelector('.reset').addEventListener('click', () => mount(dev)); });
+
+  /* ---------- fit the phones to the width ---------- */
+  const fit = () => {
+    const W = document.querySelector('main').clientWidth, gap = 48, FW = 417;
+    let z;
+    if (W >= 3 * FW * .8 + 2 * gap) z = Math.min(.86, (W - 2 * gap) / (3 * FW));
+    else if (W >= 2 * FW * .66 + gap) z = Math.min(.86, (W - gap) / (2 * FW));
+    else z = Math.min(.92, W / FW);
+    document.documentElement.style.setProperty('--z', z.toFixed(4));
+  };
+  fit();
+  new ResizeObserver(fit).observe(document.querySelector('main'));
+})();
+</script>
