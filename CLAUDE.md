@@ -4,7 +4,7 @@ Fronts de compra de rifas para la plataforma **LottoGE** (Venezuela). Cada front
 
 ## Estructura
 
-- `fronts/<nombre>/` — un front por carpeta. Hoy: `fronts/minimalista/`.
+- `fronts/<nombre>/` — un front por carpeta. Hoy: `minimalista` (la base), `vibrante`, `neon`, `pop` y `experimental`. Todas comparten la misma lógica y el mismo `config.js`; las demás son la minimalista con una capa de diseño al final del `<style>` de su vista previa y, si la tienen, sus adornos o su reorganización en la función `themeFx` del `<script>`. La `experimental` reubica las secciones en una hoja con pestañas.
   - `vista-previa/index.html` — fuente del diseño y la lógica, mostrada dentro de iPhones y con panel de configuración.
   - `front/` — lo exportable: `index.html` (generado), `config.js` (datos de la rifa) e `img/`.
   - `build_front.py` — regenera `front/index.html` desde la vista previa.
@@ -23,4 +23,5 @@ Cuando el usuario diga que un front "está bien" o lo apruebe, se guarda **siemp
 - Español de Venezuela, tono cercano. Montos en Bs y $, con la tasa BCV.
 - Las notificaciones al comprador van **solo por correo** (no WhatsApp).
 - Pago Móvil al instante se verifica con la pasarela (R4) y asigna los números de una vez. Los métodos manuales (Pago Móvil manual, Binance, Zelle) quedan como **boletos reservados** hasta que el rifero los apruebe. Si el comprador compró al azar, no ve números hasta la aprobación.
+- Tonos neutros en las plantillas; el color fuerte lo pone el rifero (su color de marca). La `vibrante` se queda como está.
 - Los datos de ejemplo se marcan como tales; no se inventan clientes ni estadísticas reales.

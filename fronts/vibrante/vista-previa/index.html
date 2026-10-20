@@ -1,0 +1,1785 @@
+<title>LottoGE Plantilla Vibrante</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Front de compra de rifas LottoGE: todo en la misma página, con selección de boletos, datos y pago en el mismo lugar. Configurable en vivo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+/* Layout: a neutral platform shell that steps back so each rifero's flyer and brand colour carry the page.
+   The whole purchase happens inside one box on the landing: tickets, then buyer data, then payment, in the same place. */
+:root, .force-light {
+  --bg: #f3f4f2;
+  --surface: #e7e9e6;
+  --surface-2: #d9dcd8;
+  --ink: #111312;
+  --muted: #535855;
+  --good: #137a47;
+  --good-ink: #ffffff;
+  --wait: #9a5b00;
+  --danger: #b3261e;
+  --accent: #e9b227;
+  --accent-ink: #17130a;
+  --scrim: rgba(10, 12, 11, .55);
+  --titanium: #5a605d;
+  --bezel: #050606;
+  --island: #000000;
+  --on-island: #ffffff;
+  --font: "TikTok Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0f0f; --surface: #1a1c1b; --surface-2: #272a29; --ink: #edeeec; --muted: #a0a5a2;
+    --good: #6fd19c; --good-ink: #08170f; --wait: #f2b552; --danger: #ff8f80; --scrim: rgba(0, 0, 0, .7); --titanium: #3d4341;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"], .force-dark {
+  --bg: #0e0f0f; --surface: #1a1c1b; --surface-2: #272a29; --ink: #edeeec; --muted: #a0a5a2;
+  --good: #6fd19c; --good-ink: #08170f; --wait: #f2b552; --danger: #ff8f80; --scrim: rgba(0, 0, 0, .7); --titanium: #3d4341;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wide { font-weight: 800; font-stretch: 150%; text-transform: uppercase; letter-spacing: -0.01em; line-height: .92; }
+
+/* ---------- Showcase ---------- */
+.wrap { max-width: 1320px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.top { padding-block: 28px 64px; display: grid; gap: 26px; }
+.top__bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.lgmark { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-stretch: 150%; font-size: 21px; }
+.lgmark i { width: 26px; height: 26px; background: currentColor; display: block; clip-path: polygon(0 0, 100% 0, 100% 62%, 62% 100%, 0 100%); }
+.themebtn { border: 0; background: var(--surface); padding: 10px 16px; font-size: 15px; font-weight: 500; display: inline-flex; gap: 10px; align-items: center; transition: background .2s, transform .15s; }
+.themebtn:hover { background: var(--surface-2); }
+.themebtn:active { transform: scale(.97); }
+.top h1 { margin: 22px 0 0; font-size: clamp(46px, 9.4vw, 150px); max-width: 12ch; text-wrap: balance; }
+.top__row { display: grid; gap: 18px; }
+.top__lede { margin: 0; font-size: clamp(18px, 1.2vw + 12px, 24px); line-height: 1.4; max-width: 50ch; }
+.top__note { margin: 0; color: var(--muted); }
+@media (min-width: 900px) { .top__row { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: end; } .top__note { text-align: right; } }
+
+.cfg { background: var(--surface); padding-block: 40px 44px; margin-bottom: 120px; }
+.cfg__in { display: grid; gap: 32px; }
+@media (min-width: 1000px) { .cfg__in { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); } }
+.cfg h2, .group__head h2 { margin: 0; font-size: clamp(30px, 3vw + 10px, 52px); line-height: 1.02; letter-spacing: -0.02em; font-weight: 800; font-stretch: 125%; text-wrap: balance; }
+.cfg__intro p { margin: 14px 0 0; font-size: 18px; max-width: 40ch; }
+.cfg__intro .top__note { font-size: 15px; }
+.cfg form { display: grid; gap: 28px 24px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .cfg form { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 12px; align-content: start; min-width: 0; }
+legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
+.f { display: grid; gap: 6px; min-width: 0; }
+.f label, .f > span { font-size: 14px; font-weight: 600; }
+.f2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.in { width: 100%; min-height: 48px; border: 2px solid var(--surface-2); background: var(--bg); padding: 0 12px; font-size: 16px; border-radius: 0; appearance: none; transition: border-color .2s; }
+.in:focus { outline: none; border-color: var(--ink); }
+.in.is-bad { border-color: var(--danger); }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.sw { position: relative; }
+.sw input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.sw span { display: grid; place-items: center; min-width: 76px; min-height: 44px; padding: 0 12px; font-size: 14px; font-weight: 700; background: var(--c); color: var(--ci); transition: transform .15s; }
+.sw input:checked + span { outline: 3px solid var(--ink); outline-offset: 3px; }
+.sw input:focus-visible + span { outline: 3px dashed var(--ink); outline-offset: 3px; }
+.sw:active span { transform: scale(.96); }
+.imgrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.thumbs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.thumbs li { position: relative; }
+.thumbs img { width: 64px; height: 64px; object-fit: cover; object-position: top; display: block; background: var(--surface-2); }
+.thumbs button { position: absolute; top: 2px; right: 2px; width: 26px; height: 26px; border: 0; background: var(--ink); color: var(--bg); font-size: 16px; line-height: 1; }
+.thumbs small { position: absolute; left: 0; bottom: 0; background: var(--ink); color: var(--bg); font-size: 11px; font-weight: 700; padding: 1px 5px; }
+.f > span small { font-weight: 400; color: var(--muted); }
+.pbtn { border: 0; min-height: 44px; padding: 0 14px; font-weight: 700; font-size: 15px; background: var(--ink); color: var(--bg); transition: transform .15s, opacity .2s; display: inline-flex; align-items: center; cursor: pointer; }
+.pbtn:hover { opacity: .85; }
+.pbtn:active { transform: scale(.97); }
+.pbtn--ghost { background: var(--bg); color: var(--ink); }
+.cfg__err { margin: 0; color: var(--danger); font-size: 14px; }
+.cfg__foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.cfg__foot p { margin: 0; font-size: 14px; color: var(--muted); }
+
+.group { padding-block: 0 140px; }
+.group__head { display: grid; gap: 12px; margin-bottom: 44px; }
+.group__head p { margin: 0; max-width: 62ch; font-size: 18px; }
+.gallery { display: flex; flex-wrap: wrap; gap: 64px 48px; }
+.device { margin: 0; display: grid; gap: 18px; width: min-content; }
+.device figcaption { display: grid; gap: 6px; }
+.device h3 { margin: 0; font-size: 19px; line-height: 1.25; font-weight: 600; }
+.device figcaption p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.45; }
+.reset { justify-self: start; margin-top: 6px; border: 0; background: none; padding: 6px 0; font-size: 15px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.reset:hover { text-decoration-thickness: 2px; }
+.foot { padding-block: 0 72px; display: grid; gap: 12px; color: var(--muted); font-size: 15px; max-width: 80ch; }
+.foot p { margin: 0; }
+.foot strong { color: var(--ink); }
+
+/* ---------- iPhone ---------- */
+.frame { zoom: var(--z, .8); width: 417px; height: 876px; flex: none; border-radius: 68px; background: var(--titanium); padding: 4px; position: relative; }
+.frame::before, .frame::after { content: ""; position: absolute; background: var(--titanium); width: 4px; border-radius: 2px; }
+.frame::before { left: -4px; top: 190px; height: 64px; }
+.frame::after { right: -4px; top: 250px; height: 100px; }
+.bezel { width: 100%; height: 100%; border-radius: 64px; background: var(--bezel); padding: 8px; }
+.screen { position: relative; width: 393px; height: 852px; border-radius: 56px; overflow: hidden; background: var(--bg); color: var(--ink); isolation: isolate; font-size: 16px; line-height: 1.45; }
+
+/* ---------- App shell ---------- */
+.app { position: absolute; inset: 0; }
+.island { position: absolute; z-index: 80; top: 11px; left: 50%; width: 124px; height: 36px; margin-left: -62px; border-radius: 20px; background: var(--island); }
+.sbar { position: absolute; z-index: 70; inset: 0 0 auto; height: 54px; padding: 18px 30px 0 46px; display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg); color: var(--ink); font-weight: 600; font-size: 17px; line-height: 1; }
+.sbar__icons { display: flex; gap: 6px; align-items: center; padding-top: 1px; }
+.sbar svg { display: block; fill: currentColor; }
+.app.is-dark-top .sbar { background: var(--island); color: var(--on-island); }
+.homebar { position: absolute; z-index: 90; bottom: 8px; left: 50%; width: 136px; margin-left: -68px; height: 5px; border-radius: 3px; background: var(--ink); pointer-events: none; }
+.view { position: absolute; inset: 0; }
+.scroller { position: absolute; inset: 54px 0 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.scroller::-webkit-scrollbar { display: none; }
+
+.btn { border: 0; border-radius: 0; min-height: 56px; padding: 0 22px; font-weight: 700; font-size: 17px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: transform .15s ease, background .2s ease, color .2s ease, opacity .2s; }
+.btn:active { transform: scale(.97); }
+.btn--accent { background: var(--accent); color: var(--accent-ink); }
+.btn--accent:hover { opacity: .88; }
+.btn--ink { background: var(--ink); color: var(--bg); }
+.btn--ink:hover { opacity: .85; }
+.btn--ghost { background: var(--surface); color: var(--ink); }
+.btn--ghost:hover { background: var(--surface-2); }
+.btn--block { width: 100%; }
+.btn:disabled { background: var(--surface-2); color: var(--muted); opacity: 1; transform: none; }
+
+/* Home */
+.nav { position: sticky; top: 0; z-index: 20; height: 56px; padding: 0 12px 0 20px; display: flex; align-items: center; gap: 8px; background: var(--bg); }
+.org { display: flex; align-items: center; gap: 10px; margin-right: auto; min-width: 0; }
+.org__mark { width: 32px; height: 32px; flex: none; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 14px; }
+.org__name { font-weight: 700; font-size: 16px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip { border: 0; background: var(--surface); min-height: 38px; padding: 0 12px; font-size: 14px; font-weight: 600; white-space: nowrap; transition: background .2s, transform .15s; }
+.chip:hover { background: var(--surface-2); }
+.chip:active { transform: scale(.96); }
+.iconbtn { border: 0; background: none; width: 40px; height: 40px; display: grid; place-items: center; flex: none; transition: transform .15s; }
+.iconbtn:active { transform: scale(.9); }
+.iconbtn svg { width: 22px; height: 22px; }
+
+.ticker { background: var(--ink); color: var(--bg); display: flex; align-items: center; height: 44px; overflow: hidden; font-size: 14px; }
+.ticker__label { flex: none; height: 100%; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 20px; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.ticker__viewport { overflow: hidden; flex: 1; min-width: 0; }
+.ticker__track { display: flex; width: max-content; animation: marquee 50s linear infinite; }
+.ticker__track span { padding: 0 20px; white-space: nowrap; }
+.ticker__track b { font-weight: 600; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; animation: pulse 1.8s ease-in-out infinite; }
+
+.hero__img { position: relative; background: var(--island); }
+.slides { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.slides::-webkit-scrollbar { display: none; }
+.slides:focus-visible { outline-offset: -4px; outline-color: var(--accent); }
+.slide { flex: 0 0 100%; margin: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+.slide img { display: block; width: 100%; aspect-ratio: 5 / 4; object-fit: cover; object-position: 50% 50%; }
+.slide img.is-tall { object-position: 50% 12%; }
+.slide:first-child img { animation: unveil 1.1s cubic-bezier(.7,0,.2,1) .2s both; }
+.gal__count { position: absolute; left: 12px; top: 12px; background: var(--island); color: var(--on-island); font-size: 13px; font-weight: 700; padding: 4px 9px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.gal__nav { position: absolute; top: 50%; margin-top: -20px; width: 40px; height: 40px; border: 0; background: var(--bg); color: var(--ink); display: grid; place-items: center; transition: opacity .2s, transform .15s; }
+.gal__nav:active { transform: scale(.92); }
+.gal__nav:disabled { opacity: 0; pointer-events: none; }
+.gal__nav svg { width: 20px; height: 20px; }
+.gal__nav--prev { left: 10px; }
+.gal__nav--next { right: 10px; }
+.dots { position: absolute; left: 12px; bottom: 22px; display: flex; gap: 6px; }
+.dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 4px; background: var(--on-island); opacity: .5; transition: width .25s, opacity .25s; }
+.dots button[aria-current="true"] { width: 22px; opacity: 1; }
+.flyerbtn { position: absolute; right: 12px; bottom: 12px; border: 0; background: var(--bg); color: var(--ink); min-height: 40px; padding: 0 14px; font-size: 14px; font-weight: 700; display: inline-flex; gap: 8px; align-items: center; transition: transform .15s; }
+.flyerbtn:active { transform: scale(.95); }
+.flyerbtn svg { width: 16px; height: 16px; }
+.hero__body { padding: 20px 20px 28px; display: grid; gap: 0; }
+.hero__when { margin: 0; font-size: 15px; color: var(--muted); }
+.hero__title { margin: 10px 0 0; font-size: 40px; font-weight: 800; font-stretch: 125%; line-height: 1; letter-spacing: -0.02em; text-wrap: balance; overflow-wrap: anywhere; }
+.hero__extra { margin: 8px 0 0; font-size: 20px; font-weight: 600; }
+.price { display: flex; align-items: flex-end; gap: 12px; margin: 22px 0 18px; }
+.price__bs { margin: 0; font-size: 44px; font-weight: 800; font-stretch: 112%; line-height: .9; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.price__usd { margin: 0; font-size: 14px; line-height: 1.3; color: var(--muted); }
+.price__usd b { color: var(--ink); font-weight: 600; }
+.live { margin: 14px 0 0; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.live .dot { color: var(--good); }
+.live b { color: var(--ink); font-weight: 600; }
+
+.clock { padding: 8px 20px 0; }
+.clock p { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
+.cd { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.cd div { background: var(--ink); color: var(--bg); padding: 12px 0 10px; text-align: center; }
+.cd b { display: block; font-size: 32px; font-weight: 800; font-stretch: 112%; line-height: 1; font-variant-numeric: tabular-nums; }
+.cd span { font-size: 13px; opacity: .75; }
+
+.sold { padding: 36px 20px 0; display: grid; gap: 10px; }
+.sold p { margin: 0; }
+.sold__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.sold__pct { font-size: 34px; font-weight: 800; font-stretch: 112%; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.sold__pct small { font-size: 17px; font-weight: 600; font-stretch: 100%; letter-spacing: 0; margin-left: 4px; }
+.sold__n { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { height: 12px; background: var(--surface-2); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); transition: width .8s ease; }
+.sold__left { font-size: 17px; }
+.sold__left b { font-weight: 700; }
+
+.h2 { margin: 0; font-size: 28px; line-height: 1.08; font-weight: 800; letter-spacing: -0.02em; font-stretch: 112%; text-wrap: balance; }
+.note { margin: 8px 0 0; font-size: 15px; color: var(--muted); }
+.prizes { padding: 56px 20px 0; }
+.prizes .h2 { margin-bottom: 18px; }
+.p1 { background: var(--ink); color: var(--bg); padding: 18px 18px 20px; display: grid; gap: 4px; }
+.p1 small, .p23 small { font-size: 14px; opacity: .75; }
+.p1 b { font-size: 26px; font-weight: 800; font-stretch: 112%; line-height: 1.05; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.p1 span { font-size: 17px; font-weight: 600; }
+.p23row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
+.p23 { background: var(--surface); padding: 14px 14px 16px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.p23 b { font-size: 20px; font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; }
+
+/* ---------- The purchase box: one place, three stages ---------- */
+.buy { margin: 56px 0 0; background: var(--surface); padding: 24px 20px 26px; scroll-margin-top: 60px; }
+.buy__h { margin: 0 0 16px; font-size: 26px; line-height: 1.08; font-weight: 800; letter-spacing: -0.02em; font-stretch: 112%; }
+.stage { display: grid; gap: 0; }
+.stage.is-in { animation: stagein .45s cubic-bezier(.2,.7,.2,1) both; }
+.back { border: 0; background: none; padding: 0; margin: -4px 0 12px; display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; min-height: 40px; justify-self: start; text-decoration: underline; text-underline-offset: 3px; }
+.back svg { width: 18px; height: 18px; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--bg); padding: 4px; }
+.seg button { border: 0; background: none; min-height: 46px; font-size: 16px; font-weight: 700; color: var(--muted); transition: background .2s, color .2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.seg button svg { width: 18px; height: 18px; }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 14px; }
+.qbtn { position: relative; border: 0; background: var(--bg); padding: 16px 10px 12px; text-align: left; display: grid; gap: 2px; transition: background .2s, color .2s, transform .15s; }
+.qbtn:hover { background: var(--surface-2); }
+.qbtn:active { transform: scale(.96); }
+.qbtn b { font-size: 30px; font-weight: 800; font-stretch: 125%; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.qbtn span { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.qbtn em { position: absolute; top: 0; right: 0; font-style: normal; font-size: 13px; font-weight: 700; padding: 3px 7px; background: var(--ink); color: var(--bg); }
+.qbtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.qbtn[aria-pressed="true"] span { color: inherit; opacity: .8; }
+.stepper { display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; gap: 6px; margin-top: 6px; }
+.stepper button { border: 0; background: var(--bg); font-size: 26px; font-weight: 500; transition: background .2s, transform .15s; }
+.stepper button:hover { background: var(--surface-2); }
+.stepper button:active { transform: scale(.94); }
+.field { width: 100%; min-height: 54px; border: 2px solid var(--surface-2); background: var(--bg); padding: 0 14px; font-size: 18px; border-radius: 0; transition: border-color .2s; appearance: none; min-width: 0; }
+.field:focus { border-color: var(--ink); outline: none; }
+.stepper .field { text-align: center; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.field.is-bad { border-color: var(--danger); }
+.err { margin: 8px 0 0; color: var(--danger); font-size: 15px; line-height: 1.4; }
+.hint { margin: 10px 0 0; font-size: 15px; color: var(--muted); line-height: 1.45; }
+.lbl { display: block; margin: 18px 0 8px; font-size: 15px; font-weight: 600; }
+.lbl small { font-weight: 400; color: var(--muted); }
+.manual { margin-top: 14px; display: grid; gap: 10px; }
+.manual .hint { margin: 0; }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chips li { display: inline-flex; align-items: center; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; padding-left: 12px; animation: pop .3s cubic-bezier(.2,.8,.3,1.3); }
+.chips button { border: 0; background: none; color: inherit; width: 40px; height: 40px; font-size: 20px; }
+.go { margin-top: 18px; display: flex; justify-content: space-between; padding: 0 20px; min-height: 64px; }
+.go span { font-size: 18px; }
+.go b { font-size: 19px; font-variant-numeric: tabular-nums; }
+.go__sub { margin: 8px 0 0; text-align: center; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.recap { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; background: var(--bg); padding: 12px 14px; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.recap span { font-size: 15px; color: var(--muted); }
+.recap b { font-size: 18px; }
+.idrow { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 6px; }
+.seg--id { grid-template-columns: repeat(3, 1fr); }
+.seg--id button { min-height: 46px; }
+.idrow .field { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lookup { min-height: 22px; margin: 10px 0 0; font-size: 15px; display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.lookup.is-ok { color: var(--good); font-weight: 600; }
+.spin { width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--surface-2); border-top-color: var(--ink); animation: spin .8s linear infinite; flex: none; }
+.field.is-filled { animation: fill .6s ease both; }
+.methods { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.method { border: 0; background: var(--bg); padding: 14px 12px; text-align: left; display: grid; gap: 4px; align-content: start; min-height: 104px; transition: background .2s, color .2s, transform .15s; }
+.method:hover { background: var(--surface-2); }
+.method:active { transform: scale(.97); }
+.mico { width: 38px; height: 38px; display: grid; place-items: center; background: var(--mc); color: var(--mci); margin-bottom: 6px; }
+.mico svg { width: 22px; height: 22px; }
+.method b { font-size: 16px; line-height: 1.2; }
+.method span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.method em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--good); }
+.method[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+.method[aria-checked="true"] span { color: inherit; opacity: .8; }
+.method[aria-checked="true"] em { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.paybox { margin-top: 12px; background: var(--bg); padding: 6px 14px; }
+.paybox table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.paybox td { padding: 9px 0; vertical-align: middle; }
+.paybox tr + tr td { border-top: 2px solid var(--surface); }
+.paybox td:first-child { color: var(--muted); width: 34%; padding-right: 8px; }
+.paybox td:nth-child(2) { font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.paybox td:last-child { text-align: right; width: 1%; padding-left: 6px; }
+.copy { border: 0; background: var(--surface); min-height: 34px; padding: 0 10px; font-size: 13px; font-weight: 600; white-space: nowrap; transition: background .2s; }
+.copy:hover { background: var(--surface-2); }
+.copy.is-done { background: var(--good); color: var(--good-ink); }
+.copyall { width: 100%; margin: 6px 0 8px; border: 0; min-height: 46px; background: var(--ink); color: var(--bg); font-size: 15px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s, color .2s, transform .15s; }
+.copyall:active { transform: scale(.98); }
+.copyall svg { width: 18px; height: 18px; }
+.copyall.is-done { background: var(--good); color: var(--good-ink); }
+.paybox__brand { display: flex; align-items: center; gap: 8px; padding: 8px 0 4px; font-size: 14px; font-weight: 700; }
+.paybox__brand i { width: 12px; height: 12px; background: var(--mc); }
+
+/* Reserved (manual review) and rejected (instant payment not found) */
+.st-head { padding: 22px 20px 26px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.st-icon { width: 56px; height: 56px; display: grid; place-items: center; }
+.st-icon svg { width: 30px; height: 30px; }
+.st-icon--wait { background: var(--wait); color: var(--bg); }
+.st-icon--bad { background: var(--danger); color: var(--bg); }
+.st-head h1 { margin: 4px 0 0; font-size: 36px; line-height: .95; }
+.st-head p { margin: 0; font-size: 17px; line-height: 1.45; }
+.st-head p b { font-weight: 700; }
+.steps3 { list-style: none; margin: 0 20px; padding: 0; display: grid; gap: 4px; }
+.steps3 li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; background: var(--surface); padding: 12px 14px; font-size: 15px; line-height: 1.4; }
+.steps3 li b { display: block; font-size: 16px; }
+.steps3 li span { color: var(--muted); }
+.steps3 i { width: 28px; height: 28px; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 14px; background: var(--bg); color: var(--muted); }
+.steps3 li.is-done i { background: var(--good); color: var(--good-ink); }
+.steps3 li.is-now { background: var(--ink); color: var(--bg); }
+.steps3 li.is-now span { color: inherit; opacity: .8; }
+.steps3 li.is-now i { background: var(--wait); color: var(--bg); animation: pulse 1.8s ease-in-out infinite; }
+.held { padding: 26px 14px 0; }
+.held-note { margin: 22px 20px 0; background: var(--surface); padding: 16px; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 15px; line-height: 1.45; }
+.held-note svg { width: 36px; height: 36px; padding: 7px; background: var(--ink); color: var(--bg); }
+.held-note b { display: block; font-size: 16px; }
+.held-note span b { display: inline; font-size: inherit; overflow-wrap: anywhere; }
+.held-note span > b:first-child { display: block; font-size: 16px; margin-bottom: 2px; }
+.held h2 { margin: 0 6px 12px; font-size: 18px; font-weight: 700; }
+.held ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.held li { background: var(--surface); padding: 10px 10px 12px; display: grid; gap: 4px; }
+.held li b { font-size: 28px; font-weight: 800; font-stretch: 125%; line-height: .9; font-variant-numeric: tabular-nums; color: var(--muted); }
+.held li span { font-size: 12px; font-weight: 700; color: var(--wait); }
+.why { margin: 0 20px; background: var(--surface); padding: 16px; display: grid; gap: 10px; }
+.why h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.why ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15px; line-height: 1.45; }
+.why p { margin: 0; font-size: 15px; line-height: 1.45; }
+.why--note { background: var(--bg); outline: 2px solid var(--surface-2); outline-offset: -2px; }
+.st-body { padding: 22px 20px 60px; display: grid; gap: 14px; }
+.st-body > p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+.st-body .order { margin-top: 4px; }
+.support { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--surface); padding: 12px 14px; font-size: 15px; }
+.support small { display: block; font-size: 13px; color: var(--muted); }
+.support b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.upload { display: flex; align-items: center; gap: 12px; margin-top: 12px; min-height: 60px; padding: 0 14px; background: var(--bg); cursor: pointer; font-size: 15px; font-weight: 600; transition: background .2s; }
+.upload:hover { background: var(--surface-2); }
+.upload svg { width: 24px; height: 24px; flex: none; }
+.upload small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+.upload.has-file { background: var(--ink); color: var(--bg); }
+.upload.has-file small { color: inherit; opacity: .75; }
+input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* Number board (manual mode) */
+.board-bg { position: absolute; inset: 0; z-index: 54; background: var(--scrim); animation: fadein .25s ease; }
+.board { position: absolute; z-index: 55; left: 0; right: 0; bottom: 0; height: calc(100% - 96px); background: var(--bg); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto; animation: sheetin .35s cubic-bezier(.2,.8,.2,1); }
+.board__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 16px 10px 20px; }
+.board__head h2 { margin: 0; font-size: 22px; font-weight: 800; font-stretch: 112%; line-height: 1.1; }
+.board__head p { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+.board__x { border: 0; background: var(--surface); width: 40px; height: 40px; font-size: 22px; flex: none; }
+.board__tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; padding: 0 16px 0 20px; }
+.board__tools .field { min-height: 46px; font-size: 16px; }
+.rand { display: flex; gap: 4px; }
+.rand button { border: 0; background: var(--surface); min-width: 46px; min-height: 46px; font-weight: 700; font-size: 15px; transition: background .2s, transform .15s; }
+.rand button:hover { background: var(--surface-2); }
+.rand button:active { transform: scale(.94); }
+.series { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding: 10px 16px 10px 20px; }
+.series::-webkit-scrollbar { display: none; }
+.series button { flex: none; border: 0; background: var(--surface); min-height: 36px; padding: 0 12px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.series button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.grid { overflow-y: auto; scrollbar-width: none; padding: 2px 16px 12px 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; align-content: start; }
+.grid::-webkit-scrollbar { display: none; }
+.grid button { border: 0; background: var(--surface); min-height: 44px; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; transition: background .15s, color .15s, transform .12s; }
+.grid button:hover:not(:disabled) { background: var(--surface-2); }
+.grid button:active:not(:disabled) { transform: scale(.94); }
+.grid button:disabled { background: none; color: var(--muted); text-decoration: line-through; opacity: .55; }
+.grid button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.grid__empty { grid-column: 1 / -1; margin: 12px 0; color: var(--muted); font-size: 15px; }
+.board__foot { padding: 10px 16px 34px 20px; display: grid; gap: 8px; background: var(--surface); }
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; display: inline-block; }
+.legend .l1 { background: var(--bg); outline: 2px solid var(--surface-2); outline-offset: -2px; }
+.legend .l2 { background: var(--muted); opacity: .4; }
+.legend .l3 { background: var(--accent); }
+
+/* Rest of the page */
+.orgcard { margin: 56px 20px 0; background: var(--surface); padding: 20px; display: grid; gap: 16px; }
+.orgcard__who { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 14px; align-items: center; }
+.orgcard__who .org__mark { width: 52px; height: 52px; font-size: 20px; }
+.orgcard__who b { display: block; font-size: 19px; line-height: 1.2; overflow-wrap: anywhere; }
+.orgcard__who span { font-size: 14px; color: var(--muted); }
+.orgcard dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; font-size: 15px; }
+.orgcard dt { color: var(--muted); }
+.orgcard dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.seal { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: center; background: var(--bg); padding: 12px; font-size: 14px; line-height: 1.4; }
+.seal svg { width: 40px; height: 40px; }
+.seal b { display: block; font-size: 15px; }
+.rank { padding: 56px 20px 0; }
+.rank ol { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 4px; }
+.rank li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 12px 14px 12px 12px; background: var(--surface); }
+.rank li:first-child { background: var(--accent); color: var(--accent-ink); padding-block: 18px; }
+.rank__pos { font-size: 22px; font-weight: 800; font-stretch: 125%; }
+.rank__who b { display: block; font-weight: 600; font-size: 16px; }
+.rank__who span { font-size: 13px; opacity: .75; }
+.rank__n { text-align: right; font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.rank__n span { display: block; font-size: 13px; font-weight: 400; opacity: .75; }
+.acc-sec { padding: 56px 20px 0; }
+.acc-sec .h2 { margin-bottom: 18px; }
+.acc { display: grid; gap: 4px; }
+.acc__item { background: var(--surface); }
+.acc__item button { width: 100%; min-height: 60px; border: 0; background: none; text-align: left; padding: 12px 16px; font-size: 17px; font-weight: 600; line-height: 1.3; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.acc__item button svg { width: 16px; height: 16px; flex: none; transition: transform .3s ease; }
+.acc__item button[aria-expanded="true"] svg { transform: rotate(45deg); }
+.acc__body { padding: 0 16px 18px; font-size: 16px; line-height: 1.5; }
+.acc__body p { margin: 0; }
+.steps-list { counter-reset: s; }
+.steps-list .acc__item button span::before { counter-increment: s; content: counter(s) ". "; }
+.afoot { margin-top: 80px; background: var(--ink); color: var(--bg); padding: 36px 20px 130px; display: grid; gap: 22px; }
+.afoot p { margin: 0; font-size: 14px; line-height: 1.5; opacity: .8; }
+.afoot .lgmark { font-size: 19px; }
+.afoot .lgmark i { width: 22px; height: 22px; }
+.afoot__pow { font-size: 15px !important; opacity: 1 !important; }
+
+.buybar { position: absolute; z-index: 30; left: 0; right: 0; bottom: 0; padding: 12px 16px 34px 20px; background: var(--ink); color: var(--bg); display: flex; align-items: center; gap: 12px; transform: translateY(105%); transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+.buybar.is-on { transform: none; }
+.buybar p { margin: 0 auto 0 0; font-size: 14px; line-height: 1.3; }
+.buybar p b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; }
+.buybar .btn { min-height: 52px; }
+
+.lightbox { position: absolute; inset: 0; z-index: 60; background: var(--island); display: grid; grid-template-rows: 54px 56px minmax(0, 1fr); }
+.lightbox__bar { grid-row: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 12px 0 20px; color: var(--on-island); font-weight: 600; }
+.lightbox__bar button { border: 0; background: var(--on-island); color: var(--island); min-height: 40px; padding: 0 14px; font-weight: 700; font-size: 15px; }
+.lightbox__img { grid-row: 3; overflow-y: auto; scrollbar-width: none; padding-bottom: 40px; }
+.lightbox__img img { display: block; width: 100%; height: auto; }
+.lightbox__img img + img { margin-top: 6px; }
+
+.verify { position: absolute; inset: 54px 0 0; z-index: 58; background: var(--island); color: var(--on-island); padding: 0 24px 80px; display: grid; align-content: center; gap: 18px; }
+.verify h2 { margin: 0; font-size: 34px; line-height: 1.02; font-weight: 800; font-stretch: 125%; letter-spacing: -0.02em; }
+.verify p { margin: 0; font-size: 17px; opacity: .8; }
+.verify p b { opacity: 1; }
+.vbar { height: 8px; background: rgba(255, 255, 255, .18); overflow: hidden; margin-top: 10px; }
+.vbar span { display: block; height: 100%; width: 40%; background: var(--accent); animation: indet 1.3s ease-in-out infinite; }
+
+/* Success + Mis boletos */
+.ok-head { padding: 22px 20px 26px; display: grid; gap: 12px; }
+.ok-head h1 { margin: 0; font-size: 68px; }
+.ok-head p { margin: 0; font-size: 17px; line-height: 1.45; max-width: 32ch; }
+.ok-head p b { font-weight: 700; }
+.tkt { position: relative; margin: 0 14px; background: var(--accent); color: var(--accent-ink); }
+.tkt::before, .tkt::after { content: ""; position: absolute; top: 150px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg); }
+.tkt::before { left: -12px; }
+.tkt::after { right: -12px; }
+.tkt__main { padding: 16px 20px 20px; display: grid; gap: 10px; min-height: 162px; }
+.tkt__top { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 600; }
+.tkt__prize { margin: 0; font-size: 26px; font-weight: 800; font-stretch: 112%; line-height: 1.05; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.tkt__meta { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+.tkt__meta b { display: block; font-size: 15px; }
+.tkt__stub { border-top: 3px dotted currentColor; padding: 16px 20px 20px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: end; }
+.tkt__lbl { grid-column: 1 / -1; font-size: 14px; font-weight: 600; }
+.num { display: inline-flex; font-size: 72px; font-weight: 800; font-stretch: 125%; line-height: .85; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.num i { font-style: normal; display: inline-block; min-width: .62em; text-align: center; }
+.num i.is-set { animation: land .35s cubic-bezier(.2,.8,.3,1.3); }
+.barcode { width: 92px; height: 56px; display: block; fill: currentColor; }
+.stubs-wrap { padding: 28px 14px 0; }
+.stubs-wrap h2 { margin: 0 6px 12px; font-size: 18px; font-weight: 700; }
+.stubs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.stubs li { background: var(--surface); padding: 10px 10px 12px; }
+.stubs .num { font-size: 30px; }
+.ok-body { padding: 28px 20px 60px; display: grid; gap: 22px; }
+.ok-body > p { margin: 0; font-size: 17px; line-height: 1.5; }
+.ok-body > p b { font-weight: 600; overflow-wrap: anywhere; }
+.order { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; background: var(--surface); }
+.order td { padding: 10px 14px; }
+.order tr + tr td { border-top: 2px solid var(--bg); }
+.order td:first-child { color: var(--muted); }
+.order td:last-child { text-align: right; font-weight: 600; }
+.ok-actions { display: grid; gap: 6px; }
+.confetti { position: absolute; inset: 0; z-index: 45; pointer-events: none; width: 100%; height: 100%; }
+.mine-top { position: sticky; top: 0; z-index: 5; background: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 20px; min-height: 52px; }
+.mine-top .back { margin: 0; text-decoration: none; font-size: 17px; }
+.mine-top p { margin: 0; font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.mine-body { padding: 4px 20px 60px; }
+.mine-body h2 { margin: 6px 0 0; font-size: 30px; font-weight: 800; font-stretch: 112%; letter-spacing: -0.02em; }
+.mine-body > p { margin: 10px 0 20px; font-size: 16px; color: var(--muted); }
+.mine-res { margin-top: 26px; display: grid; gap: 10px; }
+.mine-who { margin: 0; font-size: 17px; }
+.mine-who b { font-weight: 700; }
+.ord { background: var(--surface); padding: 14px 14px 16px; display: grid; gap: 10px; }
+.ord__head { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
+.ord__head b { font-size: 15px; }
+.tag { font-size: 13px; font-weight: 700; padding: 4px 8px; white-space: nowrap; }
+.tag--ok { background: var(--good); color: var(--good-ink); }
+.tag--wait { background: var(--wait); color: var(--bg); }
+.ord ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.ord li { background: var(--bg); padding: 6px 10px; font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums; }
+.ord p { margin: 0; font-size: 14px; color: var(--muted); }
+
+/* Motion */
+.rise { animation: rise .7s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes stagein { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes sheetin { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes fadein { from { opacity: 0; } }
+@keyframes unveil { from { clip-path: inset(0 0 100% 0); transform: scale(1.08); } to { clip-path: inset(0 0 0 0); transform: none; } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes pulse { 50% { opacity: .35; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes indet { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } }
+@keyframes land { from { transform: translateY(-30%); opacity: .2; } }
+@keyframes fill { from { background: var(--accent); color: var(--accent-ink); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  .ticker__viewport { overflow-x: auto; scrollbar-width: none; }
+  .ticker__track, .dot { animation: none !important; }
+}
+/* ================= Plantilla VIBRANTE =================
+   The rifero's colour as whole fields, condensed shouting type, round chunky "game" buttons
+   that press down, stickers for urgency. Same structure and logic as the minimalist template. */
+:root, .force-light {
+  --bg: #fbfaf7;
+  --surface: #efece6;
+  --surface-2: #e0dcd3;
+  --ink: #141216;
+  --muted: #5a5560;
+  --hot: #ff2e55;
+  --hot-ink: #ffffff;
+  --shade: rgba(20, 18, 22, .28);
+  --font: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #100f13; --surface: #1d1b22; --surface-2: #2b2832; --ink: #fbf9fd; --muted: #aaa4b2;
+    --hot: #ff4d6d; --hot-ink: #ffffff; --shade: rgba(0, 0, 0, .55);
+  }
+}
+:root[data-theme="dark"], .force-dark {
+  --bg: #100f13; --surface: #1d1b22; --surface-2: #2b2832; --ink: #fbf9fd; --muted: #aaa4b2;
+  --hot: #ff4d6d; --hot-ink: #ffffff; --shade: rgba(0, 0, 0, .55);
+}
+.wide { font-stretch: 62%; font-weight: 900; letter-spacing: 0; line-height: .88; }
+
+/* buttons: pills that press down */
+.app .btn { border-radius: 999px; font-weight: 800; font-stretch: 100%; text-transform: uppercase; letter-spacing: .02em; }
+.app .btn--accent, .app .btn--ink { box-shadow: 0 5px 0 var(--shade); }
+.app .btn--accent:active, .app .btn--ink:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--shade); }
+.app .btn:disabled { box-shadow: none; }
+.app .btn--ghost { border-radius: 999px; }
+.chip, .flyerbtn, .gal__count, .gal__nav, .lightbox__bar button, .copy, .copyall, .series button, .rand button, .tag { border-radius: 999px; }
+.org__mark, .board__x, .st-icon { border-radius: 50%; }
+
+/* top: hot ticker, accent hero */
+.ticker { background: var(--hot); color: var(--hot-ink); }
+.ticker__label { background: var(--ink); color: var(--bg); border-radius: 0 999px 999px 0; }
+.hero { background: var(--accent); color: var(--accent-ink); padding: 14px 14px 0; border-radius: 0 0 34px 34px; }
+.hero__img { border-radius: 26px; overflow: hidden; }
+.hero__body { padding: 18px 6px 28px; }
+.hero__when { color: inherit; opacity: .8; font-weight: 600; }
+.hero__title { font-size: 58px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .88; letter-spacing: 0; }
+.hero__extra { justify-self: start; margin-top: 12px; background: var(--ink); color: var(--bg); padding: 6px 14px; border-radius: 999px; transform: rotate(-2deg); font-weight: 800; font-size: 18px; }
+.price { margin: 24px 0 20px; }
+.price__bs { font-size: 54px; font-weight: 900; font-stretch: 62%; letter-spacing: 0; }
+.price__usd, .price__usd b, .live, .live b { color: inherit; }
+.price__usd { opacity: .85; }
+.hero .btn--accent { background: var(--ink); color: var(--bg); }
+.live .dot { color: var(--hot); }
+
+/* countdown, sold, prizes */
+.clock { padding-top: 28px; }
+.clock p, .sold__n { font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+.cd { gap: 8px; }
+.cd div { background: var(--surface); color: var(--ink); border-radius: 20px; padding: 14px 0 12px; }
+.cd b { font-size: 44px; font-weight: 900; font-stretch: 62%; }
+.cd span { font-weight: 700; }
+.sold__pct { font-size: 52px; font-weight: 900; font-stretch: 62%; letter-spacing: 0; }
+.bar { height: 18px; border-radius: 999px; }
+.bar span { border-radius: 999px; background: var(--hot); }
+.sold__left b { color: var(--hot); }
+.h2, .buy__h { font-size: 38px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; letter-spacing: 0; line-height: .95; }
+.p1 { background: var(--accent); color: var(--accent-ink); border-radius: 26px; padding: 22px 20px 24px; }
+.p1 b { font-size: 40px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .92; letter-spacing: 0; }
+.p23row { gap: 8px; margin-top: 8px; }
+.p23 { border-radius: 22px; }
+.p23 b { font-size: 24px; font-weight: 900; font-stretch: 75%; }
+
+/* the purchase box */
+.buy { margin: 52px 12px 0; padding: 26px 18px 28px; border-radius: 30px; background: var(--surface); box-shadow: 0 0 0 4px var(--accent); }
+.seg, .seg button { border-radius: 999px; }
+.seg button { font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: .02em; }
+.quick { gap: 10px; margin-top: 18px; }
+.qbtn { border-radius: 22px; text-align: center; place-items: center; padding: 18px 6px 14px; }
+.qbtn b { font-size: 40px; font-weight: 900; font-stretch: 62%; }
+.qbtn em { top: -10px; right: -6px; border-radius: 999px; background: var(--hot); color: var(--hot-ink); transform: rotate(7deg); padding: 3px 10px; }
+.qbtn[aria-pressed="true"] { box-shadow: 0 5px 0 var(--shade); transform: translateY(-3px); }
+.stepper { gap: 8px; }
+.stepper button { border-radius: 50%; font-weight: 700; }
+.field { border-radius: 16px; }
+.stepper .field { border-radius: 999px; font-weight: 900; font-stretch: 75%; font-size: 26px; }
+.go { border-radius: 999px; min-height: 68px; padding: 0 26px; }
+.go b { font-size: 20px; }
+.chips li { border-radius: 999px; padding-left: 14px; background: var(--accent); color: var(--accent-ink); }
+.recap { border-radius: 18px; }
+.recap b { font-size: 22px; font-weight: 900; font-stretch: 75%; }
+.method { border-radius: 22px; }
+.method[aria-checked="true"] { box-shadow: 0 0 0 3px var(--accent); }
+.mico { border-radius: 14px; }
+.paybox { border-radius: 20px; }
+.copyall { min-height: 50px; box-shadow: 0 4px 0 var(--shade); }
+.upload { border-radius: 18px; }
+.back { font-weight: 700; }
+
+/* number board */
+.board { border-radius: 30px 30px 0 0; overflow: hidden; }
+.board__head h2 { font-size: 30px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
+.grid button { border-radius: 14px; font-weight: 800; }
+
+/* rest of the page */
+.orgcard { margin: 52px 12px 0; border-radius: 26px; }
+.seal { border-radius: 18px; }
+.rank li { border-radius: 20px; }
+.rank li:first-child { box-shadow: 0 5px 0 var(--shade); }
+.rank__pos { font-size: 30px; font-weight: 900; font-stretch: 62%; }
+.acc__item { border-radius: 20px; overflow: hidden; }
+.acc__item button { font-weight: 700; }
+.afoot { border-radius: 34px 34px 0 0; background: var(--accent); color: var(--accent-ink); }
+.afoot .lgmark { font-stretch: 62%; font-size: 26px; }
+.buybar { left: 10px; right: 10px; bottom: 26px; padding: 10px 10px 10px 22px; border-radius: 999px; transform: translateY(170%); box-shadow: 0 8px 0 var(--shade); }
+.buybar.is-on { transform: none; }
+
+/* results */
+.ok-head h1 { font-size: 92px; }
+.st-head h1 { font-size: 52px; }
+.tkt { border-radius: 26px; transform: rotate(-1.5deg); }
+.num { font-weight: 900; font-stretch: 62%; }
+.tkt__prize { font-size: 34px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
+.stubs li { border-radius: 16px; text-align: center; }
+.order { border-collapse: separate; border-spacing: 0; border-radius: 18px; overflow: hidden; }
+.steps3 li, .held li { border-radius: 18px; }
+.why, .support, .held-note, .ord { border-radius: 20px; }
+.held li b { font-weight: 900; font-stretch: 62%; font-size: 34px; }
+.verify h2 { font-size: 46px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .92; }
+.vbar, .vbar span { border-radius: 999px; }
+.mine-body h2 { font-size: 40px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
+
+.num i { min-width: .5em; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="top__bar">
+      <span class="lgmark"><i aria-hidden="true"></i>LottoGE</span>
+      <button class="themebtn" type="button" data-global-theme aria-label="Cambiar entre modo claro y oscuro">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"/></svg>
+        <span data-theme-label>Modo oscuro</span>
+      </button>
+    </div>
+    <h1 class="wide">Plantilla vibrante</h1>
+    <div class="top__row">
+      <p class="top__lede">La plantilla llamativa de LottoGE: el color del rifero en bloques grandes, letras condensadas y botones que se hunden al tocarlos. El mismo flujo de compra que la minimalista. Cambia la rifa en el panel y todos los teléfonos se actualizan.</p>
+      <p class="top__note">Ejemplo cargado: el flyer del Toyota Agya 2026, sorteo del jueves 22 de octubre.</p>
+    </div>
+  </header>
+</div>
+
+<section class="cfg" aria-labelledby="cfg-h">
+  <div class="wrap cfg__in">
+    <div class="cfg__intro">
+      <h2 id="cfg-h">Configura la rifa</h2>
+      <p>Así lo cargaría el rifero desde su panel. La misma plantilla sirve para un carro, una moto, efectivo o un viaje.</p>
+      <p class="top__note">Demo: nada de esto se guarda ni sale de tu navegador.</p>
+    </div>
+    <form data-cfg-form novalidate>
+      <fieldset>
+        <legend>Rifero</legend>
+        <div class="f"><label for="cfg-rifero">Nombre de la marca</label><input class="in" id="cfg-rifero" data-cfg="rifero" maxlength="40"></div>
+        <div class="f2">
+          <div class="f"><label for="cfg-handle">Instagram</label><input class="in" id="cfg-handle" data-cfg="handle" maxlength="30"></div>
+          <div class="f"><label for="cfg-support">Correo de soporte</label><input class="in" id="cfg-support" data-cfg="support" type="email" inputmode="email" maxlength="60"></div>
+        </div>
+        <div class="f"><label for="cfg-conalot">Autorización CONALOT</label><input class="in" id="cfg-conalot" data-cfg="conalot" maxlength="40"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Premios</legend>
+        <div class="f"><label for="cfg-prize">1er premio</label><input class="in" id="cfg-prize" data-cfg="prize" maxlength="48"></div>
+        <div class="f"><label for="cfg-extra">Extra del 1er premio (opcional)</label><input class="in" id="cfg-extra" data-cfg="prizeExtra" maxlength="48"></div>
+        <div class="f2">
+          <div class="f"><label for="cfg-second">2do premio</label><input class="in" id="cfg-second" data-cfg="second" maxlength="32"></div>
+          <div class="f"><label for="cfg-third">3er premio</label><input class="in" id="cfg-third" data-cfg="third" maxlength="32"></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Venta</legend>
+        <div class="f2">
+          <div class="f"><label for="cfg-price">Precio por boleto (Bs)</label><input class="in" id="cfg-price" data-cfg="price" inputmode="numeric" maxlength="9"></div>
+          <div class="f"><label for="cfg-rate">Tasa BCV (Bs por $)</label><input class="in" id="cfg-rate" data-cfg="rate" inputmode="decimal" maxlength="9"></div>
+        </div>
+        <div class="f2">
+          <div class="f"><label for="cfg-total">Cantidad de números</label>
+            <select class="in" id="cfg-total" data-cfg="total"><option value="100">100 (2 cifras)</option><option value="1000">1.000 (3 cifras)</option><option value="10000">10.000 (4 cifras)</option></select></div>
+          <div class="f"><label for="cfg-sold">Vendido hasta ahora (%)</label><input class="in" id="cfg-sold" data-cfg="soldPct" inputmode="numeric" maxlength="2"></div>
+        </div>
+        <p class="cfg__err" data-cfg-err hidden></p>
+      </fieldset>
+      <fieldset>
+        <legend>Sorteo</legend>
+        <div class="f2">
+          <div class="f"><label for="cfg-date">Fecha</label><input class="in" id="cfg-date" data-cfg="date" type="date"></div>
+          <div class="f"><label for="cfg-time">Hora del 1er premio</label><input class="in" id="cfg-time" data-cfg="time" type="time"></div>
+        </div>
+        <div class="f"><label for="cfg-lottery">Lotería con la que juega</label><input class="in" id="cfg-lottery" data-cfg="lottery" maxlength="30"></div>
+      </fieldset>
+      <fieldset style="grid-column: 1 / -1">
+        <legend>Marca e imagen</legend>
+        <div class="f"><span id="cfg-color-l">Color de la marca</span><div class="swatches" role="radiogroup" aria-labelledby="cfg-color-l" data-swatches></div></div>
+        <div class="f"><span>Fotos del premio <small>(se deslizan en la página; la primera es la portada, hasta 10)</small></span>
+          <ul class="thumbs" data-thumbs aria-label="Fotos cargadas"></ul>
+          <div class="imgrow">
+            <input class="sr-only" id="cfg-img" type="file" accept="image/*" multiple data-cfg-img>
+            <label class="pbtn" for="cfg-img">Agregar fotos</label>
+            <button class="pbtn pbtn--ghost" type="button" data-cfg-sample-img>Usar fotos de ejemplo</button>
+          </div>
+        </div>
+      </fieldset>
+      <div class="cfg__foot">
+        <button class="pbtn" type="button" data-cfg-reset>Restaurar el ejemplo</button>
+        <p>Los cambios se aplican al terminar de escribir. Cada teléfono vuelve a su pantalla inicial.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="wrap">
+  <main>
+    <section class="group" aria-labelledby="g1">
+      <div class="group__head">
+        <h2 id="g1">La página de la rifa</h2>
+        <p>Una sola página. El botón “Comprar boletos” baja hasta el recuadro de compra, que está debajo de los premios.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"home"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Inicio</h3><p>Las fotos del premio en un carrusel, el premio, la fecha y el precio en Bs y $.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","slide":1}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Fotos deslizables</h3><p>El rifero sube las fotos que quiera: por fuera, por dentro, de lado. Se deslizan con el dedo o con las flechas.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"clock"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Cuenta regresiva y premios</h3><p>Tiempo para el cierre, porcentaje vendido y los tres premios, como en el flyer.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","flyer":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Fotos en grande</h3><p>“Ver en grande” muestra todas las fotos completas, una debajo de otra, empezando por la que se estaba viendo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="g2">
+      <div class="group__head">
+        <h2 id="g2">La compra, en el mismo recuadro</h2>
+        <p>Elige boletos y toca “Participar”: en ese mismo lugar aparecen los datos y después el pago. Siempre se puede volver a cambiar la cantidad.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","qty":2}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Al azar</h3><p>Cantidades rápidas, − y +, y el botón “Participar” con el total.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","mode":"manual","picks":["first","second","third"]}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Manual</h3><p>Desaparecen las cantidades rápidas: la cantidad es la de números elegidos.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","mode":"manual","picks":["first","second"],"board":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Tablero de números</h3><p>Buscar, elegir al azar, ir por series. Los vendidos salen tachados.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"data","qty":2,"cedula":"18456732","estado":"Zulia"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Tus datos</h3><p>Tras “Participar”, en el mismo recuadro. Con la cédula se llenan nombre, teléfono y correo, donde llegan los números.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Pago</h3><p>Cada método con su color. Los datos para pagar se copian uno a uno o todos de una vez.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190","verifying":true,"hold":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Verificando el pago</h3><p>En la demo se queda aquí; en las otras pantallas avanza sola a los números.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="g3">
+      <div class="group__head">
+        <h2 id="g3">Después de pagar</h2>
+        <p>Pago Móvil al instante se verifica solo con el banco y entrega los números de una vez, o rechaza la compra si un dato no coincide. Los pagos manuales quedan reservados hasta que el rifero los revise.</p>
+      </div>
+      <div class="gallery">
+        <figure class="device" data-init='{"view":"ok","qty":2,"cedula":"18456732","method":"pm-auto","ref":"004821"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>¡Listo! Números revelados</h3><p>Dígito a dígito y con confeti. Se envían al correo del comprador.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"held","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Reservados, al azar</h3><p>Pago manual con boletos al azar: no se muestran números. Se asignan al aprobar el pago y llegan por correo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"held","mode":"manual","picks":["first","second"],"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Reservados, números elegidos</h3><p>Si eligió sus números, los ve apartados mientras el rifero aprueba o rechaza el comprobante desde su panel.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"rej","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004820","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Compra rechazada</h3><p>Pago Móvil al instante con un dato mal: el banco no encuentra el pago. En la demo, una referencia que termina en 0 da este resultado.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"mine","cedula":"18456732","searched":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Mis boletos</h3><p>Consulta por cédula, sin cuenta ni contraseña: pagados y por verificar.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"home"}'><div class="frame" data-flip><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3 data-flip-title>Inicio en el otro modo</h3><p>La misma página en el modo contrario al de esta vista. El color del rifero se mantiene.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p><strong>Prototipo de demostración.</strong> No procesa pagos ni guarda datos. El rifero (Rifas La Bendición), los compradores, cuentas, montos, el nº CONALOT y la tasa BCV son de ejemplo.</p>
+    <p>El flyer del Toyota Agya 2026 y las fotos de ejemplo del carrusel son material de prueba aportado por el cliente.</p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- what a rifero configures (sample loaded from the flyer) ---------- */
+  const SAMPLE = {
+    rifero: 'Rifas La Bendición', handle: '@rifaslabendicion', support: 'soporte@rifas-ejemplo.com', conalot: 'CNL-AUT-RF-2026-075423',
+    prize: 'Toyota Agya 2026', prizeExtra: '+ 3.000 en la guantera', second: '2.000 Bendiciones', third: '1.000 Bendiciones',
+    price: 4799, rate: 881.88, total: 10000, soldPct: 76,
+    date: '2026-10-22', time: '22:00', times2: ['4:00 PM', '1:00 PM'], lottery: 'Supergana',
+    accent: 'oro', images: ['img/flyer.jpg', 'img/burj-al-arab.jpg', 'img/sala.jpg']
+  };
+  const ACCENTS = {
+    oro: ['#e9b227', '#17130a', 'Oro'], rojo: ['#d42a33', '#ffffff', 'Rojo'], verde: ['#0e8a55', '#ffffff', 'Verde'],
+    azul: ['#1d5bd0', '#ffffff', 'Azul'], naranja: ['#f07a1f', '#1a0e04', 'Naranja'], turquesa: ['#14a6a0', '#04201f', 'Turquesa']
+  };
+  const ESTADOS = ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital',
+    'Falcón', 'Guárico', 'La Guaira', 'Lara', 'Mérida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo',
+    'Yaracuy', 'Zulia', 'Fuera del país'];
+  let CFG = JSON.parse(JSON.stringify(SAMPLE));
+
+  /* ---------- formatting (es-VE) ---------- */
+  const group = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const num = (n, d = 0) => { const [i, f] = n.toFixed(d).split('.'); return f ? group(i) + ',' + f : group(i); };
+  const bs = n => 'Bs ' + num(n, 2);
+  const usd = n => '$' + num(n, 2);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const initials = s => (s.replace(/^rifas?\s+/i, '').split(/\s+/).filter(w => w.length > 2 || /^[A-ZÁÉÍÓÚÑ]/.test(w)).map(w => w[0]).join('').slice(0, 2) || s.slice(0, 2)).toUpperCase();
+  const boletos = q => `${num(q)} ${q === 1 ? 'boleto' : 'boletos'}`;
+  const DAY = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  const DAYL = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const MON = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const MONL = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+  /* Everything the pages show is derived from the configuration. */
+  function derive(c) {
+    const [y, m, d] = c.date.split('-').map(Number), [hh, mm] = c.time.split(':').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d)), h12 = ((hh + 11) % 12) + 1;
+    return {
+      digits: String(c.total - 1).length,
+      target: Date.UTC(y, m - 1, d, hh + 4, mm), // Venezuela is UTC-4
+      short: `${DAY[dt.getUTCDay()]} ${d} ${MON[m - 1]}`,
+      long: `${DAYL[dt.getUTCDay()]} ${d} de ${MONL[m - 1]}`,
+      tag: `${d} ${MON[m - 1].toUpperCase()}`,
+      hour: `${h12}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'AM' : 'PM'}`,
+      unitUsd: c.price / c.rate,
+      series: c.total >= 1000 ? c.total / 10 : c.total
+    };
+  }
+  let D = derive(CFG);
+  const pad = n => String(n).padStart(D.digits, '0');
+  const taken = n => ((Math.imul(n + 17, 2654435761) >>> 0) % 100) < CFG.soldPct;
+  const freeFrom = (start, count, skip = []) => { const out = []; for (let i = 0; out.length < count && i < CFG.total; i++) { const c = (start + i) % CFG.total, k = pad(c); if (!taken(c) && !skip.includes(k)) out.push(k); } return out; };
+
+  /* ---------- shared live figures (sample) ---------- */
+  const live = { bump: 0, online: 1284, viewing: 47 };
+  const soldNow = () => Math.min(CFG.total - 1, Math.round(CFG.total * CFG.soldPct / 100) + live.bump);
+  const paintLive = (root = document) => {
+    const s = soldNow(), pct = Math.floor(s / CFG.total * 100);
+    root.querySelectorAll('[data-live="online"]').forEach(n => n.textContent = num(live.online));
+    root.querySelectorAll('[data-live="viewing"]').forEach(n => n.textContent = live.viewing);
+    root.querySelectorAll('[data-live="pct"]').forEach(n => n.textContent = pct);
+    root.querySelectorAll('[data-live="count"]').forEach(n => n.textContent = `${num(s)} de ${num(CFG.total)}`);
+    root.querySelectorAll('[data-live="left"]').forEach(n => n.textContent = num(CFG.total - s));
+    root.querySelectorAll('[data-live="bar"]').forEach(n => n.style.width = (s / CFG.total * 100).toFixed(1) + '%');
+    root.querySelectorAll('[data-live-bar]').forEach(n => n.setAttribute('aria-valuenow', pct));
+  };
+  const paintClock = (root = document) => {
+    let t = Math.max(0, D.target - Date.now());
+    const d = Math.floor(t / 864e5); t -= d * 864e5;
+    const h = Math.floor(t / 36e5); t -= h * 36e5;
+    const m = Math.floor(t / 6e4), s = Math.floor((t - m * 6e4) / 1e3);
+    const two = v => String(v).padStart(2, '0');
+    root.querySelectorAll('[data-cd="d"]').forEach(n => n.textContent = two(d));
+    root.querySelectorAll('[data-cd="h"]').forEach(n => n.textContent = two(h));
+    root.querySelectorAll('[data-cd="m"]').forEach(n => n.textContent = two(m));
+    root.querySelectorAll('[data-cd="s"]').forEach(n => n.textContent = two(s));
+  };
+  setInterval(() => paintClock(), 1000);
+  setInterval(() => {
+    live.online = Math.max(980, Math.min(1620, live.online + Math.round(Math.random() * 24 - 10)));
+    live.viewing = Math.max(31, Math.min(78, live.viewing + Math.round(Math.random() * 6 - 3)));
+    paintLive();
+  }, 3200);
+  setInterval(() => { if (soldNow() < CFG.total * .985) { live.bump += 1 + Math.floor(Math.random() * 4); paintLive(); } }, 7000);
+
+  const TICK = [['Robert R.', 'Maracay', 5], ['Gabriela M.', 'Caracas', 10], ['Richard N.', 'Barinas', 2], ['Marbella H.', 'Mérida', 20],
+    ['Yerimar R.', 'Barquisimeto', 1], ['Keila T.', 'Cumaná', 10], ['Darwin G.', 'Valencia', 50], ['Nohely V.', 'Puerto La Cruz', 5]];
+  const tickerHTML = () => {
+    const one = TICK.map(([n, c, q]) => `<span><b>${n}</b> de ${c} compró ${boletos(q)}</span>`).join('');
+    return one + one.replace(/<span>/g, '<span aria-hidden="true">');
+  };
+  const TOP = [['Darwin G.', 'Valencia', 214], ['Keila T.', 'Cumaná', 168], ['Luis C.', 'Caracas', 141]];
+  const PEOPLE = [
+    { name: 'Daniela Rojas', phone: '0414-555-2190', email: 'daniela.rojas@ejemplo.com' },
+    { name: 'José Gregorio Pérez', phone: '0424-555-7731', email: 'josegpz@ejemplo.com' },
+    { name: 'Andreína Lugo', phone: '0412-555-4408', email: 'andreina.lugo@ejemplo.com' },
+    { name: 'Luis Eduardo Marcano', phone: '0416-555-0952', email: 'lemarcano@ejemplo.com' }
+  ];
+  const personFor = ced => ced === '18456732' ? PEOPLE[0] : PEOPLE[[...ced].reduce((a, c) => a + +c, 0) % PEOPLE.length];
+
+  const METHODS = {
+    'pm-auto': { auto: true, color: ['#0f9d58', '#ffffff'], label: 'Pago Móvil', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: true, bank: true, file: false, cur: 'bs',
+      rows: () => [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'Esto toma unos segundos. No cierres esta pantalla.' },
+    'binance': { color: ['#f0b90b', '#1e2026'], label: 'Binance Pay', refErr: 'el ID de la orden', ref: 'ID de la orden en Binance', refPh: 'Ej. 2849104772', payer: false, bank: false, file: true, cur: 'usdt',
+      rows: () => [['Pay ID', '412 908 337'], ['Titular', CFG.rifero]], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' },
+    'zelle': { color: ['#6d1ed4', '#ffffff'], label: 'Zelle', refErr: 'el código de confirmación', ref: 'Código de confirmación', refPh: 'Ej. ZL7Q2K', payer: false, bank: false, file: true, cur: 'usd',
+      rows: () => [['Correo', 'pagos@rifero-ejemplo.com'], ['Titular', CFG.rifero]], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' },
+    'pm-manual': { color: ['#1d5fbf', '#ffffff'], label: 'Pago Móvil manual', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: false, bank: true, file: true, cur: 'bs',
+      rows: () => [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' }
+  };
+
+  /* ---------- the buyer's page, built from the configuration ---------- */
+  const PLUS = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M8 2h2v14H8zM2 8h14v2H2z" fill="currentColor"/></svg>';
+  const THEME_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"/></svg>';
+  const BACK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 4.6 8 12l7.4 7.4-1.4 1.4L5.2 12 14 3.2z" fill="currentColor"/></svg>';
+  const SHUFFLE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17 3l4 4-4 4V8h-2.6l-8 9H3v-2h2.6l8-9H17zm0 10l4 4-4 4v-3h-3.4l-2.2-2.5 1.4-1.5 1.7 2H17zM3 7h3.4l2.2 2.5-1.4 1.5-1.7-2H3z"/></svg>';
+  const HAND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 2a2 2 0 0 1 2 2v6.3l.6-.1V4.5a2 2 0 0 1 4 0v5.7l.5.1V6a2 2 0 1 1 4 0v8.5c0 4.1-3 7.5-7.1 7.5h-.8c-2.2 0-4.2-1.1-5.4-3L3.3 14a2 2 0 0 1 3.4-2.1L7 12.4V4a2 2 0 0 1 2-2Z"/></svg>';
+  const COPY_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 2h12v14h-2V4H8zM4 6h12v16H4zm2 2v12h8V8z"/></svg>';
+  const CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm-1 3v6l5 3 1-1.7-4-2.4V7z"/></svg>';
+  const XMARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.3 4.3 12 10.6 5.7 4.3 4.3 5.7 10.6 12l-6.3 6.3 1.4 1.4 6.3-6.3 6.3 6.3 1.4-1.4-6.3-6.3 6.3-6.3z"/></svg>';
+  const qtys = [1, 2, 5, 10, 20, 50];
+
+  function appHTML(c, p) {
+    const prize = esc(c.prize), org = esc(c.rifero), mark = esc(initials(c.rifero)), imgs = c.images.length ? c.images : SAMPLE.images;
+    const acc = (items, cls) => items.map(([q, a], i) =>
+      `<div class="acc__item"><button type="button" aria-expanded="false" aria-controls="${p}-${cls}${i}"><span>${q}</span>${PLUS}</button><div class="acc__body" id="${p}-${cls}${i}" hidden><p>${a}</p></div></div>`).join('');
+    const HOW = [
+      ['Elige tus boletos', 'Toca una cantidad o elige tus números en el tablero, y luego “Participar”.'],
+      ['Escribe tu cédula', 'Llenamos tu nombre, teléfono y correo. Solo revisas y eliges tu estado.'],
+      ['Paga como prefieras', 'Pago Móvil se verifica solo, al instante. También Binance, Zelle o Pago Móvil con comprobante.'],
+      ['Recibe tus números', 'Te llegan a tu correo apenas se confirma el pago.']
+    ];
+    const FAQ = [
+      ['¿Cómo se escoge al ganador?', `Con el resultado de ${esc(c.lottery)} de ${D.digits} cifras del ${D.long}. El 1er premio juega a las ${D.hour}; el 2do y el 3er, a las ${c.times2[0]} y a la ${c.times2[1]} del mismo día.`],
+      ['¿Esta rifa es legal?', `Sí. Está autorizada por CONALOT con el nº ${esc(c.conalot)}, y funciona sobre LottoGE, la plataforma autorizada para rifas en Venezuela.`],
+      ['¿Cuándo recibo mis números?', 'Con Pago Móvil al instante, en el momento. Con los otros métodos tus boletos quedan reservados hasta que el rifero apruebe el comprobante, normalmente en menos de 2 horas.'],
+      ['¿Cómo cobro si gano?', `${org} te escribe a tu correo. La entrega se hace en persona y se transmite en vivo por ${esc(c.handle)}.`]
+    ];
+    const ids = ['V', 'E', 'J'].map(t => `<button type="button" role="radio" data-action="idtype" data-t="${t}" aria-checked="${t === 'V'}">${t}</button>`).join('');
+    const nSeries = c.total / D.series;
+    return `
+<div class="app" data-view="home">
+  <div class="island" aria-hidden="true"></div>
+  <div class="sbar" aria-hidden="true"><span>9:41</span><span class="sbar__icons">
+    <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.6c2.2 0 4.2.8 5.7 2.2l1.2-1.3A10 10 0 0 0 8 .8 10 10 0 0 0 1.1 3.5l1.2 1.3A8.3 8.3 0 0 1 8 2.6Zm0 3.4c1.3 0 2.5.5 3.4 1.3l1.2-1.3A6.6 6.6 0 0 0 8 4.2c-1.8 0-3.4.7-4.6 1.8l1.2 1.3C5.5 6.5 6.7 6 8 6Zm0 3.3c.5 0 1 .2 1.2.5L8 11.2 6.8 9.8c.3-.3.7-.5 1.2-.5Z"/></svg>
+    <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2"/><rect x="24.5" y="4.5" width="1.6" height="4" rx=".8" opacity=".45"/></svg>
+  </span></div>
+
+  <section class="view" data-v="home" aria-label="Rifa ${prize}">
+    <div class="scroller" data-scroller>
+      <nav class="nav" aria-label="${org}">
+        <span class="org"><span class="org__mark" aria-hidden="true">${mark}</span><span class="org__name">${org}</span></span>
+        <button class="chip" type="button" data-action="mine">Mis boletos</button>
+        <button class="iconbtn" type="button" data-action="theme" aria-label="Cambiar entre modo claro y oscuro">${THEME_ICON}</button>
+      </nav>
+      <div class="ticker" aria-label="Compras recientes, datos de ejemplo">
+        <span class="ticker__label"><span class="dot" aria-hidden="true"></span>En vivo</span>
+        <div class="ticker__viewport"><div class="ticker__track">${tickerHTML()}</div></div>
+      </div>
+      <header class="hero">
+        <div class="hero__img">
+          <div class="slides" data-slides tabindex="0" role="group" aria-roledescription="carrusel" aria-label="Fotos del premio">
+            ${imgs.map((src, i) => `<figure class="slide" role="group" aria-roledescription="foto" aria-label="${i + 1} de ${imgs.length}"><img src="${src}" alt="Foto ${i + 1} de ${imgs.length} del premio: ${prize}"${i ? ' loading="lazy"' : ''}></figure>`).join('')}
+          </div>
+          ${imgs.length > 1 ? `<span class="gal__count" data-gal-count aria-hidden="true">1 / ${imgs.length}</span>
+          <button class="gal__nav gal__nav--prev" type="button" data-action="g-prev" aria-label="Foto anterior" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 4.6 8 12l7.4 7.4-1.4 1.4L5.2 12 14 3.2z" fill="currentColor"/></svg></button>
+          <button class="gal__nav gal__nav--next" type="button" data-action="g-next" aria-label="Foto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 4.6 16 12l-7.4 7.4 1.4 1.4 8.8-8.8L10 3.2z" fill="currentColor"/></svg></button>
+          <div class="dots" role="group" aria-label="Elegir foto">${imgs.map((_, i) => `<button type="button" data-action="g-go" data-i="${i}" aria-label="Ver foto ${i + 1}" aria-current="${i === 0}"></button>`).join('')}</div>` : ''}
+          <button class="flyerbtn" type="button" data-action="flyer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v2H7.4l4.3 4.3-1.4 1.4L6 7.4V11H4zm16 16h-7v-2h3.6l-4.3-4.3 1.4-1.4 4.3 4.3V13h2z" fill="currentColor"/></svg>Ver en grande</button>
+        </div>
+        <div class="hero__body">
+          <p class="hero__when">Sorteo el ${D.long} · ${esc(c.lottery)} ${D.digits} cifras</p>
+          <h1 class="hero__title">${prize}</h1>
+          ${c.prizeExtra ? `<p class="hero__extra">${esc(c.prizeExtra)}</p>` : ''}
+          <div class="price"><p class="price__bs">Bs ${num(c.price)}</p><p class="price__usd">por boleto<br><b>${usd(D.unitUsd)}</b> a tasa BCV</p></div>
+          <button class="btn btn--accent btn--block" type="button" data-action="to-buy" data-hero-buy>Comprar boletos</button>
+          <p class="live"><span class="dot" aria-hidden="true"></span><span><b data-live="online"></b> en línea · <b data-live="viewing"></b> viendo esta rifa</span></p>
+        </div>
+      </header>
+
+      <section class="clock" data-sec="clock" data-reveal aria-label="Tiempo para el cierre de la venta">
+        <p>La venta cierra en</p>
+        <div class="cd" role="timer"><div><b data-cd="d">00</b><span>días</span></div><div><b data-cd="h">00</b><span>horas</span></div><div><b data-cd="m">00</b><span>min</span></div><div><b data-cd="s">00</b><span>seg</span></div></div>
+      </section>
+      <section class="sold" data-reveal aria-label="Avance de la venta">
+        <div class="sold__head"><p class="sold__pct"><span data-live="pct"></span>%<small>vendido</small></p><p class="sold__n" data-live="count"></p></div>
+        <div class="bar" role="progressbar" aria-label="Boletos vendidos" aria-valuemin="0" aria-valuemax="100" data-live-bar><span data-live="bar"></span></div>
+        <p class="sold__left">Solo quedan <b data-live="left"></b> boletos.</p>
+      </section>
+      <section class="prizes" data-reveal aria-labelledby="${p}-pz">
+        <h2 class="h2" id="${p}-pz">Premios</h2>
+        <div class="p1"><small>1er premio · ${D.hour}</small><b>${prize}</b>${c.prizeExtra ? `<span>${esc(c.prizeExtra)}</span>` : ''}</div>
+        <div class="p23row">
+          <div class="p23"><small>2do premio · ${c.times2[0]}</small><b>${esc(c.second)}</b></div>
+          <div class="p23"><small>3er premio · ${c.times2[1]}</small><b>${esc(c.third)}</b></div>
+        </div>
+      </section>
+
+      <!-- The whole purchase happens here, one stage at a time -->
+      <section class="buy" data-sec="buy" aria-label="Comprar boletos" aria-live="polite">
+        <div class="stage" data-stage="pick">
+          <h2 class="buy__h">Selecciona tus boletos</h2>
+          <div class="seg" role="radiogroup" aria-label="Cómo quieres tus números">
+            <button type="button" role="radio" data-action="mode" data-mode="random" aria-checked="true">${SHUFFLE}Al azar</button>
+            <button type="button" role="radio" data-action="mode" data-mode="manual" aria-checked="false">${HAND}Manual</button>
+          </div>
+          <div data-panel="random">
+            <div class="quick" role="group" aria-label="Cantidades rápidas">
+              ${qtys.map(q => `<button class="qbtn" type="button" data-action="quick" data-q="${q}" aria-pressed="false">${q === 5 ? '<em>Popular</em>' : ''}<b>${q}</b><span>Bs ${num(q * c.price)}</span></button>`).join('')}
+            </div>
+            <div class="stepper"><button type="button" data-action="dec" aria-label="Quitar un boleto">−</button><input class="field" id="${p}-qty" type="text" inputmode="numeric" autocomplete="off" data-in="qty" aria-label="Cantidad de boletos" aria-describedby="${p}-qtyerr"><button type="button" data-action="inc" aria-label="Agregar un boleto">+</button></div>
+            <p class="err" id="${p}-qtyerr" data-err="qty" hidden></p>
+          </div>
+          <div class="manual" data-panel="manual" hidden>
+            <p class="hint" data-manual-hint></p>
+            <ul class="chips" data-picks aria-label="Números elegidos"></ul>
+            <button class="btn btn--ink btn--block" type="button" data-action="board" aria-haspopup="dialog">Elegir mis números</button>
+          </div>
+          <button class="btn btn--accent btn--block go" type="button" data-action="participar"><span>Participar</span><b data-go-bs></b></button>
+          <p class="go__sub" data-go-usd></p>
+        </div>
+
+        <div class="stage" data-stage="data" hidden>
+          <button class="back" type="button" data-action="to-pick">${BACK}<span>Modificar cantidad (<span data-qword></span>)</span></button>
+          <h2 class="buy__h">Tus datos</h2>
+          <p class="lbl" id="${p}-idlbl" style="margin-top:0">Cédula</p>
+          <div class="idrow"><div class="seg seg--id" role="radiogroup" aria-label="Tipo de documento">${ids}</div>
+            <input class="field" id="${p}-ced" type="text" inputmode="numeric" maxlength="9" placeholder="Ej. 18456732" autocomplete="off" data-in="cedula" aria-labelledby="${p}-idlbl"></div>
+          <p class="lookup" data-lookup aria-live="polite">Con tu cédula llenamos el resto.</p>
+          <label class="lbl" for="${p}-name">Nombre y apellido</label><input class="field" id="${p}-name" type="text" autocomplete="name" data-in="name">
+          <label class="lbl" for="${p}-phone">Teléfono</label><input class="field" id="${p}-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0414-555-0000" data-in="phone">
+          <label class="lbl" for="${p}-estado">Estado</label>
+          <select class="field" id="${p}-estado" data-in="estado"><option value="">Selecciona tu estado</option>${ESTADOS.map(e => `<option>${e}</option>`).join('')}</select>
+          <label class="lbl" for="${p}-mail">Correo <small>(ahí te llegan tus números)</small></label><input class="field" id="${p}-mail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" data-in="email">
+          <p class="err" data-err="data" hidden></p>
+          <button class="btn btn--accent btn--block go" type="button" data-action="to-pay"><span>Continuar</span><b data-go-bs></b></button>
+        </div>
+
+        <div class="stage" data-stage="pay" hidden>
+          <button class="back" type="button" data-action="to-data">${BACK}Modificar datos</button>
+          <h2 class="buy__h">Pago</h2>
+          <div class="recap"><span data-qword></span><b data-go-bs></b></div>
+          <p class="go__sub" style="margin:0 0 14px; text-align:right" data-go-usd></p>
+          <div class="methods" role="radiogroup" aria-label="Método de pago">
+            <button class="method" type="button" role="radio" data-action="method" data-m="pm-auto" aria-checked="false"><i class="mico" style="--mc:${METHODS['pm-auto'].color[0]};--mci:${METHODS['pm-auto'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="7" y="2" width="14" height="24" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 21h6" stroke="currentColor" stroke-width="2.4"/><path d="M10 11l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></i><b>Pago Móvil</b><span>Se verifica solo con el banco</span><em>Al instante</em></button>
+            <button class="method" type="button" role="radio" data-action="method" data-m="binance" aria-checked="false"><i class="mico" style="--mc:${METHODS['binance'].color[0]};--mci:${METHODS['binance'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3l4 4-4 4-4-4zM7 10l4 4-4 4-4-4zM21 10l4 4-4 4-4-4zM14 17l4 4-4 4-4-4z" fill="currentColor"/></svg></i><b>Binance</b><span>USDT con Binance Pay</span></button>
+            <button class="method" type="button" role="radio" data-action="method" data-m="zelle" aria-checked="false"><i class="mico" style="--mc:${METHODS['zelle'].color[0]};--mci:${METHODS['zelle'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 6h14v3.4L11.8 19H21v3H7v-3.4L16.2 9H7z" fill="currentColor"/><path d="M13 3h2v4h-2zM13 21h2v4h-2z" fill="currentColor"/></svg></i><b>Zelle</b><span>Dólares desde EE. UU.</span></button>
+            <button class="method" type="button" role="radio" data-action="method" data-m="pm-manual" aria-checked="false"><i class="mico" style="--mc:${METHODS['pm-manual'].color[0]};--mci:${METHODS['pm-manual'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 3h11l5 5v17H6z" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 14h8M10 19h8" stroke="currentColor" stroke-width="2.4"/></svg></i><b>Pago Móvil manual</b><span>Con comprobante, lo revisa el rifero</span></button>
+          </div>
+          <div class="paybox" data-paybox></div>
+          <div data-f="payer"><label class="lbl" for="${p}-payer">Teléfono desde el que pagas</label><input class="field" id="${p}-payer" type="tel" inputmode="tel" placeholder="0414-555-0000" data-in="payer"></div>
+          <div data-f="bank"><label class="lbl" for="${p}-bank">Tu banco</label><select class="field" id="${p}-bank" data-in="bank"><option>Banesco</option><option>Banco de Venezuela</option><option>Mercantil</option><option>BBVA Provincial</option><option>BNC</option><option>Bancamiga</option></select></div>
+          <label class="lbl" for="${p}-ref" data-ref-label>Número de referencia</label>
+          <input class="field" id="${p}-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos">
+          <div data-f="file"><input class="sr-only" id="${p}-file" type="file" accept="image/*,.pdf" data-in="file"><label class="upload" for="${p}-file" data-upload><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg><span><span data-file-name>Subir comprobante</span><small data-file-sub>Opcional. Foto o PDF.</small></span></label></div>
+          <p class="err" data-err="pay" hidden></p>
+          <button class="btn btn--accent btn--block go" type="button" data-action="confirm"><span>Confirmar pago</span><b data-go-bs></b></button>
+        </div>
+      </section>
+
+      <section class="orgcard" data-reveal aria-labelledby="${p}-org">
+        <h2 class="sr-only" id="${p}-org">Quién organiza</h2>
+        <div class="orgcard__who"><span class="org__mark" aria-hidden="true">${mark}</span><span><b>${org}</b><span>Organiza esta rifa</span></span></div>
+        <dl><dt>Instagram</dt><dd>${esc(c.handle)}</dd><dt>Soporte</dt><dd>${esc(c.support)}</dd><dt>Sorteo</dt><dd>${D.short}, ${D.hour}</dd></dl>
+        <div class="seal"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="var(--ink)"/><path d="M12 20.5l5.5 5.5L29 14.5" fill="none" stroke="var(--bg)" stroke-width="3.4"/></svg>
+          <span><b>Autorizada por CONALOT</b>Evento nº ${esc(c.conalot)}</span></div>
+      </section>
+      <section class="rank" data-sec="rank" data-reveal aria-labelledby="${p}-rk">
+        <h2 class="h2" id="${p}-rk">Top compradores</h2>
+        <p class="note">Quienes más boletos llevan en esta rifa. Datos de ejemplo.</p>
+        <ol>${TOP.map(([n, city, q], i) => `<li><span class="rank__pos">${i + 1}</span><span class="rank__who"><b>${n}</b><span>${city}</span></span><span class="rank__n">${q}<span>boletos</span></span></li>`).join('')}</ol>
+      </section>
+      <section class="acc-sec" data-reveal aria-labelledby="${p}-how">
+        <h2 class="h2" id="${p}-how">Cómo participar</h2>
+        <div class="acc steps-list">${acc(HOW, 'h')}</div>
+      </section>
+      <section class="acc-sec" data-reveal aria-labelledby="${p}-faq">
+        <h2 class="h2" id="${p}-faq">Preguntas frecuentes</h2>
+        <div class="acc">${acc(FAQ, 'f')}</div>
+      </section>
+      <footer class="afoot">
+        <p class="afoot__pow">Rifa de <b>${org}</b>, montada sobre</p>
+        <span class="lgmark"><i aria-hidden="true"></i>LottoGE</span>
+        <p>LottoGE es la plataforma autorizada que procesa la venta y asigna los números. Cada rifero responde por sus premios.</p>
+        <p>Prototipo de demostración: no procesa pagos ni guarda datos. Rifero, compradores, montos y cuentas son de ejemplo.</p>
+      </footer>
+    </div>
+
+    <div class="buybar" data-buybar>
+      <p><b>Bs ${num(c.price)}</b>por boleto · ${usd(D.unitUsd)}</p>
+      <button class="btn btn--accent" type="button" data-action="to-buy" tabindex="-1">Comprar boletos</button>
+    </div>
+
+    <div class="board-bg" data-board-bg hidden></div>
+    <div class="board" data-board hidden role="dialog" aria-modal="true" aria-labelledby="${p}-bh">
+      <div class="board__head">
+        <div><h2 id="${p}-bh">Elige tus números</h2><p>Del ${pad(0)} al ${pad(c.total - 1)}. Los tachados ya se vendieron.</p></div>
+        <button class="board__x" type="button" data-action="board-close" aria-label="Cerrar el tablero">×</button>
+      </div>
+      <div class="board__tools">
+        <input class="field" id="${p}-search" type="text" inputmode="numeric" maxlength="${D.digits}" placeholder="Buscar número" autocomplete="off" data-in="search" aria-label="Buscar un número">
+        <div class="rand" role="group" aria-label="Agregar números al azar">${[1, 5, 10].map(n => `<button type="button" data-action="rand" data-n="${n}" aria-label="Agregar ${n} al azar">+${n}</button>`).join('')}</div>
+      </div>
+      ${nSeries > 1 ? `<div class="series" role="group" aria-label="Series">${Array.from({ length: nSeries }, (_, i) => `<button type="button" data-action="series" data-i="${i}" aria-pressed="${i === 0}">${pad(i * D.series)}–${pad((i + 1) * D.series - 1)}</button>`).join('')}</div>` : '<div></div>'}
+      <div class="grid" data-grid role="group" aria-label="Números"></div>
+      <div class="board__foot">
+        <div class="legend" aria-hidden="true"><span><i class="l1"></i>Libre</span><span><i class="l2"></i>Vendido</span><span><i class="l3"></i>Elegido</span></div>
+        <button class="btn btn--accent btn--block" type="button" data-action="board-close" data-board-done>Listo</button>
+      </div>
+    </div>
+
+    <div class="lightbox" data-lightbox hidden role="dialog" aria-label="Fotos del premio">
+      <div class="lightbox__bar"><span>${imgs.length > 1 ? `${imgs.length} fotos del premio` : 'Foto del premio'}</span><button type="button" data-action="close-flyer">Cerrar</button></div>
+      <div class="lightbox__img" data-lb-scroll>${imgs.map((src, i) => `<img src="${src}" alt="Foto ${i + 1} de ${imgs.length} del premio: ${prize}" loading="lazy">`).join('')}</div>
+    </div>
+    <div class="verify" data-verify hidden role="status"><h2>Verificando tu pago</h2><p data-verify-line></p><div class="vbar" aria-hidden="true"><span></span></div><p data-verify-note></p></div>
+  </section>
+
+  <section class="view" data-v="ok" aria-label="Compra confirmada" hidden>
+    <div class="scroller" data-ok-scroller>
+      <header class="ok-head"><h1 class="wide">¡Listo!</h1><p data-ok-lede></p></header>
+      <div class="tkt">
+        <div class="tkt__main">
+          <div class="tkt__top"><span>${org}</span><span>Boleto</span></div>
+          <p class="tkt__prize">${prize}</p>
+          <div class="tkt__meta"><span>Sorteo<b>${D.tag}</b></span><span>Hora<b>${D.hour}</b></span><span>Lotería<b>${esc(c.lottery)}</b></span></div>
+        </div>
+        <div class="tkt__stub"><span class="tkt__lbl">Tu número</span><span class="num" data-big-num></span><svg class="barcode" data-barcode viewBox="0 0 92 56" aria-hidden="true"></svg></div>
+      </div>
+      <div class="stubs-wrap" data-stubs-wrap><h2 data-stubs-title></h2><ul class="stubs" data-stubs></ul></div>
+      <div class="ok-body">
+        <p data-ok-sent></p>
+        <table class="order" aria-label="Detalle de la orden"><tbody data-order></tbody></table>
+        <div class="ok-actions"><button class="btn btn--accent btn--block" type="button" data-action="again">Comprar más boletos</button><button class="btn btn--ghost btn--block" type="button" data-action="home">Volver al inicio</button></div>
+      </div>
+    </div>
+    <canvas class="confetti" data-confetti aria-hidden="true"></canvas>
+  </section>
+
+  <section class="view" data-v="held" aria-label="Boletos reservados" hidden>
+    <div class="scroller" data-held-scroller>
+      <header class="st-head">
+        <span class="st-icon st-icon--wait" aria-hidden="true">${CLOCK}</span>
+        <h1 class="wide">Boletos reservados</h1>
+        <p data-held-lede></p>
+      </header>
+      <ol class="steps3" aria-label="Estado de tu pago">
+        <li class="is-done"><i aria-hidden="true">✓</i><span><b>Comprobante recibido</b>Tu referencia y tu comprobante llegaron bien.</span></li>
+        <li class="is-now" aria-current="step"><i aria-hidden="true">2</i><span><b>En revisión</b>El rifero lo verifica desde su panel, normalmente en menos de 2 horas.</span></li>
+        <li><i aria-hidden="true">3</i><span><b>Aprobado o rechazado</b>Te avisamos por correo con el resultado.</span></li>
+      </ol>
+      <div class="held" data-held-box><h2 data-held-title></h2><ul data-held-nums></ul></div>
+      <div class="held-note" data-held-random><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5h18v14H3zm2 2v.5l7 4.4 7-4.4V7zm0 2.9V17h14V9.9l-7 4.4z"/></svg><span data-held-random-txt></span></div>
+      <div class="st-body">
+        <p data-held-sent></p>
+        <table class="order" aria-label="Detalle de la orden"><tbody data-held-order></tbody></table>
+        <div class="ok-actions"><button class="btn btn--accent btn--block" type="button" data-action="mine">Ver mis boletos</button><button class="btn btn--ghost btn--block" type="button" data-action="home">Volver al inicio</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" data-v="rej" aria-label="Compra rechazada" hidden>
+    <div class="scroller" data-rej-scroller>
+      <header class="st-head">
+        <span class="st-icon st-icon--bad" aria-hidden="true">${XMARK}</span>
+        <h1 class="wide">Compra rechazada</h1>
+        <p data-rej-lede></p>
+      </header>
+      <div class="why">
+        <h2>Revisa que coincida con tu pago</h2>
+        <ul>
+          <li>El <b>monto exacto</b>, sin redondear.</li>
+          <li>La <b>referencia</b>: los últimos 6 dígitos del comprobante.</li>
+          <li>El <b>teléfono</b> y el <b>banco</b> desde los que pagaste.</li>
+        </ul>
+      </div>
+      <div class="st-body">
+        <div class="why why--note"><p><b>Tus boletos no se apartaron.</b> Si ya hiciste el pago, no lo repitas: corrige los datos y vuelve a verificar.</p></div>
+        <button class="btn btn--accent btn--block" type="button" data-action="fix-pay">Corregir datos del pago</button>
+        <div class="support"><span><small>Soporte por correo</small><b>${esc(c.support)}</b></span><button type="button" class="copy" data-copy="${esc(c.support)}">Copiar</button></div>
+        <button class="btn btn--ghost btn--block" type="button" data-action="home">Volver al inicio</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" data-v="mine" aria-label="Mis boletos" hidden>
+    <div class="scroller">
+      <div class="mine-top"><button class="back" type="button" data-action="home">${BACK}Inicio</button><p>${prize}</p></div>
+      <div class="mine-body">
+        <h2>Mis boletos</h2>
+        <p>Escribe tu cédula para ver los boletos que tienes en esta rifa.</p>
+        <div class="idrow"><div class="seg seg--id" role="radiogroup" aria-label="Tipo de documento">${ids}</div>
+          <input class="field" id="${p}-mced" type="text" inputmode="numeric" maxlength="9" placeholder="Ej. 18456732" autocomplete="off" data-in="mced" aria-label="Número de cédula"></div>
+        <button class="btn btn--ink btn--block" type="button" data-action="search" style="margin-top:8px">Buscar mis boletos</button>
+        <p class="err" data-err="mine" hidden></p>
+        <div class="mine-res" data-mine-res aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="homebar" aria-hidden="true"></div>
+</div>`;
+  }
+
+  let uid = 0;
+  class App {
+    constructor(screen, init, device) {
+      this.device = device; this.init = init;
+      this.s = Object.assign({ view: 'home', stage: 'pick', qty: 2, mode: 'random', picks: [], idType: 'V', cedula: '', name: '', phone: '', email: '', estado: '',
+        method: 'pm-auto', ref: '', payer: '', bank: 'Banesco', file: '', series: 0, search: '' }, JSON.parse(JSON.stringify(init)));
+      const seeds = { first: 7, second: 2026, third: 4821 };
+      this.s.picks = this.s.picks.reduce((out, x) => { const k = seeds[x] != null ? freeFrom(seeds[x] % CFG.total, 1, out)[0] : x; if (k) out.push(k); return out; }, []);
+      this.timers = [];
+      const p = 'p' + (++uid);
+      screen.innerHTML = appHTML(CFG, p);
+      this.el = screen.querySelector('.app');
+      this.sc = this.el.querySelector('[data-scroller]');
+      this.$ = q => this.el.querySelector(q);
+      this.$$ = q => [...this.el.querySelectorAll(q)];
+      paintLive(this.el); paintClock(this.el);
+      this.bind();
+      this.setupHome();
+      this.setupGallery();
+      if (this.s.cedula) this.fillPerson(personFor(this.s.cedula), false);
+      this.syncInputs();
+      this.show(this.s.view);
+      this.stage(this.s.stage, true);
+      if (init.slide) { const go = () => this.goSlide(init.slide, true); go(); requestAnimationFrame(go); window.addEventListener('load', go, { once: true }); }
+      if (init.flyer) this.flyer(true);
+      if (init.board) this.board(true);
+      if (init.verifying) this.verify(init.hold);
+      if (this.s.view === 'ok') this.buildSuccess();
+      if (this.s.view === 'held') this.buildHeld();
+      if (this.s.view === 'rej') this.buildRejected();
+      if (init.searched) { this.$('[data-in="mced"]').value = this.s.cedula; this.search(); }
+      if (init.scrollTo) {
+        const go = () => this.scrollToSec(init.scrollTo, true);
+        go(); requestAnimationFrame(go); window.addEventListener('load', go, { once: true }); document.fonts && document.fonts.ready.then(go);
+      }
+    }
+
+    destroy() { this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
+    later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
+
+    bind() {
+      this.el.addEventListener('click', e => {
+        const a = e.target.closest('[data-action]');
+        if (a) return this.act(a.dataset.action, a);
+        const g = e.target.closest('[data-num]');
+        if (g) return this.togglePick(g.dataset.num);
+        const ab = e.target.closest('.acc__item > button');
+        if (ab) {
+          const list = [...ab.closest('.acc').querySelectorAll('.acc__item > button')], was = ab.getAttribute('aria-expanded') === 'true';
+          list.forEach(b => { const on = b === ab && !was; b.setAttribute('aria-expanded', on); this.el.querySelector('#' + b.getAttribute('aria-controls')).hidden = !on; });
+          return;
+        }
+        const x = e.target.closest('[data-unpick]');
+        if (x) return this.togglePick(x.dataset.unpick);
+        if (e.target.closest('[data-board-bg]')) return this.board(false);
+        const ca = e.target.closest('[data-copy-all]');
+        if (ca) return this.copyAll(ca);
+        const cp = e.target.closest('[data-copy]');
+        if (cp) this.copy(cp);
+      });
+      this.el.addEventListener('input', e => this.onInput(e.target));
+      this.el.addEventListener('change', e => {
+        const t = e.target, k = t.dataset.in;
+        if (k === 'bank') this.s.bank = t.value;
+        if (k === 'estado') { this.s.estado = t.value; t.classList.remove('is-bad'); }
+        if (k === 'file') { this.s.file = t.files && t.files[0] ? t.files[0].name : ''; this.renderFile(); }
+      });
+      this.el.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { if (!this.$('[data-board]').hidden) this.board(false); if (!this.$('[data-lightbox]').hidden) this.flyer(false); }
+        if (e.key === 'Enter' && e.target.dataset.in === 'mced') { e.preventDefault(); this.search(); }
+      });
+    }
+
+    act(name, a) {
+      const s = this.s;
+      switch (name) {
+        case 'theme': return toggleTheme(this.device);
+        case 'to-buy': return this.scrollToSec('buy');
+        case 'mode': s.mode = a.dataset.mode; return this.renderPick();
+        case 'quick': s.qty = +a.dataset.q; return this.syncQty();
+        case 'inc': s.qty = (Number.isInteger(s.qty) && s.qty > 0 ? s.qty : 0) + 1; return this.syncQty();
+        case 'dec': s.qty = Math.max(1, (Number.isInteger(s.qty) ? s.qty : 2) - 1); return this.syncQty();
+        case 'board': return this.board(true);
+        case 'board-close': return this.board(false);
+        case 'series': s.series = +a.dataset.i; s.search = ''; this.$('[data-in="search"]').value = ''; return this.renderGrid(true);
+        case 'rand': return this.addRandom(+a.dataset.n);
+        case 'participar': return this.participar();
+        case 'to-pick': return this.stage('pick');
+        case 'to-data': return this.stage('data');
+        case 'to-pay': return this.toPay();
+        case 'idtype': s.idType = a.dataset.t; a.parentNode.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', b === a)); return;
+        case 'method': s.method = a.dataset.m; return this.renderMethod();
+        case 'confirm': return this.confirm();
+        case 'fix-pay': this.show('home'); this.stage('pay', true); this.scrollToSec('buy', true); this.$('[data-in="ref"]').classList.add('is-bad'); this.$('[data-in="ref"]').focus({ preventScroll: true }); return;
+        case 'again': Object.assign(s, { picks: [], mode: 'random', ref: '', file: '' }); this.syncInputs(); this.show('home'); this.stage('pick', true); return this.scrollToSec('buy', true);
+        case 'home': return this.show('home');
+        case 'mine': this.show('mine'); if (this.s.cedula) { this.$('[data-in="mced"]').value = this.s.cedula; this.search(); } return;
+        case 'search': return this.search();
+        case 'g-prev': return this.goSlide(this.slide - 1);
+        case 'g-next': return this.goSlide(this.slide + 1);
+        case 'g-go': return this.goSlide(+a.dataset.i);
+        case 'flyer': this.flyer(true); this.$('[data-action="close-flyer"]').focus(); return;
+        case 'close-flyer': this.flyer(false); this.$('[data-action="flyer"]').focus(); return;
+      }
+    }
+
+    /* ---- stages of the purchase box ---- */
+    count() { return this.s.mode === 'manual' ? this.s.picks.length : (Number.isInteger(this.s.qty) ? this.s.qty : 0); }
+    stage(name, instant) {
+      this.s.stage = name;
+      this.$$('[data-stage]').forEach(st => {
+        const on = st.dataset.stage === name;
+        st.hidden = !on;
+        st.classList.toggle('is-in', on && !instant && !reduce);
+      });
+      this.$('[data-err="data"]').hidden = true; this.$('[data-err="pay"]').hidden = true;
+      if (!instant) this.scrollToSec('buy');
+      this.renderTotals();
+    }
+    participar() {
+      const s = this.s;
+      if (s.mode === 'manual') {
+        if (!s.picks.length) { const h = this.$('[data-manual-hint]'); h.textContent = 'Elige al menos un número en el tablero para participar.'; h.classList.add('err'); return; }
+      } else if (!this.qtyOk()) { this.syncQty(); this.$('[data-in="qty"]').focus(); return; }
+      this.stage('data');
+    }
+    toPay() {
+      const s = this.s, bad = [];
+      if (!/^\d{6,9}$/.test(s.cedula)) bad.push(['cedula', 'tu cédula, solo números (de 6 a 9 dígitos)']);
+      if (s.name.trim().length < 3) bad.push(['name', 'tu nombre y apellido']);
+      if (s.phone.replace(/\D/g, '').length !== 11) bad.push(['phone', 'tu teléfono de 11 dígitos, por ejemplo 0414-555-2190']);
+      if (!s.estado) bad.push(['estado', 'tu estado']);
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email.trim())) bad.push(['email', 'tu correo: ahí te enviamos tus números']);
+      bad.forEach(([k]) => this.$(`[data-in="${k}"]`).classList.add('is-bad'));
+      const err = this.$('[data-err="data"]');
+      if (bad.length) { err.textContent = 'Falta ' + bad[0][1] + '.'; err.hidden = false; this.$(`[data-in="${bad[0][0]}"]`).focus(); return; }
+      this.stage('pay');
+    }
+    confirm() {
+      const s = this.s, err = this.$('[data-err="pay"]'), m = METHODS[s.method];
+      let msg = '', field = '';
+      if (m.payer && s.payer.replace(/\D/g, '').length !== 11) { msg = 'Escribe el teléfono desde el que hiciste el Pago Móvil (11 dígitos).'; field = 'payer'; }
+      else if (s.ref.trim().length < 4) { msg = `Escribe ${m.refErr} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
+      if (msg) { err.textContent = msg; err.hidden = false; const f = this.$(`[data-in="${field}"]`); f.classList.add('is-bad'); f.focus(); return; }
+      err.hidden = true;
+      this.verify(false);
+    }
+
+    /* ---- tickets ---- */
+    maxQty() { return Math.min(500, CFG.total - soldNow()); }
+    qtyOk() { return Number.isInteger(this.s.qty) && this.s.qty >= 1 && this.s.qty <= this.maxQty(); }
+    syncQty(fromTyping) {
+      const s = this.s, ok = Number.isInteger(s.qty) && s.qty >= 1, max = this.maxQty();
+      const inp = this.$('[data-in="qty"]');
+      if (!fromTyping) inp.value = ok ? s.qty : '';
+      this.$$('[data-action="quick"]').forEach(b => b.setAttribute('aria-pressed', ok && +b.dataset.q === s.qty));
+      const err = this.$('[data-err="qty"]');
+      const msg = !ok ? 'Escribe una cantidad entera de 1 o más.' : s.qty > max ? `El máximo por compra es ${num(max)} boletos.` : '';
+      err.textContent = msg; err.hidden = !msg; inp.classList.toggle('is-bad', !!msg);
+      this.renderTotals();
+    }
+    renderPick() {
+      const m = this.s.mode;
+      this.$$('[data-action="mode"]').forEach(b => b.setAttribute('aria-checked', b.dataset.mode === m));
+      this.$('[data-panel="random"]').hidden = m !== 'random';
+      this.$('[data-panel="manual"]').hidden = m !== 'manual';
+      this.renderPicks(); this.renderTotals();
+    }
+    renderPicks() {
+      const s = this.s, n = s.picks.length, h = this.$('[data-manual-hint]');
+      this.$('[data-picks]').innerHTML = s.picks.map(k => `<li>${k}<button type="button" data-unpick="${k}" aria-label="Quitar el ${k}">×</button></li>`).join('');
+      h.classList.remove('err');
+      h.textContent = n ? `Elegiste ${n === 1 ? '1 número' : n + ' números'}. Toca × para quitar uno.` : 'Abre el tablero y toca los números que quieres.';
+      this.$('[data-action="board"]').textContent = n ? 'Elegir más números' : 'Elegir mis números';
+      const done = this.$('[data-board-done]'); if (done) done.textContent = n ? `Listo · ${n === 1 ? '1 número' : n + ' números'} · Bs ${num(n * CFG.price)}` : 'Listo';
+    }
+    togglePick(k) {
+      const s = this.s, i = s.picks.indexOf(k);
+      if (i >= 0) s.picks.splice(i, 1);
+      else { if (taken(+k)) return; if (s.picks.length >= 500) return; s.picks.push(k); }
+      const b = this.$(`[data-num="${k}"]`); if (b) b.setAttribute('aria-pressed', i < 0);
+      this.renderPicks(); this.renderTotals();
+    }
+    addRandom(n) {
+      const s = this.s; let seed = (Date.now() + s.picks.length * 97) % CFG.total;
+      for (let added = 0, guard = 0; added < n && guard < CFG.total; guard++) {
+        seed = (seed * 7 + 3137) % CFG.total; const k = pad(seed);
+        if (!taken(seed) && !s.picks.includes(k)) { s.picks.push(k); added++; }
+      }
+      this.renderGrid(); this.renderPicks(); this.renderTotals();
+    }
+    board(on) {
+      this.$('[data-board]').hidden = !on; this.$('[data-board-bg]').hidden = !on;
+      if (on) { this.renderGrid(true); this.renderPicks(); this.$('[data-board] .board__x').focus({ preventScroll: true }); }
+      else if (this.s.mode === 'manual' && this.s.stage === 'pick') this.$('[data-action="board"]').focus({ preventScroll: true });
+    }
+    renderGrid(resetScroll) {
+      const s = this.s, q = s.search, grid = this.$('[data-grid]');
+      let list = [];
+      if (q) { for (let i = 0; i < CFG.total && list.length < 120; i++) { const k = pad(i); if (k.includes(q)) list.push(i); } }
+      else { const a = s.series * D.series; for (let i = a; i < a + D.series; i++) list.push(i); }
+      this.$$('[data-action="series"]').forEach(b => b.setAttribute('aria-pressed', !q && +b.dataset.i === s.series));
+      grid.innerHTML = list.length ? list.map(i => { const k = pad(i), t = taken(i); return `<button type="button" data-num="${k}" aria-pressed="${s.picks.includes(k)}"${t ? ' disabled aria-label="' + k + ', vendido"' : ''}>${k}</button>`; }).join('')
+        : `<p class="grid__empty">No hay números que contengan “${esc(q)}”.</p>`;
+      if (resetScroll) grid.scrollTop = 0;
+    }
+
+    renderTotals() {
+      const q = this.count(), tot = q * CFG.price;
+      this.$$('[data-go-bs]').forEach(n => n.textContent = bs(tot));
+      this.$$('[data-go-usd]').forEach(n => n.textContent = `${usd(tot / CFG.rate)} · tasa BCV Bs ${num(CFG.rate, 2)}`);
+      this.$$('[data-qword]').forEach(n => n.textContent = boletos(q));
+      this.$('[data-action="participar"]').disabled = q < 1;
+      this.renderPaybox();
+    }
+
+    /* ---- buyer data ---- */
+    onInput(t) {
+      const s = this.s, k = t.dataset.in;
+      if (!k) return;
+      if (k === 'qty') {
+        const clean = t.value.replace(/\D/g, '');
+        if (clean !== t.value) t.value = clean;
+        s.qty = clean === '' ? NaN : parseInt(clean, 10);
+        this.syncQty(true);
+      } else if (k === 'search') {
+        t.value = t.value.replace(/\D/g, '').slice(0, D.digits); s.search = t.value; this.renderGrid(true);
+      } else if (k === 'mced') {
+        t.value = t.value.replace(/\D/g, '').slice(0, 9);
+      } else if (k === 'cedula') {
+        t.value = t.value.replace(/\D/g, '').slice(0, 9);
+        s.cedula = t.value; t.classList.remove('is-bad');
+        clearTimeout(this.lk);
+        const lk = this.$('[data-lookup]');
+        if (s.cedula.length >= 6) {
+          lk.className = 'lookup'; lk.innerHTML = '<span class="spin" aria-hidden="true"></span>Buscando tus datos…';
+          this.lk = this.later(() => this.fillPerson(personFor(s.cedula), true), 900);
+        } else { lk.className = 'lookup'; lk.textContent = 'Con tu cédula llenamos el resto.'; }
+      } else if (['name', 'phone', 'email', 'ref', 'payer'].includes(k)) {
+        s[k] = t.value; t.classList.remove('is-bad');
+      }
+    }
+    fillPerson(p, animate) {
+      Object.assign(this.s, { name: p.name, phone: p.phone, email: p.email });
+      const lk = this.$('[data-lookup]');
+      lk.className = 'lookup is-ok';
+      lk.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" fill="currentColor"/></svg>Encontramos tus datos. Revísalos.';
+      ['name', 'phone', 'email'].forEach((k, i) => {
+        const f = this.$(`[data-in="${k}"]`);
+        f.value = this.s[k]; f.classList.remove('is-bad', 'is-filled');
+        if (animate && !reduce) { void f.offsetWidth; f.style.animationDelay = i * 90 + 'ms'; f.classList.add('is-filled'); }
+      });
+    }
+    syncInputs() {
+      const s = this.s;
+      this.$('[data-in="cedula"]').value = s.cedula;
+      this.$('[data-in="estado"]').value = s.estado;
+      this.$('[data-in="ref"]').value = s.ref;
+      this.$('[data-in="payer"]').value = s.payer;
+      this.$('[data-in="bank"]').value = s.bank;
+      this.syncQty(); this.renderPick(); this.renderMethod(); this.renderFile();
+    }
+
+    /* ---- payment ---- */
+    renderMethod() {
+      const m = METHODS[this.s.method];
+      this.$$('[data-action="method"]').forEach(b => b.setAttribute('aria-checked', b.dataset.m === this.s.method));
+      this.$('[data-f="payer"]').hidden = !m.payer;
+      this.$('[data-f="bank"]').hidden = !m.bank;
+      this.$('[data-f="file"]').hidden = !m.file;
+      this.$('[data-ref-label]').textContent = m.ref;
+      const r = this.$('[data-in="ref"]'); r.placeholder = m.refPh; r.inputMode = this.s.method === 'zelle' ? 'text' : 'numeric';
+      this.renderPaybox();
+    }
+    amount(m, tot) { return m.cur === 'bs' ? bs(tot) : m.cur === 'usdt' ? num(tot / CFG.rate, 2) + ' USDT' : usd(tot / CFG.rate); }
+    renderPaybox() {
+      const m = METHODS[this.s.method];
+      const rows = [...m.rows(), ['Monto exacto', this.amount(m, this.count() * CFG.price)]];
+      const all = [`Pago a ${CFG.rifero} por ${m.label}`, ...rows.map(([k, v]) => `${k}: ${v}`)].join('\n');
+      this.$('[data-paybox]').innerHTML = `<p class="paybox__brand" style="--mc:${m.color[0]}"><i aria-hidden="true"></i>Paga con ${m.label}</p>
+        <table aria-label="Datos para pagar con ${m.label}"><tbody>${rows.map(([k, v]) =>
+        `<tr><td>${k}</td><td>${esc(v)}</td><td><button type="button" class="copy" data-copy="${esc(v)}" aria-label="Copiar ${k.toLowerCase()}">Copiar</button></td></tr>`).join('')}</tbody></table>
+        <button type="button" class="copyall" data-copy-all="${esc(all)}">${COPY_ICON}<span>Copiar todos los datos</span></button>`;
+    }
+    renderFile() {
+      this.$('[data-upload]').classList.toggle('has-file', !!this.s.file);
+      this.$('[data-file-name]').textContent = this.s.file || 'Subir comprobante';
+      this.$('[data-file-sub]').textContent = this.s.file ? 'Comprobante listo. Toca para cambiarlo.' : 'Opcional. Foto o PDF.';
+    }
+    copy(btn) {
+      const text = btn.dataset.copy.replace(/^Bs /, '');
+      const done = () => { btn.textContent = 'Copiado'; btn.classList.add('is-done'); this.later(() => { btn.textContent = 'Copiar'; btn.classList.remove('is-done'); }, 1600); };
+      try { navigator.clipboard.writeText(text).then(done, done); } catch (e) { done(); }
+    }
+    copyAll(btn) {
+      const label = btn.querySelector('span');
+      const done = () => { label.textContent = 'Datos copiados'; btn.classList.add('is-done'); this.later(() => { label.textContent = 'Copiar todos los datos'; btn.classList.remove('is-done'); }, 1800); };
+      try { navigator.clipboard.writeText(btn.dataset.copyAll).then(done, done); } catch (e) { done(); }
+    }
+    verify(hold) {
+      const s = this.s, m = METHODS[s.method];
+      this.$('[data-verify-line]').innerHTML = `${m.label} · ref. ${esc(s.ref || '—')} · <b>${this.amount(m, this.count() * CFG.price)}</b>`;
+      this.$('[data-verify-note]').textContent = m.note;
+      this.$('[data-verify] h2').textContent = m.auto ? 'Verificando tu pago' : 'Enviando tu comprobante';
+      this.$('[data-verify]').hidden = false;
+      this.el.classList.add('is-dark-top');
+      if (hold) return;
+      this.later(() => {
+        this.$('[data-verify]').hidden = true; this.el.classList.remove('is-dark-top');
+        const out = this.outcome();
+        this.show(out);
+        if (out === 'ok') this.buildSuccess(true); else if (out === 'held') this.buildHeld(); else this.buildRejected();
+      }, 2400);
+    }
+
+    /* ---- views ---- */
+    show(view) {
+      this.s.view = view;
+      this.el.dataset.view = view;
+      this.$$('[data-v]').forEach(v => v.hidden = v.dataset.v !== view);
+      if (view === 'ok') this.$('[data-ok-scroller]').scrollTop = 0;
+    }
+    flyer(on) {
+      this.$('[data-lightbox]').hidden = !on; this.el.classList.toggle('is-dark-top', on);
+      if (on) { const box = this.$('[data-lb-scroll]'), img = box.children[this.slide || 0]; box.scrollTop = img ? img.offsetTop : 0; }
+    }
+    /* Photo carousel: swipe on phones, arrows and dots for everyone. */
+    setupGallery() {
+      const track = this.$('[data-slides]');
+      this.slide = 0;
+      this.$$('.slide img').forEach(img => { const set = () => img.classList.toggle('is-tall', img.naturalHeight > img.naturalWidth * 1.05); img.complete ? set() : img.addEventListener('load', set, { once: true }); });
+      track.addEventListener('scroll', () => {
+        const i = Math.round(track.scrollLeft / track.clientWidth);
+        if (i !== this.slide) { this.slide = i; this.paintGallery(); }
+      }, { passive: true });
+      track.addEventListener('keydown', e => { if (e.key === 'ArrowRight') this.goSlide(this.slide + 1); if (e.key === 'ArrowLeft') this.goSlide(this.slide - 1); });
+    }
+    goSlide(i, instant) {
+      const track = this.$('[data-slides]'), n = track.children.length;
+      i = Math.max(0, Math.min(n - 1, i));
+      track.scrollTo({ left: i * track.clientWidth, behavior: instant || reduce ? 'auto' : 'smooth' });
+      this.slide = i; this.paintGallery();
+    }
+    paintGallery() {
+      const n = this.$('[data-slides]').children.length, c = this.$('[data-gal-count]');
+      if (!c) return;
+      c.textContent = `${this.slide + 1} / ${n}`;
+      this.$('[data-action="g-prev"]').disabled = this.slide === 0;
+      this.$('[data-action="g-next"]').disabled = this.slide === n - 1;
+      this.$$('[data-action="g-go"]').forEach(d => d.setAttribute('aria-current', +d.dataset.i === this.slide));
+    }
+    scrollToSec(key, instant) {
+      const t = this.$(`[data-sec="${key}"]`);
+      if (!t) return;
+      const top = Math.max(0, t.offsetTop - 60);
+      if (instant || reduce) this.sc.scrollTop = top; else this.sc.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    /* Demo rule: Pago Móvil al instante is checked against the bank (R4 gateway); a reference ending in 0
+       stands for a payment the bank can't find. The other methods wait for the rifero to review them. */
+    outcome() {
+      const m = METHODS[this.s.method];
+      if (!m.auto) return 'held';
+      return /0$/.test(this.s.ref.trim()) ? 'rej' : 'ok';
+    }
+    buildHeld() {
+      const s = this.s, q = Math.max(1, this.count()), p = s.name ? s : PEOPLE[0], m = METHODS[s.method], tot = q * CFG.price;
+      const chosen = s.mode === 'manual' && s.picks.length > 0, first = esc(p.name.split(' ')[0]), mail = esc(p.email);
+      this.$('[data-held-lede]').innerHTML = chosen
+        ? `${first}, apartamos los <b>${q === 1 ? 'el número' : q + ' números'}</b> que elegiste mientras ${esc(CFG.rifero)} revisa tu pago por ${m.label}.`.replace('los <b>el número</b>', 'el <b>número</b>')
+        : `${first}, tu compra de <b>${boletos(q)}</b> está en revisión: ${esc(CFG.rifero)} verifica tu pago por ${m.label}.`;
+      this.$('[data-held-box]').hidden = !chosen;
+      this.$('[data-held-random]').hidden = chosen;
+      if (chosen) {
+        this.$('[data-held-title]').textContent = q === 1 ? 'Tu número, esperando confirmación' : `Tus ${q} números, esperando confirmación`;
+        this.$('[data-held-nums]').innerHTML = s.picks.map(n => `<li><b>${n}</b><span>Por confirmar</span></li>`).join('');
+      } else {
+        this.$('[data-held-random-txt]').innerHTML = `<b>Tus números llegan por correo</b>Como elegiste al azar, se asignan cuando se apruebe el pago y te los enviamos a <b>${mail}</b>.`;
+      }
+      this.$('[data-held-sent]').innerHTML = chosen
+        ? `Cuando se apruebe, te enviamos la confirmación a <b>${mail}</b>. Si se rechaza, te escribimos al mismo correo para corregirlo.`
+        : `Si el pago se rechaza, te escribimos a <b>${mail}</b> para corregirlo.`;
+      const order = [['Orden', 'LG-' + (48100 + q * 7)], ['Números', chosen ? s.picks.join(', ') : 'Al azar, al aprobar'], ['Método', m.label], ['Referencia', s.ref || '—'], ['Comprobante', s.file || 'No adjuntado'], ['Total', m.cur === 'bs' ? bs(tot) : this.amount(m, tot)], ['Estado', 'Por verificar']];
+      this.$('[data-held-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('');
+      this.$('[data-held-scroller]').scrollTop = 0;
+    }
+    buildRejected() {
+      const s = this.s, m = METHODS[s.method], tot = this.count() * CFG.price;
+      this.$('[data-rej-lede]').innerHTML = `El banco no encontró un ${m.label} de <b>${bs(tot)}</b> con la referencia <b>${esc(s.ref || '—')}</b> desde el <b>${esc(s.payer || '—')}</b> (${esc(s.bank)}).`;
+      this.$('[data-rej-scroller]').scrollTop = 0;
+    }
+
+    pickNumbers(q, seedBase) {
+      const nums = [...this.s.picks];
+      let seed = seedBase + q * 37, guard = 0;
+      while (nums.length < q && guard++ < 50000) { seed = (seed * 1103515245 + 12345) % 2147483648; const n = seed % CFG.total, k = pad(n); if (!taken(n) && !nums.includes(k)) nums.push(k); }
+      return nums;
+    }
+    buildSuccess(playNow) {
+      const s = this.s, q = Math.max(1, this.count()), p = s.name ? s : PEOPLE[0];
+      const nums = this.pickNumbers(q, 4821);
+      const digits = n => [...n].map(d => `<i data-d="${d}">${d}</i>`).join('');
+      this.$('[data-ok-lede]').innerHTML = `${esc(p.name.split(' ')[0])}, ${q === 1 ? 'tu boleto ya está' : `tus <b>${q} boletos</b> ya están`} en el sorteo del <b>${D.long}</b>.`;
+      this.$('[data-ok-sent]').innerHTML = `Te enviamos tus números a tu correo <b>${esc(p.email)}</b>.`;
+      const big = this.$('[data-big-num]'); big.innerHTML = digits(nums[0]); big.setAttribute('aria-label', 'Número ' + nums[0]);
+      this.$('[data-stubs-wrap]').hidden = q < 2;
+      this.$('[data-stubs-title]').textContent = q === 2 ? 'Tu otro número' : `Tus otros ${q - 1} números`;
+      this.$('[data-stubs]').innerHTML = nums.slice(1).map(n => `<li><span class="num" aria-label="Número ${n}">${digits(n)}</span></li>`).join('');
+      this.$('[data-barcode]').innerHTML = barcode(nums[0]);
+      const m = METHODS[s.method], tot = q * CFG.price;
+      const order = [['Orden', 'LG-' + (48000 + q * 7)], ['Método', m.label], ['Referencia', s.ref || '004821'], ['Total', bs(tot)], ['En dólares', usd(tot / CFG.rate)]];
+      this.$('[data-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('');
+      this.okPlayed = false;
+      if (playNow) this.celebrate(); else this.whenVisible(() => this.celebrate());
+    }
+    celebrate() {
+      if (this.okPlayed || reduce) return; this.okPlayed = true;
+      this.$$('[data-v="ok"] .num i').forEach((c, i) => {
+        const end = c.dataset.d, stop = 500 + Math.min(i, 24) * 70, t0 = performance.now();
+        const spin = () => { if (performance.now() - t0 >= stop) { c.textContent = end; c.classList.add('is-set'); return; } c.textContent = Math.floor(Math.random() * 10); this.later(spin, 55); };
+        spin();
+      });
+      confetti(this.$('[data-confetti]'), this);
+    }
+    whenVisible(fn) {
+      this.io2 = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { this.io2.disconnect(); fn(); } }, { threshold: .35 });
+      this.io2.observe(this.device);
+    }
+    search() {
+      const inp = this.$('[data-in="mced"]'), err = this.$('[data-err="mine"]'), res = this.$('[data-mine-res]');
+      const ced = inp.value;
+      if (!/^\d{6,9}$/.test(ced)) { err.textContent = 'Escribe tu cédula, solo números (de 6 a 9 dígitos).'; err.hidden = false; inp.classList.add('is-bad'); res.innerHTML = ''; return; }
+      err.hidden = true; inp.classList.remove('is-bad');
+      const p = personFor(ced), a = this.pickNumbers(5, +ced.slice(-4));
+      res.innerHTML = `
+        <p class="mine-who"><b>${esc(p.name)}</b> tiene 7 boletos en esta rifa.</p>
+        <div class="ord"><div class="ord__head"><span><b>Orden LG-48035</b><br>Pago Móvil · ${bs(5 * CFG.price)}</span><span class="tag tag--ok">Pagado</span></div><ul>${a.map(n => `<li>${n}</li>`).join('')}</ul></div>
+        <div class="ord"><div class="ord__head"><span><b>Orden LG-48112</b><br>Zelle · ${usd(2 * CFG.price / CFG.rate)}</span><span class="tag tag--wait">Por verificar</span></div><p>2 boletos al azar. Los números se asignan cuando se apruebe el pago y te llegan a tu correo.</p></div>
+        <p class="hint">Datos de ejemplo. En producción, esta consulta va contra la API de LottoGE.</p>`;
+    }
+    setupHome() {
+      const bar = this.$('[data-buybar]'), heroBuy = this.$('[data-hero-buy]'), buy = this.$('[data-sec="buy"]');
+      const seen = new Set();
+      const sync = () => { const on = !seen.has(heroBuy) && !seen.has(buy) && this.sc.scrollTop > 200; bar.classList.toggle('is-on', on); bar.querySelector('button').tabIndex = on ? 0 : -1; };
+      this.io = new IntersectionObserver(es => es.forEach(e => {
+        if (e.target === heroBuy || e.target === buy) { e.isIntersecting ? seen.add(e.target) : seen.delete(e.target); return sync(); }
+        if (e.isIntersecting && !reduce) { [...e.target.children].forEach((c, i) => { c.style.animationDelay = i * 75 + 'ms'; c.classList.add('rise'); }); this.io.unobserve(e.target); }
+      }), { root: this.sc, rootMargin: '0px 0px 60px 0px' });
+      this.$$('[data-reveal]').forEach(n => this.io.observe(n));
+      this.io.observe(heroBuy); this.io.observe(buy);
+      this.sc.addEventListener('scroll', sync, { passive: true });
+    }
+  }
+
+  function barcode(seedStr) {
+    let x = 0, seed = +seedStr + 97, out = '';
+    while (x < 90) { seed = (seed * 69069 + 1) % 4294967296; const w = 1 + (seed >>> 8) % 3; out += `<rect x="${x}" y="0" width="${w}" height="56"/>`; x += w + 1 + (seed >>> 16) % 3; }
+    return out;
+  }
+
+  function confetti(cv, app) {
+    const W = cv.width = cv.offsetWidth * 2, H = cv.height = cv.offsetHeight * 2;
+    const ctx = cv.getContext('2d'), cs = getComputedStyle(app.el);
+    const cols = ['--accent', '--ink', '--surface-2', '--good'].map(v => cs.getPropertyValue(v).trim() || '#e9b227');
+    const P = Array.from({ length: 140 }, () => ({ x: W / 2 + (Math.random() - .5) * W * .3, y: H * .2, vx: (Math.random() - .5) * 26, vy: -Math.random() * 30 - 8,
+      w: 8 + Math.random() * 10, h: 5 + Math.random() * 6, a: Math.random() * 6, va: (Math.random() - .5) * .4, c: cols[Math.floor(Math.random() * cols.length)] }));
+    const t0 = performance.now();
+    const frame = t => {
+      ctx.clearRect(0, 0, W, H);
+      P.forEach(p => { p.vy += .9; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.a += p.va; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore(); });
+      if (t - t0 < 3200) app.raf = requestAnimationFrame(frame); else ctx.clearRect(0, 0, W, H);
+    };
+    app.raf = requestAnimationFrame(frame);
+  }
+
+  /* ---------- theme ---------- */
+  const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+  const syncFlip = () => {
+    const dark = isDark();
+    document.querySelectorAll('[data-flip]').forEach(f => { if (!f.dataset.flipped) { f.classList.toggle('force-light', dark); f.classList.toggle('force-dark', !dark); } });
+    document.querySelectorAll('[data-flip-title]').forEach(h => { const fr = h.closest('.device').querySelector('[data-flip]'); h.textContent = fr.classList.contains('force-dark') ? 'Inicio en modo oscuro' : 'Inicio en modo claro'; });
+    const l = document.querySelector('[data-theme-label]'); if (l) l.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+  };
+  function toggleTheme(device) {
+    const f = device && device.querySelector('.force-dark, .force-light');
+    if (f) { const d = f.classList.contains('force-dark'); f.classList.toggle('force-dark', !d); f.classList.toggle('force-light', d); f.dataset.flipped = '1'; syncFlip(); return; }
+    document.documentElement.dataset.theme = isDark() ? 'light' : 'dark';
+    document.querySelectorAll('[data-flip]').forEach(fr => delete fr.dataset.flipped);
+    syncFlip();
+  }
+  document.querySelector('[data-global-theme]').addEventListener('click', () => toggleTheme(null));
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncFlip);
+  syncFlip();
+
+  /* ---------- phones ---------- */
+  const devices = [...document.querySelectorAll('.device')];
+  const mount = dev => { if (dev._app) dev._app.destroy(); dev._app = new App(dev.querySelector('.screen'), JSON.parse(dev.dataset.init || '{}'), dev); };
+  const mountAll = () => devices.forEach(mount);
+  devices.forEach(dev => dev.querySelector('.reset').addEventListener('click', () => mount(dev)));
+
+  /* ---------- configuration panel ---------- */
+  const form = document.querySelector('[data-cfg-form]'), cfgErr = document.querySelector('[data-cfg-err]');
+  document.querySelector('[data-swatches]').innerHTML = Object.entries(ACCENTS).map(([k, [c, ci, name]]) =>
+    `<label class="sw" style="--c:${c};--ci:${ci}"><input type="radio" name="cfg-accent" value="${k}"><span>${name}</span></label>`).join('');
+  const applyAccent = () => { const [c, ci] = ACCENTS[CFG.accent]; document.documentElement.style.setProperty('--accent', c); document.documentElement.style.setProperty('--accent-ink', ci); };
+  const fillForm = () => {
+    form.querySelectorAll('[data-cfg]').forEach(i => { const v = CFG[i.dataset.cfg]; i.value = i.dataset.cfg === 'rate' ? num(v, 2) : v; i.classList.remove('is-bad'); });
+    form.querySelector(`input[name="cfg-accent"][value="${CFG.accent}"]`).checked = true;
+    renderThumbs();
+    cfgErr.hidden = true;
+  };
+  /* Each rule returns { v } when the value is usable, or the message to show. */
+  const RULES = {
+    price: x => /^\d{1,9}$/.test(x) && +x >= 1 ? { v: +x } : 'El precio debe ser un número entero de 1 o más.',
+    rate: x => { const n = parseFloat(x.includes(',') ? x.replace(/\./g, '').replace(',', '.') : x); return /^[\d.,]+$/.test(x) && n > 0 ? { v: n } : 'La tasa debe ser un número mayor que cero, por ejemplo 881,88.'; },
+    soldPct: x => /^\d{1,2}$/.test(x) ? { v: +x } : 'El porcentaje vendido va de 0 a 99.',
+    total: x => ({ v: +x }),
+    date: x => /^\d{4}-\d{2}-\d{2}$/.test(x) ? { v: x } : 'Elige la fecha del sorteo.',
+    time: x => /^\d{2}:\d{2}$/.test(x) ? { v: x } : 'Elige la hora del sorteo.',
+    prize: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre del 1er premio.',
+    rifero: x => x.trim() ? { v: x.trim() } : 'Escribe el nombre de la marca del rifero.',
+    support: x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x.trim()) ? { v: x.trim() } : 'Escribe un correo de soporte válido.'
+  };
+  let tm;
+  const commit = () => { D = derive(CFG); live.bump = 0; mountAll(); paintLive(); };
+  form.addEventListener('input', e => {
+    const i = e.target, k = i.dataset.cfg;
+    if (i.name === 'cfg-accent') { CFG.accent = i.value; applyAccent(); return; }
+    if (!k) return;
+    const r = RULES[k] ? RULES[k](i.value) : { v: i.value.trim() };
+    const bad = typeof r === 'string';
+    i.classList.toggle('is-bad', bad);
+    if (bad) { cfgErr.textContent = r; cfgErr.hidden = false; return; }
+    if (!form.querySelector('.is-bad')) cfgErr.hidden = true;
+    CFG[k] = r.v;
+    clearTimeout(tm); tm = setTimeout(commit, 350);
+  });
+  form.addEventListener('submit', e => e.preventDefault());
+  const thumbs = document.querySelector('[data-thumbs]');
+  const renderThumbs = () => {
+    thumbs.innerHTML = CFG.images.map((src, i) => `<li><img src="${src}" alt="Foto ${i + 1}" width="64" height="64">${i === 0 ? '<small>Portada</small>' : ''}${CFG.images.length > 1 ? `<button type="button" data-rm="${i}" aria-label="Quitar la foto ${i + 1}">×</button>` : ''}</li>`).join('');
+  };
+  thumbs.addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; CFG.images.splice(+b.dataset.rm, 1); renderThumbs(); commit(); });
+  document.querySelector('[data-cfg-img]').addEventListener('change', e => {
+    const files = [...(e.target.files || [])];
+    e.target.value = '';
+    if (!files.length) return;
+    const bad = files.find(f => !/^image\//.test(f.type)) ? 'Todos los archivos deben ser imágenes (JPG o PNG).' : files.find(f => f.size > 8 * 1024 * 1024) ? 'Hay una foto de más de 8 MB. Usa una más liviana.' : CFG.images.length + files.length > 10 ? `Puedes tener hasta 10 fotos; ya hay ${CFG.images.length}.` : '';
+    if (bad) { cfgErr.textContent = bad; cfgErr.hidden = false; return; }
+    cfgErr.hidden = true;
+    Promise.all(files.map(f => new Promise(res => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsDataURL(f); })))
+      .then(urls => { CFG.images.push(...urls); renderThumbs(); commit(); });
+  });
+  document.querySelector('[data-cfg-sample-img]').addEventListener('click', () => { CFG.images = [...SAMPLE.images]; renderThumbs(); commit(); });
+  document.querySelector('[data-cfg-reset]').addEventListener('click', () => { CFG = JSON.parse(JSON.stringify(SAMPLE)); fillForm(); applyAccent(); commit(); });
+
+  fillForm(); applyAccent(); mountAll();
+
+  /* ---------- fit the phones to the width ---------- */
+  const fit = () => {
+    const W = document.querySelector('main').clientWidth, gap = 48, FW = 417;
+    let z;
+    if (W >= 3 * FW * .8 + 2 * gap) z = Math.min(.86, (W - 2 * gap) / (3 * FW));
+    else if (W >= 2 * FW * .66 + gap) z = Math.min(.86, (W - gap) / (2 * FW));
+    else z = Math.min(.92, W / FW);
+    document.documentElement.style.setProperty('--z', z.toFixed(4));
+  };
+  fit();
+  new ResizeObserver(fit).observe(document.querySelector('main'));
+})();
+</script>
