@@ -265,7 +265,8 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .method { border: 0; background: var(--bg); padding: 14px 12px; text-align: left; display: grid; gap: 4px; align-content: start; min-height: 104px; transition: background .2s, color .2s, transform .15s; }
 .method:hover { background: var(--surface-2); }
 .method:active { transform: scale(.97); }
-.method svg { width: 28px; height: 28px; margin-bottom: 4px; }
+.mico { width: 38px; height: 38px; display: grid; place-items: center; background: var(--mc); color: var(--mci); margin-bottom: 6px; }
+.mico svg { width: 22px; height: 22px; }
 .method b { font-size: 16px; line-height: 1.2; }
 .method span { font-size: 13px; color: var(--muted); line-height: 1.35; }
 .method em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--good); }
@@ -282,6 +283,48 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .copy { border: 0; background: var(--surface); min-height: 34px; padding: 0 10px; font-size: 13px; font-weight: 600; white-space: nowrap; transition: background .2s; }
 .copy:hover { background: var(--surface-2); }
 .copy.is-done { background: var(--good); color: var(--good-ink); }
+.copyall { width: 100%; margin: 6px 0 8px; border: 0; min-height: 46px; background: var(--ink); color: var(--bg); font-size: 15px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s, color .2s, transform .15s; }
+.copyall:active { transform: scale(.98); }
+.copyall svg { width: 18px; height: 18px; }
+.copyall.is-done { background: var(--good); color: var(--good-ink); }
+.paybox__brand { display: flex; align-items: center; gap: 8px; padding: 8px 0 4px; font-size: 14px; font-weight: 700; }
+.paybox__brand i { width: 12px; height: 12px; background: var(--mc); }
+
+/* Reserved (manual review) and rejected (instant payment not found) */
+.st-head { padding: 22px 20px 26px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.st-icon { width: 56px; height: 56px; display: grid; place-items: center; }
+.st-icon svg { width: 30px; height: 30px; }
+.st-icon--wait { background: var(--wait); color: var(--bg); }
+.st-icon--bad { background: var(--danger); color: var(--bg); }
+.st-head h1 { margin: 4px 0 0; font-size: 36px; line-height: .95; }
+.st-head p { margin: 0; font-size: 17px; line-height: 1.45; }
+.st-head p b { font-weight: 700; }
+.steps3 { list-style: none; margin: 0 20px; padding: 0; display: grid; gap: 4px; }
+.steps3 li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; background: var(--surface); padding: 12px 14px; font-size: 15px; line-height: 1.4; }
+.steps3 li b { display: block; font-size: 16px; }
+.steps3 li span { color: var(--muted); }
+.steps3 i { width: 28px; height: 28px; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 14px; background: var(--bg); color: var(--muted); }
+.steps3 li.is-done i { background: var(--good); color: var(--good-ink); }
+.steps3 li.is-now { background: var(--ink); color: var(--bg); }
+.steps3 li.is-now span { color: inherit; opacity: .8; }
+.steps3 li.is-now i { background: var(--wait); color: var(--bg); animation: pulse 1.8s ease-in-out infinite; }
+.held { padding: 26px 14px 0; }
+.held h2 { margin: 0 6px 12px; font-size: 18px; font-weight: 700; }
+.held ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.held li { background: var(--surface); padding: 10px 10px 12px; display: grid; gap: 4px; }
+.held li b { font-size: 28px; font-weight: 800; font-stretch: 125%; line-height: .9; font-variant-numeric: tabular-nums; color: var(--muted); }
+.held li span { font-size: 12px; font-weight: 700; color: var(--wait); }
+.why { margin: 0 20px; background: var(--surface); padding: 16px; display: grid; gap: 10px; }
+.why h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.why ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15px; line-height: 1.45; }
+.why p { margin: 0; font-size: 15px; line-height: 1.45; }
+.why--note { background: var(--bg); outline: 2px solid var(--surface-2); outline-offset: -2px; }
+.st-body { padding: 22px 20px 60px; display: grid; gap: 14px; }
+.st-body > p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+.st-body .order { margin-top: 4px; }
+.support { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--surface); padding: 12px 14px; font-size: 15px; }
+.support small { display: block; font-size: 13px; color: var(--muted); }
+.support b { font-size: 17px; font-variant-numeric: tabular-nums; }
 .upload { display: flex; align-items: center; gap: 12px; margin-top: 12px; min-height: 60px; padding: 0 14px; background: var(--bg); cursor: pointer; font-size: 15px; font-weight: 600; transition: background .2s; }
 .upload:hover { background: var(--surface-2); }
 .upload svg { width: 24px; height: 24px; flex: none; }
@@ -571,7 +614,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"data","qty":2,"cedula":"18456732","estado":"Zulia"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
           <figcaption><h3>Tus datos</h3><p>Tras “Participar”, en el mismo recuadro. Con la cédula se llenan nombre, WhatsApp y correo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
-          <figcaption><h3>Pago</h3><p>El total arriba, el método, los datos para pagar con botón de copiar y la referencia.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+          <figcaption><h3>Pago</h3><p>Cada método con su color. Los datos para pagar se copian uno a uno o todos de una vez.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"home","scrollTo":"buy","stage":"pay","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004821","payer":"0414-555-2190","verifying":true,"hold":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
           <figcaption><h3>Verificando el pago</h3><p>En la demo se queda aquí; en las otras pantallas avanza sola a los números.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
       </div>
@@ -580,11 +623,15 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     <section class="group" aria-labelledby="g3">
       <div class="group__head">
         <h2 id="g3">Después de pagar</h2>
-        <p>Los números aparecen en boletos con el color del rifero, y el comprador puede consultarlos cuando quiera con su cédula.</p>
+        <p>Pago Móvil al instante se verifica solo con el banco y entrega los números de una vez, o rechaza la compra si un dato no coincide. Los pagos manuales quedan reservados hasta que el rifero los revise.</p>
       </div>
       <div class="gallery">
         <figure class="device" data-init='{"view":"ok","qty":2,"cedula":"18456732","method":"pm-auto","ref":"004821"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
           <figcaption><h3>¡Listo! Números revelados</h3><p>Dígito a dígito y con confeti. Se envían por WhatsApp y por correo.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"held","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-manual","ref":"118402","file":"comprobante-pagomovil.jpg"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Boletos reservados</h3><p>Pago Móvil manual, Binance o Zelle: los números quedan apartados hasta que el rifero apruebe o rechace el comprobante desde su panel.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
+        <figure class="device" data-init='{"view":"rej","qty":2,"cedula":"18456732","estado":"Zulia","method":"pm-auto","ref":"004820","payer":"0414-555-2190"}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
+          <figcaption><h3>Compra rechazada</h3><p>Pago Móvil al instante con un dato mal: el banco no encuentra el pago. En la demo, una referencia que termina en 0 da este resultado.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"mine","cedula":"18456732","searched":true}'><div class="frame"><div class="bezel"><div class="screen"></div></div></div>
           <figcaption><h3>Mis boletos</h3><p>Consulta por cédula, sin cuenta ni contraseña: pagados y por verificar.</p><button class="reset" type="button">Restablecer</button></figcaption></figure>
         <figure class="device" data-init='{"view":"home"}'><div class="frame" data-flip><div class="bezel"><div class="screen"></div></div></div>
@@ -701,14 +748,14 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   const personFor = ced => ced === '18456732' ? PEOPLE[0] : PEOPLE[[...ced].reduce((a, c) => a + +c, 0) % PEOPLE.length];
 
   const METHODS = {
-    'pm-auto': { label: 'Pago Móvil', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: true, bank: true, file: false, cur: 'bs',
+    'pm-auto': { auto: true, color: ['#0f9d58', '#ffffff'], label: 'Pago Móvil', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: true, bank: true, file: false, cur: 'bs',
       rows: () => [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'Esto toma unos segundos. No cierres esta pantalla.' },
-    'binance': { label: 'Binance Pay', refErr: 'el ID de la orden', ref: 'ID de la orden en Binance', refPh: 'Ej. 2849104772', payer: false, bank: false, file: true, cur: 'usdt',
-      rows: () => [['Pay ID', '412 908 337'], ['Titular', CFG.rifero]], note: 'Normalmente tarda menos de 2 horas. En esta demo se aprueba al instante.' },
-    'zelle': { label: 'Zelle', refErr: 'el código de confirmación', ref: 'Código de confirmación', refPh: 'Ej. ZL7Q2K', payer: false, bank: false, file: true, cur: 'usd',
-      rows: () => [['Correo', 'pagos@rifero-ejemplo.com'], ['Titular', CFG.rifero]], note: 'Normalmente tarda menos de 2 horas. En esta demo se aprueba al instante.' },
-    'pm-manual': { label: 'Pago Móvil manual', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: false, bank: true, file: true, cur: 'bs',
-      rows: () => [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'Normalmente tarda menos de 2 horas. En esta demo se aprueba al instante.' }
+    'binance': { color: ['#f0b90b', '#1e2026'], label: 'Binance Pay', refErr: 'el ID de la orden', ref: 'ID de la orden en Binance', refPh: 'Ej. 2849104772', payer: false, bank: false, file: true, cur: 'usdt',
+      rows: () => [['Pay ID', '412 908 337'], ['Titular', CFG.rifero]], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' },
+    'zelle': { color: ['#6d1ed4', '#ffffff'], label: 'Zelle', refErr: 'el código de confirmación', ref: 'Código de confirmación', refPh: 'Ej. ZL7Q2K', payer: false, bank: false, file: true, cur: 'usd',
+      rows: () => [['Correo', 'pagos@rifero-ejemplo.com'], ['Titular', CFG.rifero]], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' },
+    'pm-manual': { color: ['#1d5fbf', '#ffffff'], label: 'Pago Móvil manual', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: false, bank: true, file: true, cur: 'bs',
+      rows: () => [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' }
   };
 
   /* ---------- the buyer's page, built from the configuration ---------- */
@@ -717,6 +764,9 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   const BACK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 4.6 8 12l7.4 7.4-1.4 1.4L5.2 12 14 3.2z" fill="currentColor"/></svg>';
   const SHUFFLE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17 3l4 4-4 4V8h-2.6l-8 9H3v-2h2.6l8-9H17zm0 10l4 4-4 4v-3h-3.4l-2.2-2.5 1.4-1.5 1.7 2H17zM3 7h3.4l2.2 2.5-1.4 1.5-1.7-2H3z"/></svg>';
   const HAND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 2a2 2 0 0 1 2 2v6.3l.6-.1V4.5a2 2 0 0 1 4 0v5.7l.5.1V6a2 2 0 1 1 4 0v8.5c0 4.1-3 7.5-7.1 7.5h-.8c-2.2 0-4.2-1.1-5.4-3L3.3 14a2 2 0 0 1 3.4-2.1L7 12.4V4a2 2 0 0 1 2-2Z"/></svg>';
+  const COPY_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 2h12v14h-2V4H8zM4 6h12v16H4zm2 2v12h8V8z"/></svg>';
+  const CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm-1 3v6l5 3 1-1.7-4-2.4V7z"/></svg>';
+  const XMARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.3 4.3 12 10.6 5.7 4.3 4.3 5.7 10.6 12l-6.3 6.3 1.4 1.4 6.3-6.3 6.3 6.3 1.4-1.4-6.3-6.3 6.3-6.3z"/></svg>';
   const qtys = [1, 2, 5, 10, 20, 50];
 
   function appHTML(c, p) {
@@ -732,7 +782,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     const FAQ = [
       ['¿Cómo se escoge al ganador?', `Con el resultado de ${esc(c.lottery)} de ${D.digits} cifras del ${D.long}. El 1er premio juega a las ${D.hour}; el 2do y el 3er, a las ${c.times2[0]} y a la ${c.times2[1]} del mismo día.`],
       ['¿Esta rifa es legal?', `Sí. Está autorizada por CONALOT con el nº ${esc(c.conalot)}, y funciona sobre LottoGE, la plataforma autorizada para rifas en Venezuela.`],
-      ['¿Cuándo recibo mis números?', 'Con Pago Móvil automático, al instante. Con los otros métodos, cuando verifiquemos tu pago, normalmente en menos de 2 horas.'],
+      ['¿Cuándo recibo mis números?', 'Con Pago Móvil al instante, en el momento. Con los otros métodos tus boletos quedan reservados hasta que el rifero apruebe el comprobante, normalmente en menos de 2 horas.'],
       ['¿Cómo cobro si gano?', `${org} te escribe por WhatsApp. La entrega se hace en persona y se transmite en vivo por ${esc(c.handle)}.`]
     ];
     const ids = ['V', 'E', 'J'].map(t => `<button type="button" role="radio" data-action="idtype" data-t="${t}" aria-checked="${t === 'V'}">${t}</button>`).join('');
@@ -836,10 +886,10 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
           <div class="recap"><span data-qword></span><b data-go-bs></b></div>
           <p class="go__sub" style="margin:0 0 14px; text-align:right" data-go-usd></p>
           <div class="methods" role="radiogroup" aria-label="Método de pago">
-            <button class="method" type="button" role="radio" data-action="method" data-m="pm-auto" aria-checked="false"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="7" y="2" width="14" height="24" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 21h6" stroke="currentColor" stroke-width="2.4"/><path d="M10 11l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2.4"/></svg><b>Pago Móvil</b><span>Se verifica solo</span><em>Al instante</em></button>
-            <button class="method" type="button" role="radio" data-action="method" data-m="binance" aria-checked="false"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3l4 4-4 4-4-4zM7 10l4 4-4 4-4-4zM21 10l4 4-4 4-4-4zM14 17l4 4-4 4-4-4z" fill="currentColor"/></svg><b>Binance</b><span>USDT con Binance Pay</span></button>
-            <button class="method" type="button" role="radio" data-action="method" data-m="zelle" aria-checked="false"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 6h14v3.4L11.8 19H21v3H7v-3.4L16.2 9H7z" fill="currentColor"/><path d="M13 3h2v4h-2zM13 21h2v4h-2z" fill="currentColor"/></svg><b>Zelle</b><span>Dólares desde EE. UU.</span></button>
-            <button class="method" type="button" role="radio" data-action="method" data-m="pm-manual" aria-checked="false"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 3h11l5 5v17H6z" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 14h8M10 19h8" stroke="currentColor" stroke-width="2.4"/></svg><b>Pago Móvil manual</b><span>Con comprobante, en menos de 2 h</span></button>
+            <button class="method" type="button" role="radio" data-action="method" data-m="pm-auto" aria-checked="false"><i class="mico" style="--mc:${METHODS['pm-auto'].color[0]};--mci:${METHODS['pm-auto'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="7" y="2" width="14" height="24" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 21h6" stroke="currentColor" stroke-width="2.4"/><path d="M10 11l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></i><b>Pago Móvil</b><span>Se verifica solo con el banco</span><em>Al instante</em></button>
+            <button class="method" type="button" role="radio" data-action="method" data-m="binance" aria-checked="false"><i class="mico" style="--mc:${METHODS['binance'].color[0]};--mci:${METHODS['binance'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3l4 4-4 4-4-4zM7 10l4 4-4 4-4-4zM21 10l4 4-4 4-4-4zM14 17l4 4-4 4-4-4z" fill="currentColor"/></svg></i><b>Binance</b><span>USDT con Binance Pay</span></button>
+            <button class="method" type="button" role="radio" data-action="method" data-m="zelle" aria-checked="false"><i class="mico" style="--mc:${METHODS['zelle'].color[0]};--mci:${METHODS['zelle'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 6h14v3.4L11.8 19H21v3H7v-3.4L16.2 9H7z" fill="currentColor"/><path d="M13 3h2v4h-2zM13 21h2v4h-2z" fill="currentColor"/></svg></i><b>Zelle</b><span>Dólares desde EE. UU.</span></button>
+            <button class="method" type="button" role="radio" data-action="method" data-m="pm-manual" aria-checked="false"><i class="mico" style="--mc:${METHODS['pm-manual'].color[0]};--mci:${METHODS['pm-manual'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 3h11l5 5v17H6z" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 14h8M10 19h8" stroke="currentColor" stroke-width="2.4"/></svg></i><b>Pago Móvil manual</b><span>Con comprobante, lo revisa el rifero</span></button>
           </div>
           <div class="paybox" data-paybox></div>
           <div data-f="payer"><label class="lbl" for="${p}-payer">Teléfono desde el que pagas</label><input class="field" id="${p}-payer" type="tel" inputmode="tel" placeholder="0414-555-0000" data-in="payer"></div>
@@ -931,6 +981,51 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     <canvas class="confetti" data-confetti aria-hidden="true"></canvas>
   </section>
 
+  <section class="view" data-v="held" aria-label="Boletos reservados" hidden>
+    <div class="scroller" data-held-scroller>
+      <header class="st-head">
+        <span class="st-icon st-icon--wait" aria-hidden="true">${CLOCK}</span>
+        <h1 class="wide">Boletos reservados</h1>
+        <p data-held-lede></p>
+      </header>
+      <ol class="steps3" aria-label="Estado de tu pago">
+        <li class="is-done"><i aria-hidden="true">✓</i><span><b>Comprobante recibido</b>Tu referencia y tu comprobante llegaron bien.</span></li>
+        <li class="is-now" aria-current="step"><i aria-hidden="true">2</i><span><b>En revisión</b>El rifero lo verifica desde su panel, normalmente en menos de 2 horas.</span></li>
+        <li><i aria-hidden="true">3</i><span><b>Aprobado o rechazado</b>Te avisamos por WhatsApp con el resultado.</span></li>
+      </ol>
+      <div class="held"><h2 data-held-title></h2><ul data-held-nums></ul></div>
+      <div class="st-body">
+        <p data-held-sent></p>
+        <table class="order" aria-label="Detalle de la orden"><tbody data-held-order></tbody></table>
+        <div class="ok-actions"><button class="btn btn--accent btn--block" type="button" data-action="mine">Ver mis boletos</button><button class="btn btn--ghost btn--block" type="button" data-action="home">Volver al inicio</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" data-v="rej" aria-label="Compra rechazada" hidden>
+    <div class="scroller" data-rej-scroller>
+      <header class="st-head">
+        <span class="st-icon st-icon--bad" aria-hidden="true">${XMARK}</span>
+        <h1 class="wide">Compra rechazada</h1>
+        <p data-rej-lede></p>
+      </header>
+      <div class="why">
+        <h2>Revisa que coincida con tu pago</h2>
+        <ul>
+          <li>El <b>monto exacto</b>, sin redondear.</li>
+          <li>La <b>referencia</b>: los últimos 6 dígitos del comprobante.</li>
+          <li>El <b>teléfono</b> y el <b>banco</b> desde los que pagaste.</li>
+        </ul>
+      </div>
+      <div class="st-body">
+        <div class="why why--note"><p><b>Tus boletos no se apartaron.</b> Si ya hiciste el pago, no lo repitas: corrige los datos y vuelve a verificar.</p></div>
+        <button class="btn btn--accent btn--block" type="button" data-action="fix-pay">Corregir datos del pago</button>
+        <div class="support"><span><small>Soporte por WhatsApp</small><b>${esc(c.whatsapp)}</b></span><button type="button" class="copy" data-copy="${esc(c.whatsapp)}">Copiar</button></div>
+        <button class="btn btn--ghost btn--block" type="button" data-action="home">Volver al inicio</button>
+      </div>
+    </div>
+  </section>
+
   <section class="view" data-v="mine" aria-label="Mis boletos" hidden>
     <div class="scroller">
       <div class="mine-top"><button class="back" type="button" data-action="home">${BACK}Inicio</button><p>${prize}</p></div>
@@ -976,6 +1071,8 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       if (init.board) this.board(true);
       if (init.verifying) this.verify(init.hold);
       if (this.s.view === 'ok') this.buildSuccess();
+      if (this.s.view === 'held') this.buildHeld();
+      if (this.s.view === 'rej') this.buildRejected();
       if (init.searched) { this.$('[data-in="mced"]').value = this.s.cedula; this.search(); }
       if (init.scrollTo) {
         const go = () => this.scrollToSec(init.scrollTo, true);
@@ -1001,6 +1098,8 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         const x = e.target.closest('[data-unpick]');
         if (x) return this.togglePick(x.dataset.unpick);
         if (e.target.closest('[data-board-bg]')) return this.board(false);
+        const ca = e.target.closest('[data-copy-all]');
+        if (ca) return this.copyAll(ca);
         const cp = e.target.closest('[data-copy]');
         if (cp) this.copy(cp);
       });
@@ -1037,9 +1136,10 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         case 'idtype': s.idType = a.dataset.t; a.parentNode.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', b === a)); return;
         case 'method': s.method = a.dataset.m; return this.renderMethod();
         case 'confirm': return this.confirm();
+        case 'fix-pay': this.show('home'); this.stage('pay', true); this.scrollToSec('buy', true); this.$('[data-in="ref"]').classList.add('is-bad'); this.$('[data-in="ref"]').focus({ preventScroll: true }); return;
         case 'again': Object.assign(s, { picks: [], mode: 'random', ref: '', file: '' }); this.syncInputs(); this.show('home'); this.stage('pick', true); return this.scrollToSec('buy', true);
         case 'home': return this.show('home');
-        case 'mine': return this.show('mine');
+        case 'mine': this.show('mine'); if (this.s.cedula) { this.$('[data-in="mced"]').value = this.s.cedula; this.search(); } return;
         case 'search': return this.search();
         case 'flyer': this.flyer(true); this.$('[data-action="close-flyer"]').focus(); return;
         case 'close-flyer': this.flyer(false); this.$('[data-action="flyer"]').focus(); return;
@@ -1218,8 +1318,11 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     renderPaybox() {
       const m = METHODS[this.s.method];
       const rows = [...m.rows(), ['Monto exacto', this.amount(m, this.count() * CFG.price)]];
-      this.$('[data-paybox]').innerHTML = `<table aria-label="Datos para pagar con ${m.label}"><tbody>${rows.map(([k, v]) =>
-        `<tr><td>${k}</td><td>${esc(v)}</td><td><button type="button" class="copy" data-copy="${esc(v)}" aria-label="Copiar ${k.toLowerCase()}">Copiar</button></td></tr>`).join('')}</tbody></table>`;
+      const all = [`Pago a ${CFG.rifero} por ${m.label}`, ...rows.map(([k, v]) => `${k}: ${v}`)].join('\n');
+      this.$('[data-paybox]').innerHTML = `<p class="paybox__brand" style="--mc:${m.color[0]}"><i aria-hidden="true"></i>Paga con ${m.label}</p>
+        <table aria-label="Datos para pagar con ${m.label}"><tbody>${rows.map(([k, v]) =>
+        `<tr><td>${k}</td><td>${esc(v)}</td><td><button type="button" class="copy" data-copy="${esc(v)}" aria-label="Copiar ${k.toLowerCase()}">Copiar</button></td></tr>`).join('')}</tbody></table>
+        <button type="button" class="copyall" data-copy-all="${esc(all)}">${COPY_ICON}<span>Copiar todos los datos</span></button>`;
     }
     renderFile() {
       this.$('[data-upload]').classList.toggle('has-file', !!this.s.file);
@@ -1231,14 +1334,25 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       const done = () => { btn.textContent = 'Copiado'; btn.classList.add('is-done'); this.later(() => { btn.textContent = 'Copiar'; btn.classList.remove('is-done'); }, 1600); };
       try { navigator.clipboard.writeText(text).then(done, done); } catch (e) { done(); }
     }
+    copyAll(btn) {
+      const label = btn.querySelector('span');
+      const done = () => { label.textContent = 'Datos copiados'; btn.classList.add('is-done'); this.later(() => { label.textContent = 'Copiar todos los datos'; btn.classList.remove('is-done'); }, 1800); };
+      try { navigator.clipboard.writeText(btn.dataset.copyAll).then(done, done); } catch (e) { done(); }
+    }
     verify(hold) {
       const s = this.s, m = METHODS[s.method];
       this.$('[data-verify-line]').innerHTML = `${m.label} · ref. ${esc(s.ref || '—')} · <b>${this.amount(m, this.count() * CFG.price)}</b>`;
       this.$('[data-verify-note]').textContent = m.note;
+      this.$('[data-verify] h2').textContent = m.auto ? 'Verificando tu pago' : 'Enviando tu comprobante';
       this.$('[data-verify]').hidden = false;
       this.el.classList.add('is-dark-top');
       if (hold) return;
-      this.later(() => { this.$('[data-verify]').hidden = true; this.el.classList.remove('is-dark-top'); this.show('ok'); this.buildSuccess(true); }, 2400);
+      this.later(() => {
+        this.$('[data-verify]').hidden = true; this.el.classList.remove('is-dark-top');
+        const out = this.outcome();
+        this.show(out);
+        if (out === 'ok') this.buildSuccess(true); else if (out === 'held') this.buildHeld(); else this.buildRejected();
+      }, 2400);
     }
 
     /* ---- views ---- */
@@ -1254,6 +1368,30 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       if (!t) return;
       const top = Math.max(0, t.offsetTop - 60);
       if (instant || reduce) this.sc.scrollTop = top; else this.sc.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    /* Demo rule: Pago Móvil al instante is checked against the bank (R4 gateway); a reference ending in 0
+       stands for a payment the bank can't find. The other methods wait for the rifero to review them. */
+    outcome() {
+      const m = METHODS[this.s.method];
+      if (!m.auto) return 'held';
+      return /0$/.test(this.s.ref.trim()) ? 'rej' : 'ok';
+    }
+    buildHeld() {
+      const s = this.s, q = Math.max(1, this.count()), p = s.name ? s : PEOPLE[0], m = METHODS[s.method], tot = q * CFG.price;
+      const nums = this.pickNumbers(q, 3517);
+      this.$('[data-held-lede]').innerHTML = `${esc(p.name.split(' ')[0])}, apartamos tus <b>${boletos(q)}</b> mientras ${esc(CFG.rifero)} revisa tu pago por ${m.label}.`;
+      this.$('[data-held-nums]').innerHTML = nums.map(n => `<li><b>${n}</b><span>Apartado</span></li>`).join('');
+      this.$('[data-held-title]').textContent = q === 1 ? 'Tu número apartado' : `Tus ${q} números apartados`;
+      this.$('[data-held-sent]').innerHTML = `Cuando se apruebe, te llegan confirmados por WhatsApp al <b>${esc(p.phone)}</b>. Si se rechaza, te escribimos para corregirlo.`;
+      const order = [['Orden', 'LG-' + (48100 + q * 7)], ['Método', m.label], ['Referencia', s.ref || '—'], ['Comprobante', s.file || 'No adjuntado'], ['Total', m.cur === 'bs' ? bs(tot) : this.amount(m, tot)], ['Estado', 'Por verificar']];
+      this.$('[data-held-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('');
+      this.$('[data-held-scroller]').scrollTop = 0;
+    }
+    buildRejected() {
+      const s = this.s, m = METHODS[s.method], tot = this.count() * CFG.price;
+      this.$('[data-rej-lede]').innerHTML = `El banco no encontró un ${m.label} de <b>${bs(tot)}</b> con la referencia <b>${esc(s.ref || '—')}</b> desde el <b>${esc(s.payer || '—')}</b> (${esc(s.bank)}).`;
+      this.$('[data-rej-scroller]').scrollTop = 0;
     }
 
     pickNumbers(q, seedBase) {
