@@ -21,6 +21,10 @@ head, body = src.split(MARK, 1)
 # La etiqueta de la vitrina de artefactos no hace falta fuera de ella.
 head = "\n".join(line for line in head.strip().splitlines() if "claude:viewport-fit-sides" not in line)
 head = head.replace("<title>LottoGE Página Principal</title>", "<title>LottoGE · Vende tus rifas en línea</title>")
+# El artefacto abre en el inicio de sesión para la demo; la página exportable abre en el inicio.
+START = "  const START = 'login';"
+assert START in body, "No encontré la vista inicial en la vista previa"
+body = body.replace(START, "  const START = 'inicio';")
 
 page = f"""<!doctype html>
 <html lang="es-VE">

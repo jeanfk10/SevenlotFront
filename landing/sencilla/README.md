@@ -22,8 +22,17 @@ sencilla/
 
 ## Vistas
 
-La página tiene tres vistas. Se cambia entre ellas con la barra o con el enlace directo: `#rifas` y `#denuncias`.
+La página tiene cuatro vistas. Se cambia entre ellas con la barra o con el enlace directo: `#login`, `#inicio`, `#rifas` y `#denuncias`.
 
+0. **Iniciar sesión** (`#login`): el artefacto abre aquí para la demo. La página exportable (`front/index.html`) abre en el inicio, porque `build_front.py` cambia la vista inicial `START`.
+   - **Fondo animado:** bolitas de lotería y boletos que suben despacio, con manchas de color que se mueven. Todo se desplaza un poco con el mouse.
+   - **Formulario:**
+     - correo y contraseña, con botón para ver u ocultar la contraseña;
+     - "Recordarme";
+     - "¿Olvidaste tu contraseña?", que abre el formulario para pedir el enlace (simulado).
+   - **Al entrar:** el botón muestra "Entrando…", luego "¡Bienvenido!" con confeti, y te lleva al inicio. Ahí la barra muestra tu nombre (sacado del correo) y el botón "Salir", que te devuelve al login.
+   - **Prototipo:** cualquier correo y una contraseña de 6 caracteres o más funcionan. La sesión vive solo en el navegador.
+   - **Sin registro:** abajo dice "¿Aún no tienes cuenta? Habla con un asesor", porque el registro lo hace el equipo comercial.
 1. **Inicio**
    - **Portada:** "Vende tus rifas en línea", con los botones "Hablar con un asesor" y "Ver rifas activas".
    - **Maquinita:** imprime un boleto con un número nuevo en cada vuelta. Al tocar el botón amarillo imprime otro de inmediato.
@@ -65,13 +74,14 @@ No hay registro directo: lo hace el equipo comercial. Todos los botones abren Wh
 - "Hablar con un asesor": *"Hola, quiero información sobre LottoGE"*.
 - "Solicitar" en cada plan: *"Hola, me interesa el Plan … de LottoGE"*.
 
-"Iniciar sesión" lleva a `lottoge.net/auth`, para los operadores que ya tienen cuenta.
+"Iniciar sesión" abre la vista de login, para los operadores que ya tienen cuenta.
 
 ## Qué conectar a la API
 
 | En el prototipo | En producción | Dónde (en el `<script>`) |
 | --- | --- | --- |
 | Lista `RAFFLES` con una rifa de prueba | `GET` rifas activas (nombre, operador, cifras, % vendido, fecha de sorteo, enlace) | `RAFFLES`, `renderRaffles` |
+| El login acepta cualquier correo y contraseña; la sesión se guarda en `sessionStorage` | Autenticación real (`POST` de inicio de sesión, recuperación de contraseña) y la redirección a cada panel | evento `submit` de `data-login` y `data-forgot-form` |
 | "Ver rifa" muestra un aviso | Abrir la página de compra de esa rifa | evento `click` de `data-open` |
 | La denuncia no se envía; el número de referencia sale en el navegador | `POST` de la denuncia con el archivo adjunto; el servidor devuelve la referencia | evento `submit` de `data-form` |
 
