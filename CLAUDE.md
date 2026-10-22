@@ -4,7 +4,7 @@ Fronts de compra de rifas para la plataforma **LottoGE** (Venezuela). Cada front
 
 ## Estructura
 
-- `fronts/<nombre>/` — un front por carpeta. Hoy: `minimalista` (la base), `vibrante`, `neon`, `pop` y `experimental`. Todas comparten la misma lógica y el mismo `config.js`; las demás son la minimalista con una capa de diseño al final del `<style>` de su vista previa y, si la tienen, sus adornos o su reorganización en la función `themeFx` del `<script>`. La `experimental` reubica las secciones en una hoja con pestañas.
+- `fronts/<nombre>/` — un front por carpeta. Hoy: `minimalista` (la base), `estandar` (con la marca LottoGE), `vibrante`, `neon`, `pop` y `experimental`. Todas comparten la misma lógica y el mismo `config.js`; las demás son la minimalista con una capa de diseño al final del `<style>` de su vista previa y, si la tienen, sus adornos o su reorganización en la función `themeFx` del `<script>`. La `experimental` reubica las secciones en una hoja con pestañas.
   - `vista-previa/index.html` — fuente del diseño y la lógica, mostrada dentro de iPhones o de Macs (botón "Ver en") y con panel de configuración.
   - `front/` — lo exportable: `index.html` (generado), `config.js` (datos de la rifa) e `img/`.
   - `build_front.py` — regenera `front/index.html` desde la vista previa.
@@ -25,4 +25,5 @@ Cuando el usuario diga que un front "está bien" o lo apruebe, se guarda **siemp
 - Pago Móvil al instante se verifica con la pasarela (R4) y asigna los números de una vez. Los métodos manuales (Pago Móvil manual, Binance, Zelle) quedan como **boletos reservados** hasta que el rifero los apruebe. Si el comprador compró al azar, no ve números hasta la aprobación.
 - Todo front es adaptable: vista móvil en teléfonos (Android, iPhone, etc.) y vista de escritorio en computadoras (clase `desk`, decidida en `App.setupDesk`). Al cambiar un diseño, revisar las dos.
 - Tonos neutros en las plantillas; el color fuerte lo pone el rifero (su color de marca). La `vibrante` se queda como está.
+- La `estandar` usa la marca de LottoGE (la de `landing/sencilla`): blanco, azul marino `#1d2340`, coral `#ff5a36`, amarillo, verde agua y azul de apoyo, Plus Jakarta Sans. Su color de rifero por defecto es `coral`.
 - Los datos de ejemplo se marcan como tales; no se inventan clientes ni estadísticas reales.
