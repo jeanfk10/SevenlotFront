@@ -24,12 +24,16 @@ El botón "Comprar boletos" (y la barra flotante) abre la pestaña Comprar y baj
 - **Tipografía:** Archivo (Google Fonts), la misma familia de la vibrante: angosta en títulos y montos, normal en el texto.
 - **Recomendada para:** riferos que venden por Instagram y TikTok y quieren que la página se sienta como una app.
 
+## Teléfono y computadora
+
+La página se adapta sola: en un teléfono (Android, iPhone u otro), la vista móvil; en una computadora, la de escritorio. En computadora, la historia de fotos se queda fija a la izquierda y la hoja con las cifras y las pestañas baja a la derecha. En la vista previa, el botón flotante **Ver en iPhone / Mac** muestra las mismas pantallas en los dos. Los detalles están en el [README de la minimalista](../minimalista/README.md#teléfono-y-computadora).
+
 ## Carpeta
 
 ```
 experimental/
 ├── front/            ← lo que se carga en la plataforma (index.html generado, config.js, img/)
-├── vista-previa/     todas las pantallas en iPhones + panel de configuración en vivo
+├── vista-previa/     todas las pantallas en iPhones o en Macs + panel de configuración en vivo
 ├── build_front.py    regenera front/index.html desde la vista previa
 └── README.md
 ```
@@ -43,6 +47,6 @@ experimental/
    - La capa de diseño de esta plantilla está al final del `<style>`.
    - La reorganización está en la función `themeFx` del `<script>`. Mueve las mismas secciones de la minimalista a la hoja y sus pestañas, y agrega las barras de la historia. `scrollToSec` abre la pestaña de la sección antes de bajar hasta ella.
 
-Las animaciones respetan `prefers-reduced-motion`: con esa preferencia, las fotos no avanzan solas. En la vista previa, las animaciones en bucle se pausan cuando el teléfono no está en pantalla.
+Las animaciones respetan `prefers-reduced-motion`: con esa preferencia, las fotos no avanzan solas. En la vista previa, las animaciones en bucle se pausan cuando la pantalla no está a la vista.
 
 Para los campos de `config.js`, lo que está simulado y qué conectar a la API, ver el [README de la minimalista](../minimalista/README.md).

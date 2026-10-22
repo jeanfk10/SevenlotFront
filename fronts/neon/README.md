@@ -16,12 +16,16 @@ Solo cambian el diseño y las animaciones.
 - **Tipografía:** Unbounded para títulos y montos, Archivo para el texto (Google Fonts).
 - **Recomendada para:** rifas de carros, motos y efectivo con flyers llamativos; públicos que compran desde redes, de noche.
 
+## Teléfono y computadora
+
+La página se adapta sola: en un teléfono (Android, iPhone u otro), la vista móvil; en una computadora, la de escritorio. En computadora, los rayos giran detrás de las fotos y las dos cintas cruzan todo el ancho de la ventana. En la vista previa, el botón flotante **Ver en iPhone / Mac** muestra las mismas pantallas en los dos. Los detalles están en el [README de la minimalista](../minimalista/README.md#teléfono-y-computadora).
+
 ## Carpeta
 
 ```
 neon/
 ├── front/            ← lo que se carga en la plataforma (index.html generado, config.js, img/)
-├── vista-previa/     todas las pantallas en iPhones + panel de configuración en vivo
+├── vista-previa/     todas las pantallas en iPhones o en Macs + panel de configuración en vivo
 ├── build_front.py    regenera front/index.html desde la vista previa
 └── README.md
 ```
@@ -35,6 +39,6 @@ neon/
    - La capa de diseño de esta plantilla está al final del `<style>`.
    - Los adornos que se agregan a la página (cintas, figuras, auroras) están en la función `themeFx` del `<script>`.
 
-Las animaciones respetan `prefers-reduced-motion`. En la vista previa, los adornos en bucle se pausan cuando el teléfono no está en pantalla.
+Las animaciones respetan `prefers-reduced-motion`. En la vista previa, los adornos en bucle se pausan cuando la pantalla no está a la vista.
 
 Para los campos de `config.js`, lo que está simulado y qué conectar a la API, ver el [README de la minimalista](../minimalista/README.md).

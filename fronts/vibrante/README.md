@@ -16,12 +16,16 @@ Solo cambia el diseño.
 - **Tipografía:** Archivo (Google Fonts), en ancho condensado.
 - **Recomendada para:** rifas de carros, motos y efectivo con flyers cargados; públicos que compran desde redes.
 
+## Teléfono y computadora
+
+La página se adapta sola: en un teléfono (Android, iPhone u otro), la vista móvil; en una computadora, la de escritorio. En computadora, el color del rifero llena una franja ancha detrás de las fotos, el precio, la cuenta regresiva y lo vendido. En la vista previa, el botón flotante **Ver en iPhone / Mac** muestra las mismas pantallas en los dos. Los detalles están en el [README de la minimalista](../minimalista/README.md#teléfono-y-computadora).
+
 ## Carpeta
 
 ```
 vibrante/
 ├── front/            ← lo que se carga en la plataforma (index.html generado, config.js, img/)
-├── vista-previa/     todas las pantallas en iPhones + panel de configuración en vivo
+├── vista-previa/     todas las pantallas en iPhones o en Macs + panel de configuración en vivo
 ├── build_front.py    regenera front/index.html desde la vista previa
 └── README.md
 ```

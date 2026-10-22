@@ -11,4 +11,4 @@ Fronts de compra de rifas para la plataforma LottoGE.
 | Experimental | [`fronts/experimental/`](fronts/experimental/) | Otra distribución: fotos a pantalla completa como historia, porcentaje vendido a la vista, hoja con pestañas Comprar, Premios e Info, premios en escalones. Mismo flujo. |
 | Prototipo Dubái | [`rifa-dubai/`](rifa-dubai/) | Primer prototipo, temático. Solo referencia. |
 
-Cada front trae una `vista-previa/` (todas las pantallas en iPhones) y una carpeta `front/` lista para exportar. Ver el README de cada uno.
+Cada front se adapta solo: vista móvil en teléfonos y vista de escritorio en computadoras. Trae una `vista-previa/` con todas las pantallas en iPhone o en Mac y una carpeta `front/` lista para exportar. Ver el README de cada uno.

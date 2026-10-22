@@ -124,6 +124,43 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .bezel { width: 100%; height: 100%; border-radius: 64px; background: var(--bezel); padding: 8px; }
 .screen { position: relative; width: 393px; height: 852px; border-radius: 56px; overflow: hidden; background: var(--bg); color: var(--ink); isolation: isolate; font-size: 16px; line-height: 1.45; }
 
+/* ---------- Mac (the same screens on a computer) ---------- */
+:root { --alu-1: #e4e5e7; --alu-2: #a9abaf; --alu-edge: #3b3c3f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --alu-1: #8e9095; --alu-2: #55575c; } }
+:root[data-theme="dark"] { --alu-1: #8e9095; --alu-2: #55575c; }
+.mbar { display: none; }
+[data-device="mac"] .gallery { gap: 72px 48px; }
+[data-device="mac"] .frame { width: 1340px; height: auto; border-radius: 0; background: none; padding: 0 0 24px; }
+[data-device="mac"] .frame::before { left: 50%; top: auto; bottom: 14px; width: 180px; height: 10px; margin-left: -90px; border-radius: 0 0 10px 10px; background: var(--alu-2); z-index: 1; }
+[data-device="mac"] .frame::after { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 24px; border-radius: 3px 3px 22px 22px / 3px 3px 14px 14px; background: linear-gradient(var(--alu-1), var(--alu-2)); }
+[data-device="mac"] .bezel { position: relative; width: 1304px; height: auto; margin: 0 auto; border-radius: 26px 26px 6px 6px; padding: 12px 12px 18px; background: var(--bezel); box-shadow: inset 0 0 0 2px var(--alu-edge); }
+[data-device="mac"] .bezel::before { content: ""; position: absolute; z-index: 3; top: 12px; left: 50%; width: 176px; height: 26px; margin-left: -88px; border-radius: 0 0 12px 12px; background: var(--bezel); }
+[data-device="mac"] .screen { width: 1280px; height: 760px; border-radius: 0 0 4px 4px; }
+[data-device="mac"] .mbar { display: block; width: 1280px; background: var(--bg); color: var(--ink); font: 13px/1 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; border-radius: 8px 8px 0 0; overflow: hidden; }
+.mbar__menu { height: 26px; display: flex; align-items: center; gap: 20px; padding: 0 18px; background: var(--surface-2); }
+.mbar__menu b { font-weight: 700; }
+.mbar__menu time { margin-left: auto; font-variant-numeric: tabular-nums; }
+.mbar__tool { height: 46px; display: grid; grid-template-columns: 120px 60px minmax(0, 1fr) 180px; align-items: center; padding: 0 18px; background: var(--surface); border-bottom: 1px solid var(--surface-2); }
+.mbar__dots { display: flex; gap: 8px; }
+.mbar__dots i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+.mbar__dots i:nth-child(2) { background: #febc2e; }
+.mbar__dots i:nth-child(3) { background: #28c840; }
+.mbar__arrows { color: var(--muted); font-size: 22px; line-height: 1; }
+.mbar__url { justify-self: center; width: min(540px, 100%); height: 30px; border-radius: 8px; background: var(--bg); color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; }
+.mbar__url svg { width: 12px; height: 12px; }
+.devsw { position: fixed; z-index: 100; left: 50%; bottom: max(16px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 5px; background: var(--ink); color: var(--bg); border-radius: 999px; box-shadow: 0 10px 30px rgba(0, 0, 0, .28); }
+.devsw__lbl { padding: 0 8px 0 12px; font-size: 14px; font-weight: 600; opacity: .7; }
+.devsw button { border: 0; background: none; color: inherit; min-height: 40px; padding: 0 16px; border-radius: 999px; font-size: 15px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; transition: background .2s, color .2s; }
+.devsw button svg { width: 18px; height: 18px; }
+.devsw button[aria-checked="true"] { background: var(--bg); color: var(--ink); }
+.devsw button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.foot { padding-bottom: 120px; }
+
+/* ---------- page parts that only a computer shows ---------- */
+.nav .nav__links, .nav .nav__buy { display: none; }
+.nav__links button { border: 0; background: none; min-height: 40px; padding: 0 12px; font-size: 15px; font-weight: 600; color: var(--muted); transition: color .2s; }
+.nav__links button:hover { color: var(--ink); }
+
 /* ---------- App shell ---------- */
 .app { position: absolute; inset: 0; }
 .island { position: absolute; z-index: 80; top: 11px; left: 50%; width: 124px; height: 36px; margin-left: -62px; border-radius: 20px; background: var(--island); }
@@ -712,6 +749,107 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 .fx-paused .fx-aurora i, .fx-paused .fx-ribbon__track, .fx-paused .ticker__track, .fx-paused .hero::before, .fx-paused .hero__img, .fx-paused .btn, .fx-paused .btn::after,
 .fx-paused .bar span, .fx-paused .buy::before, .fx-paused .tkt, .fx-paused .tkt__main::after, .fx-paused .st-icon, .fx-paused .dot { animation-play-state: paused !important; }
 
+/* ================= Computer =================
+   The same page laid out for a wide screen. The app gets the class "desk" on a computer (the Mac frames in this
+   showcase, or a real window 900px or wider that isn't a phone); phones keep the layout above.
+   Photos and the price share the first screen, and the purchase box stays in view beside the prizes.
+   :where() keeps these rules light, so each template can restyle them with ".desk ..." below. */
+.desk { --side: max(32px, calc((100% - 1180px) / 2)); }
+:where(.desk) .island, :where(.desk) .sbar, :where(.desk) .homebar { display: none; }
+:where(.desk) .scroller { inset: 0; }
+:where(.desk) .nav { height: 72px; gap: 12px; padding: 0 var(--side); }
+:where(.desk) .org { margin-right: 0; }
+:where(.desk) .org__mark { width: 38px; height: 38px; font-size: 15px; }
+:where(.desk) .org__name { font-size: 18px; }
+:where(.desk) .nav .nav__links { display: flex; gap: 2px; margin: 0 auto 0 24px; }
+:where(.desk) .nav .nav__buy { display: inline-flex; min-height: 46px; padding: 0 22px; font-size: 15px; }
+:where(.desk) .ticker__label { padding-left: var(--side); }
+
+/* home: photos left and the prize, price, countdown and sales right; then prizes left and the purchase box right */
+:where(.desk:not(.own-layout)) .page {
+  position: relative; isolation: isolate; display: grid; align-items: start;
+  grid-template-columns: [full-start] var(--side) [l-start] minmax(0, 1fr) [l-end] 64px [r-start] minmax(0, 448px) [r-end] var(--side) [full-end];
+}
+:where(.desk:not(.own-layout)) .page > * { grid-column: l; }
+:where(.desk:not(.own-layout)) .hero { display: contents; }
+:where(.desk:not(.own-layout)) .hero__img { grid-column: l; grid-row: 1 / span 3; margin: 40px 0 0; }
+:where(.desk:not(.own-layout)) .hero__body { grid-column: r; grid-row: 1; padding: 40px 0 0; }
+:where(.desk:not(.own-layout)) .hero__title { font-size: 52px; }
+:where(.desk:not(.own-layout)) .price__bs { font-size: 56px; }
+:where(.desk:not(.own-layout)) .clock { grid-column: r; grid-row: 2; padding: 30px 0 0; }
+:where(.desk:not(.own-layout)) .sold { grid-column: r; grid-row: 3; padding: 26px 0 0; }
+:where(.desk:not(.own-layout)) .prizes { grid-row: 6; padding: 80px 0 0; }
+:where(.desk:not(.own-layout)) .buy { grid-column: r; grid-row: 6 / span 5; position: sticky; top: var(--buy-top, 96px); margin: 80px 0 0; scroll-margin-top: 96px; }
+:where(.desk:not(.own-layout)) .orgcard { grid-row: 7; margin: 56px 0 0; }
+:where(.desk:not(.own-layout)) .rank { grid-row: 8; padding: 56px 0 0; }
+:where(.desk:not(.own-layout)) [data-sec="how"] { grid-row: 9; padding: 56px 0 0; }
+:where(.desk:not(.own-layout)) [data-sec="faq"] { grid-row: 10; padding: 56px 0 0; }
+:where(.desk) .h2 { font-size: 34px; }
+:where(.desk) .afoot { margin-top: 96px; padding: 56px var(--side) 64px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 64px; align-items: start; }
+:where(.desk) .afoot > * { grid-column: 1; }
+:where(.desk) .afoot > p:nth-of-type(2) { grid-column: 2; grid-row: 1; }
+:where(.desk) .afoot > p:nth-of-type(3) { grid-column: 2; grid-row: 2; }
+:where(.desk) .buybar { left: auto; right: var(--side); bottom: 24px; width: 460px; padding: 12px 12px 12px 22px; transform: translateY(160%); }
+:where(.desk) .buybar.is-on { transform: none; }
+
+/* number board, photos and payment check open in the middle of the window */
+:where(.desk) .board { left: 50%; right: auto; top: 50%; bottom: auto; width: min(880px, calc(100% - 64px)); height: min(720px, calc(100% - 64px)); transform: translate(-50%, -50%); animation: deskIn .3s cubic-bezier(.2,.8,.2,1); box-shadow: 0 30px 80px rgba(0, 0, 0, .35); }
+:where(.desk) .grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+:where(.desk) .board__foot { padding: 14px 20px 18px; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); align-items: center; }
+:where(.desk) .lightbox { grid-template-rows: 0 72px minmax(0, 1fr); }
+:where(.desk) .lightbox__bar { padding: 0 var(--side); }
+:where(.desk) .lightbox__img { padding: 0 max(32px, calc((100% - 960px) / 2)) 48px; }
+:where(.desk) .verify { inset: 0; padding: 0 max(32px, calc((100% - 600px) / 2)) 40px; }
+:where(.desk) .verify h2 { font-size: 52px; }
+
+/* after paying: the answer and the tickets left, the order and what comes next right */
+:where(.desk) [data-ok-scroller], :where(.desk) [data-held-scroller], :where(.desk) [data-rej-scroller] {
+  display: grid; align-content: start; align-items: start;
+  grid-template-columns: [full-start] var(--side) [l-start] minmax(0, 1fr) [l-end] 72px [r-start] minmax(0, 440px) [r-end] var(--side) [full-end];
+}
+:where(.desk) [data-ok-scroller] > *, :where(.desk) [data-held-scroller] > *, :where(.desk) [data-rej-scroller] > * { grid-column: l; }
+:where(.desk) .ok-head, :where(.desk) .st-head { grid-row: 1; padding: 72px 0 32px; }
+:where(.desk) .ok-head h1 { font-size: 104px; }
+:where(.desk) .ok-head p, :where(.desk) .st-head p { font-size: 19px; max-width: 40ch; }
+:where(.desk) .st-head h1 { font-size: 60px; }
+:where(.desk) .tkt { grid-row: 2; margin: 0; }
+:where(.desk) .stubs-wrap { grid-row: 3; padding: 32px 0 0; }
+:where(.desk) .stubs-wrap h2, :where(.desk) .held h2 { margin-left: 0; }
+:where(.desk) .stubs, :where(.desk) .held ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+:where(.desk) .ok-body { grid-column: r; grid-row: 1 / span 3; padding: 88px 0 64px; }
+:where(.desk) [data-held-scroller] > .held, :where(.desk) [data-held-scroller] > .held-note { grid-row: 2; }
+:where(.desk) .held { padding: 4px 0 0; }
+:where(.desk) .held-note { margin: 4px 0 0; }
+:where(.desk) [data-held-scroller] > .steps3 { grid-column: r; grid-row: 1; margin: 0; padding-top: 88px; }
+:where(.desk) [data-held-scroller] > .st-body { grid-column: r; grid-row: 2 / span 2; padding: 18px 0 64px; }
+:where(.desk) [data-rej-scroller] > .why { grid-row: 2; margin: 0; }
+:where(.desk) [data-rej-scroller] > .st-body { grid-column: r; grid-row: 1 / span 2; padding: 88px 0 64px; }
+:where(.desk) .mine-top { min-height: 68px; padding: 0 var(--side); }
+:where(.desk) .mine-body { padding: 48px max(32px, calc((100% - 760px) / 2)) 80px; }
+:where(.desk) .mine-body h2 { font-size: 48px; }
+:where(.desk) .mine-res { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+:where(.desk) .mine-res > p { grid-column: 1 / -1; }
+@keyframes deskIn { from { opacity: 0; transform: translate(-50%, -46%) scale(.98); } }
+
+/* tablets and phones turned sideways on the real page: the phone layout, centred */
+.mid { --mid: max(20px, calc((100% - 640px) / 2)); }
+:where(.mid) .page, :where(.mid) [data-ok-scroller], :where(.mid) [data-held-scroller], :where(.mid) [data-rej-scroller], :where(.mid) .mine-body { padding-left: max(0px, calc((100% - 640px) / 2)); padding-right: max(0px, calc((100% - 640px) / 2)); }
+:where(.mid) .nav, :where(.mid) .afoot, :where(.mid) .mine-top { padding-left: var(--mid); padding-right: var(--mid); }
+:where(.mid) .buybar, :where(.mid) .board { left: var(--mid); right: var(--mid); }
+
+/* ---- Neón on a computer: the rays turn behind the photos, both ribbons cross the whole width ---- */
+.desk .page { overflow: clip; }
+.desk .hero::before { left: calc(var(--side) + 330px); top: 320px; width: 1300px; height: 1300px; margin: -650px 0 0 -650px; }
+.desk .hero__title { font-size: 42px; }
+.desk .price__bs { font-size: 50px; }
+.desk .fx-ribbon { grid-column: full; grid-row: 4; margin: 76px -40px 0; }
+.desk .fx-ribbon--b { grid-row: 5; margin: -4px -40px 0; }
+.desk .fx-aurora i { width: 820px; height: 820px; }
+.desk .board { border-radius: 28px; }
+.desk .afoot { border-radius: 40px 40px 0 0; }
+.desk .ok-head h1 { font-size: 92px; }
+.desk .st-head h1 { font-size: 46px; }
+
 </style>
 
 <div class="wrap">
@@ -725,7 +863,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     </div>
     <h1 class="wide">Plantilla Neón</h1>
     <div class="top__row">
-      <p class="top__lede">Noche sobria en grafito y plata: una aurora suave detrás de la página, el premio con brillo metálico, cintas que corren y un borde fino en el color del rifero alrededor del recuadro de compra. El único color es el del rifero. El mismo flujo de compra que la minimalista. Cambia la rifa en el panel y todos los teléfonos se actualizan.</p>
+      <p class="top__lede">Noche sobria en grafito y plata: una aurora suave detrás de la página, el premio con brillo metálico, cintas que corren y un borde fino en el color del rifero alrededor del recuadro de compra. El único color es el del rifero. El mismo flujo de compra que la minimalista. Cambia la rifa en el panel y todas las pantallas se actualizan. Abajo eliges si verlas en iPhone o en Mac.</p>
       <p class="top__note">Ejemplo cargado: el flyer del Toyota Agya 2026, sorteo del jueves 22 de octubre.</p>
     </div>
   </header>
@@ -792,7 +930,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       </fieldset>
       <div class="cfg__foot">
         <button class="pbtn" type="button" data-cfg-reset>Restaurar el ejemplo</button>
-        <p>Los cambios se aplican al terminar de escribir. Cada teléfono vuelve a su pantalla inicial.</p>
+        <p>Los cambios se aplican al terminar de escribir. Cada pantalla vuelve a su estado inicial.</p>
       </div>
     </form>
   </div>
@@ -860,6 +998,12 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     </section>
   </main>
 
+  <div class="devsw" role="radiogroup" aria-label="Ver las pantallas en" data-devsw>
+    <span class="devsw__lbl" aria-hidden="true">Ver en</span>
+    <button type="button" role="radio" data-dev="phone" aria-checked="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 1h10a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2Zm0 2v18h10V3h-2.5l-.5 1h-4l-.5-1Z"/></svg>iPhone</button>
+    <button type="button" role="radio" data-dev="mac" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a1 1 0 0 1 1 1v11H3V5a1 1 0 0 1 1-1Zm1 2v8h14V6ZM1 17h22v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2Z"/></svg>Mac</button>
+  </div>
+
   <footer class="foot">
     <p><strong>Prototipo de demostración.</strong> No procesa pagos ni guarda datos. El rifero (Rifas La Bendición), los compradores, cuentas, montos, el nº CONALOT y la tasa BCV son de ejemplo.</p>
     <p>El flyer del Toyota Agya 2026 y las fotos de ejemplo del carrusel son material de prueba aportado por el cliente.</p>
@@ -869,6 +1013,8 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 <script>
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Phones always get the mobile layout, even turned sideways; tablets and computers go by the window width.
+  const PHONE = /Android.+Mobile|iPhone|iPod|Windows Phone|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent) || !!(navigator.userAgentData && navigator.userAgentData.mobile);
 
   /* ---------- what a rifero configures (sample loaded from the flyer) ---------- */
   const SAMPLE = {
@@ -1021,13 +1167,16 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     <div class="scroller" data-scroller>
       <nav class="nav" aria-label="${org}">
         <span class="org"><span class="org__mark" aria-hidden="true">${mark}</span><span class="org__name">${org}</span></span>
+        <span class="nav__links"><button type="button" data-action="go" data-to="prizes">Premios</button><button type="button" data-action="go" data-to="how">Cómo participar</button><button type="button" data-action="go" data-to="faq">Preguntas</button></span>
         <button class="chip" type="button" data-action="mine">Mis boletos</button>
         <button class="iconbtn" type="button" data-action="theme" aria-label="Cambiar entre modo claro y oscuro">${THEME_ICON}</button>
+        <button class="btn btn--accent nav__buy" type="button" data-action="to-buy">Comprar boletos</button>
       </nav>
       <div class="ticker" aria-label="Compras recientes, datos de ejemplo">
         <span class="ticker__label"><span class="dot" aria-hidden="true"></span>En vivo</span>
         <div class="ticker__viewport"><div class="ticker__track">${tickerHTML()}</div></div>
       </div>
+      <div class="page">
       <header class="hero">
         <div class="hero__img">
           <div class="slides" data-slides tabindex="0" role="group" aria-roledescription="carrusel" aria-label="Fotos del premio">
@@ -1058,7 +1207,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         <div class="bar" role="progressbar" aria-label="Boletos vendidos" aria-valuemin="0" aria-valuemax="100" data-live-bar><span data-live="bar"></span></div>
         <p class="sold__left">Solo quedan <b data-live="left"></b> boletos.</p>
       </section>
-      <section class="prizes" data-reveal aria-labelledby="${p}-pz">
+      <section class="prizes" data-sec="prizes" data-reveal aria-labelledby="${p}-pz">
         <h2 class="h2" id="${p}-pz">Premios</h2>
         <div class="p1"><small>1er premio · ${D.hour}</small><b>${prize}</b>${c.prizeExtra ? `<span>${esc(c.prizeExtra)}</span>` : ''}</div>
         <div class="p23row">
@@ -1129,7 +1278,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         </div>
       </section>
 
-      <section class="orgcard" data-reveal aria-labelledby="${p}-org">
+      <section class="orgcard" data-sec="org" data-reveal aria-labelledby="${p}-org">
         <h2 class="sr-only" id="${p}-org">Quién organiza</h2>
         <div class="orgcard__who"><span class="org__mark" aria-hidden="true">${mark}</span><span><b>${org}</b><span>Organiza esta rifa</span></span></div>
         <dl><dt>Instagram</dt><dd>${esc(c.handle)}</dd><dt>Soporte</dt><dd>${esc(c.support)}</dd><dt>Sorteo</dt><dd>${D.short}, ${D.hour}</dd></dl>
@@ -1141,14 +1290,15 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         <p class="note">Quienes más boletos llevan en esta rifa. Datos de ejemplo.</p>
         <ol>${TOP.map(([n, city, q], i) => `<li><span class="rank__pos">${i + 1}</span><span class="rank__who"><b>${n}</b><span>${city}</span></span><span class="rank__n">${q}<span>boletos</span></span></li>`).join('')}</ol>
       </section>
-      <section class="acc-sec" data-reveal aria-labelledby="${p}-how">
+      <section class="acc-sec" data-sec="how" data-reveal aria-labelledby="${p}-how">
         <h2 class="h2" id="${p}-how">Cómo participar</h2>
         <div class="acc steps-list">${acc(HOW, 'h')}</div>
       </section>
-      <section class="acc-sec" data-reveal aria-labelledby="${p}-faq">
+      <section class="acc-sec" data-sec="faq" data-reveal aria-labelledby="${p}-faq">
         <h2 class="h2" id="${p}-faq">Preguntas frecuentes</h2>
         <div class="acc">${acc(FAQ, 'f')}</div>
       </section>
+      </div>
       <footer class="afoot">
         <p class="afoot__pow">Rifa de <b>${org}</b>, montada sobre</p>
         <span class="lgmark"><i aria-hidden="true"></i>LottoGE</span>
@@ -1288,6 +1438,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       this.sc = this.el.querySelector('[data-scroller]');
       this.$ = q => this.el.querySelector(q);
       this.$$ = q => [...this.el.querySelectorAll(q)];
+      this.setupDesk(screen);
       paintLive(this.el); paintClock(this.el);
       this.bind();
       this.setupHome();
@@ -1311,7 +1462,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       }
     }
 
-    destroy() { this.fxio && this.fxio.disconnect(); this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
+    destroy() { this.fxio && this.fxio.disconnect(); this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.ro && this.ro.disconnect(); this.ro2 && this.ro2.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
     later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
 
     bind() {
@@ -1352,6 +1503,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       switch (name) {
         case 'theme': return toggleTheme(this.device);
         case 'to-buy': return this.scrollToSec('buy');
+        case 'go': return this.scrollToSec(a.dataset.to);
         case 'mode': s.mode = a.dataset.mode; return this.renderPick();
         case 'quick': s.qty = +a.dataset.q; return this.syncQty();
         case 'inc': s.qty = (Number.isInteger(s.qty) && s.qty > 0 ? s.qty : 0) + 1; return this.syncQty();
@@ -1625,10 +1777,38 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       this.$('[data-action="g-next"]').disabled = this.slide === n - 1;
       this.$$('[data-action="g-go"]').forEach(d => d.setAttribute('aria-current', +d.dataset.i === this.slide));
     }
+    /* Computer or phone. In this showcase the Mac frames pick the computer layout (class "desk"); on the real page
+       it is picked for a window 900px or wider that isn't a phone. Between 600 and 900px the phone layout is centred ("mid"). */
+    setupDesk(screen) {
+      const inFrame = !!screen.closest('.device');
+      const fit = () => {
+        const w = screen.clientWidth, was = this.desk;
+        this.desk = inFrame ? document.documentElement.dataset.device === 'mac' : !PHONE && w >= 900;
+        this.el.classList.toggle('desk', this.desk);
+        this.el.classList.toggle('mid', !inFrame && !this.desk && w >= 600);
+        this.el.style.setProperty('--vh', this.sc.clientHeight + 'px');
+        if (was === undefined) return;
+        if (was !== this.desk && this.slide != null) this.goSlide(this.slide, true);
+        this.fitBuy();
+      };
+      fit();
+      if (!inFrame) { this.ro = new ResizeObserver(fit); this.ro.observe(screen); }
+    }
+    /* On a computer the purchase box stays in view beside the prizes; when it is taller than the window
+       it sticks lower, so its last button can always be reached. */
+    fitBuy() {
+      const buy = this.$('[data-sec="buy"]');
+      if (!buy) return;
+      const room = this.sc.clientHeight - 24, h = buy.offsetHeight, top = 96;
+      buy.style.setProperty('--buy-top', (this.desk && h + top > room ? room - h : top) + 'px');
+    }
     scrollToSec(key, instant) {
       const t = this.$(`[data-sec="${key}"]`);
       if (!t) return;
-      const top = Math.max(0, t.offsetTop - 60);
+      if (this.openSection) this.openSection(t);
+      let y = 0, n = t;
+      while (n && n !== this.sc) { y += n.offsetTop; n = n.offsetParent; }
+      const top = Math.max(0, y - (this.secOffset ? this.secOffset() : this.desk ? 96 : 60));
       if (instant || reduce) this.sc.scrollTop = top; else this.sc.scrollTo({ top, behavior: 'smooth' });
     }
 
@@ -1724,6 +1904,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       }), { root: this.sc, rootMargin: '0px 0px 60px 0px' });
       this.$$('[data-reveal]').forEach(n => this.io.observe(n));
       this.io.observe(heroBuy); this.io.observe(buy);
+      this.ro2 = new ResizeObserver(() => this.fitBuy()); this.ro2.observe(buy); this.ro2.observe(this.sc);
       this.sc.addEventListener('scroll', sync, { passive: true });
     }
   }
@@ -1783,7 +1964,16 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
 
   /* ---------- phones ---------- */
   const devices = [...document.querySelectorAll('.device')];
-  const mount = dev => { if (dev._app) dev._app.destroy(); dev._app = new App(dev.querySelector('.screen'), JSON.parse(dev.dataset.init || '{}'), dev); };
+  // On a Mac each screen sits in a browser window under the menu bar.
+  const slug = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'rifa';
+  const macBar = dev => {
+    const bezel = dev.querySelector('.bezel');
+    let bar = bezel.querySelector('.mbar');
+    if (!bar) { bar = document.createElement('div'); bar.className = 'mbar'; bar.setAttribute('aria-hidden', 'true'); bezel.insertBefore(bar, bezel.firstChild); }
+    bar.innerHTML = `<div class="mbar__menu"><b>Navegador</b><span>Archivo</span><span>Edición</span><span>Visualización</span><span>Historial</span><span>Marcadores</span><span>Ventana</span><span>Ayuda</span><time>9:41</time></div>
+      <div class="mbar__tool"><span class="mbar__dots"><i></i><i></i><i></i></span><span class="mbar__arrows">‹&#8195;›</span><span class="mbar__url"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1Zm2 0h6V7a3 3 0 0 0-6 0Z"/></svg>lottoge.com/${slug(CFG.rifero)}</span><span class="mbar__tabs"></span></div>`;
+  };
+  const mount = dev => { if (dev._app) dev._app.destroy(); macBar(dev); dev._app = new App(dev.querySelector('.screen'), JSON.parse(dev.dataset.init || '{}'), dev); };
   const mountAll = () => devices.forEach(mount);
   devices.forEach(dev => dev.querySelector('.reset').addEventListener('click', () => mount(dev)));
 
@@ -1843,13 +2033,31 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
   document.querySelector('[data-cfg-sample-img]').addEventListener('click', () => { CFG.images = [...SAMPLE.images]; renderThumbs(); commit(); });
   document.querySelector('[data-cfg-reset]').addEventListener('click', () => { CFG = JSON.parse(JSON.stringify(SAMPLE)); fillForm(); applyAccent(); commit(); });
 
+  /* ---------- iPhone or Mac ---------- */
+  const DEV_KEY = 'lottoge-vista';
+  let startDev = 'phone';
+  try { startDev = localStorage.getItem(DEV_KEY) || 'phone'; } catch (e) {}
+  if (location.hash === '#mac') startDev = 'mac';
+  if (location.hash === '#iphone') startDev = 'phone';
+  document.documentElement.dataset.device = startDev;
+  const paintDevSwitch = () => document.querySelectorAll('[data-dev]').forEach(b => b.setAttribute('aria-checked', b.dataset.dev === document.documentElement.dataset.device));
+  paintDevSwitch();
+  document.querySelector('[data-devsw]').addEventListener('click', e => {
+    const b = e.target.closest('[data-dev]');
+    if (!b || b.dataset.dev === document.documentElement.dataset.device) return;
+    document.documentElement.dataset.device = b.dataset.dev;
+    try { localStorage.setItem(DEV_KEY, b.dataset.dev); } catch (err) {}
+    paintDevSwitch(); fit(); mountAll();
+  });
+
   fillForm(); applyAccent(); mountAll();
 
   /* ---------- fit the phones to the width ---------- */
   const fit = () => {
-    const W = document.querySelector('main').clientWidth, gap = 48, FW = 417;
+    const W = document.querySelector('main').clientWidth, gap = 48, FW = 417, MW = 1340;
     let z;
-    if (W >= 3 * FW * .8 + 2 * gap) z = Math.min(.86, (W - 2 * gap) / (3 * FW));
+    if (document.documentElement.dataset.device === 'mac') z = Math.min(.8, W / MW);
+    else if (W >= 3 * FW * .8 + 2 * gap) z = Math.min(.86, (W - 2 * gap) / (3 * FW));
     else if (W >= 2 * FW * .66 + gap) z = Math.min(.86, (W - gap) / (2 * FW));
     else z = Math.min(.92, W / FW);
     document.documentElement.style.setProperty('--z', z.toFixed(4));

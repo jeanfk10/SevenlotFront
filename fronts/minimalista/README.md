@@ -12,7 +12,7 @@ minimalista/
 │   ├── index.html    la página del comprador (generada, no editar a mano)
 │   ├── config.js     los datos de la rifa: lo único que cambia por rifero
 │   └── img/          fotos del premio (la primera es la portada)
-├── vista-previa/     el mismo front dentro de iPhones, con panel de configuración en vivo
+├── vista-previa/     el mismo front dentro de iPhones y de Macs, con panel de configuración en vivo
 │   ├── index.html    fuente del diseño y la lógica
 │   └── img/
 ├── build_front.py    genera front/index.html a partir de vista-previa/index.html
@@ -27,6 +27,22 @@ minimalista/
 4. **Cambiar el diseño:** edita `vista-previa/index.html` y luego ejecuta `python3 build_front.py` para regenerar `front/index.html`.
 
 Solo usa archivos locales, más la fuente *TikTok Sans* de Google Fonts. Si no hay conexión, cae a Helvetica o Arial.
+
+## Teléfono y computadora
+
+La misma página se adapta sola al dispositivo:
+
+- **Teléfono** (Android, iPhone u otro): la vista móvil, en una columna. Se mantiene aunque el teléfono se ponga de lado; en ese caso la columna se centra.
+- **Computadora** (ventana de 900 px o más que no sea un teléfono): la vista de escritorio.
+  - Arriba van las fotos a la izquierda, y a la derecha el premio, el precio, la cuenta regresiva y lo vendido.
+  - Debajo, los premios a la izquierda y el recuadro de compra a la derecha. Ese recuadro queda a la vista mientras se baja.
+  - El tablero de números y las fotos en grande se abren en el centro de la ventana.
+  - Las pantallas después de pagar se reparten en dos columnas.
+- **Tableta**: con la ventana angosta, la vista móvil centrada; con la ventana ancha, la de escritorio.
+
+La decide `App.setupDesk`: un teléfono se reconoce por el navegador y lo demás por el ancho de la ventana. Si la ventana cambia de tamaño, la página cambia de vista sin recargar.
+
+En `vista-previa/index.html`, el botón flotante **Ver en iPhone / Mac** muestra las mismas pantallas dentro de un iPhone o de una Mac. También se puede abrir directo en Mac con `#mac` al final de la dirección.
 
 ## Configuración (`config.js`)
 

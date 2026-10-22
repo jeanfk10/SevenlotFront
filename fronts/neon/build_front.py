@@ -2,9 +2,9 @@
 """Genera el front exportable (front/index.html) a partir de la vista previa.
 
 La vista previa (vista-previa/index.html) es la fuente: ahí vive todo el diseño y la lógica,
-dentro de los marcos de iPhone y con el panel de configuración. Este script toma el CSS y el
-núcleo del JavaScript, quita la vitrina (iPhones, panel, galería) y arma una página completa
-que lee su configuración de front/config.js.
+dentro de los marcos de iPhone y de Mac y con el panel de configuración. Este script toma el CSS
+y el núcleo del JavaScript, quita la vitrina (marcos, panel, galería) y arma una página completa
+que lee su configuración de front/config.js y se adapta sola a teléfono o computadora.
 
 Uso:  python3 build_front.py
 """
@@ -28,20 +28,21 @@ assert old_cfg in core, "No encontré la línea de configuración en la vista pr
 core = core.replace(old_cfg, "  let CFG = Object.assign(JSON.parse(JSON.stringify(SAMPLE)), window.LOTTOGE_RIFA || {});")
 
 STANDALONE_CSS = """
-/* ---------- Página completa (sin marcos de iPhone) ---------- */
+/* ---------- Página completa (sin marcos de iPhone ni de Mac) ----------
+   La misma página se adapta sola: en un teléfono, la vista móvil; en una computadora (ventana de 900px
+   o más que no sea un teléfono), la vista de escritorio. Lo decide App.setupDesk. */
 html, body { height: 100%; }
 body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
 [hidden] { display: none !important; }
-.shell { position: relative; height: 100%; max-width: 560px; margin: 0 auto; }
-@media (min-width: 600px) { body.standalone { background: var(--surface); } }
+.shell { position: relative; height: 100%; }
 .screen--full { width: 100%; height: 100%; border-radius: 0; }
 .standalone .island, .standalone .sbar, .standalone .homebar { display: none; }
 .standalone .scroller { inset: 0; padding-top: env(safe-area-inset-top, 0px); }
 .standalone .verify { inset: 0; }
 .standalone .lightbox { grid-template-rows: env(safe-area-inset-top, 0px) 56px minmax(0, 1fr); }
-.standalone .buybar, .standalone .board__foot { padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
-.standalone .afoot { padding-bottom: 110px; }
-.standalone .board { height: calc(100% - 40px); }
+.standalone .app:not(.desk) .buybar, .standalone .app:not(.desk) .board__foot { padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
+.standalone .app:not(.desk) .afoot { padding-bottom: 110px; }
+.standalone .app:not(.desk) .board { height: calc(100% - 40px); }
 """
 
 TAIL = """
