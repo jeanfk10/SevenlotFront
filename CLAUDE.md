@@ -9,6 +9,7 @@ Fronts de compra de rifas para la plataforma **LottoGE** (Venezuela). Cada front
   - `front/` — lo exportable: `index.html` (generado), `config.js` (datos de la rifa) e `img/`.
   - `build_front.py` — regenera `front/index.html` desde la vista previa.
   - `README.md` — uso, configuración y qué conectar a la API.
+- `landing/<nombre>/` — propuestas para la página principal de lottoge.net (la que presenta la plataforma a los operadores). Hoy: `sencilla`. Cada una tiene `front/index.html` (la página, autocontenida), `vista-previa/index.html` (la misma página en computadora y teléfono) y README. El registro de operadores no se hace desde la página: lo hace el equipo comercial, así que los botones llevan a WhatsApp.
 - `rifa-dubai/` — primer prototipo, temático (viaje a Dubái). Solo como referencia.
 
 ## Regla del usuario: cuando un front queda aprobado
