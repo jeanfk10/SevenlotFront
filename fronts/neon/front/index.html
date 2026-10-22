@@ -396,8 +396,18 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .upload:hover { background: var(--surface-2); }
 .upload svg { width: 24px; height: 24px; flex: none; }
 .upload small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
-.upload.has-file { background: var(--ink); color: var(--bg); }
-.upload.has-file small { color: inherit; opacity: .75; }
+/* a loaded receipt shows a green check, the same in every template so it reads at a glance */
+:root, .force-light { --ok: #16a34a; --ok-ink: #ffffff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ok: #22c55e; --ok-ink: #052e16; } }
+:root[data-theme="dark"], .force-dark { --ok: #22c55e; --ok-ink: #052e16; }
+.upcheck { display: none; width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--ok); color: var(--ok-ink); place-items: center; }
+.upload .upcheck svg { width: 20px; height: 20px; }
+.app .upload.has-file { background: color-mix(in srgb, var(--ok) 13%, var(--bg)); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ok); }
+.app .upload.has-file > svg { display: none; }
+.app .upload.has-file .upcheck { display: grid; animation: checkIn .45s cubic-bezier(.3, 1.5, .5, 1); }
+.app .upload.has-file [data-file-name] { color: var(--ok); font-weight: 800; }
+.app .upload.has-file small { color: var(--muted); opacity: 1; }
+@keyframes checkIn { from { transform: scale(.3) rotate(-30deg); opacity: 0; } }
 input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outline-offset: 2px; }
 .upload.is-bad { outline: 2px solid var(--danger); outline-offset: -2px; }
 .upload.is-bad small { color: var(--danger); }
@@ -1140,7 +1150,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
           <div data-f="bank"><label class="lbl" for="${p}-bank">Tu banco</label><select class="field" id="${p}-bank" data-in="bank"><option>Banesco</option><option>Banco de Venezuela</option><option>Mercantil</option><option>BBVA Provincial</option><option>BNC</option><option>Bancamiga</option></select></div>
           <label class="lbl" for="${p}-ref" data-ref-label>Número de referencia</label>
           <input class="field" id="${p}-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos">
-          <div data-f="file"><input class="sr-only" id="${p}-file" type="file" accept="image/*,.pdf" data-in="file" aria-required="true"><label class="upload" for="${p}-file" data-upload><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg><span><span data-file-name>Subir comprobante</span><small data-file-sub>Obligatorio. Foto, captura o PDF del pago.</small></span></label></div>
+          <div data-f="file"><input class="sr-only" id="${p}-file" type="file" accept="image/*,.pdf" data-in="file" aria-required="true"><label class="upload" for="${p}-file" data-upload><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg><span class="upcheck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z" fill="currentColor"/></svg></span><span><span data-file-name>Subir comprobante</span><small data-file-sub>Obligatorio. Foto, captura o PDF del pago.</small></span></label></div>
           <p class="err" data-err="pay" hidden></p>
           <button class="btn btn--accent btn--block go" type="button" data-action="confirm"><span>Confirmar pago</span><b data-go-bs></b></button>
         </div>
@@ -1594,8 +1604,8 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
     renderFile() {
       this.$('[data-upload]').classList.toggle('has-file', !!this.s.file);
       if (this.s.file) this.$('[data-upload]').classList.remove('is-bad');
-      this.$('[data-file-name]').textContent = this.s.file || 'Subir comprobante';
-      this.$('[data-file-sub]').textContent = this.s.file ? 'Comprobante listo. Toca para cambiarlo.' : 'Obligatorio. Foto, captura o PDF del pago.';
+      this.$('[data-file-name]').textContent = this.s.file ? 'Comprobante cargado' : 'Subir comprobante';
+      this.$('[data-file-sub]').textContent = this.s.file ? 'Toca aquí si quieres cambiarlo.' : 'Obligatorio. Foto, captura o PDF del pago.';
     }
     copy(btn) {
       const text = btn.dataset.copy.replace(/^Bs /, '');
@@ -1718,7 +1728,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       this.$('[data-held-sent]').innerHTML = chosen
         ? `Cuando se apruebe, te enviamos la confirmación a <b>${mail}</b>. Si se rechaza, te escribimos al mismo correo para corregirlo.`
         : `Si el pago se rechaza, te escribimos a <b>${mail}</b> para corregirlo.`;
-      const order = [['Orden', 'LG-' + (48100 + q * 7)], ['Números', chosen ? s.picks.join(', ') : 'Al azar, al aprobar'], ['Método', m.label], ['Referencia', s.ref || '—'], ['Comprobante', s.file || 'No adjuntado'], ['Total', m.cur === 'bs' ? bs(tot) : this.amount(m, tot)], ['Estado', 'Por verificar']];
+      const order = [['Orden', 'LG-' + (48100 + q * 7)], ['Números', chosen ? s.picks.join(', ') : 'Al azar, al aprobar'], ['Método', m.label], ['Referencia', s.ref || '—'], ['Comprobante', s.file ? 'Cargado' : 'No adjuntado'], ['Total', m.cur === 'bs' ? bs(tot) : this.amount(m, tot)], ['Estado', 'Por verificar']];
       this.$('[data-held-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('');
       this.$('[data-held-scroller]').scrollTop = 0;
     }
