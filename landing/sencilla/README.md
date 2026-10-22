@@ -2,51 +2,85 @@
 
 Propuesta para la página principal de **lottoge.net**, la que les presenta la plataforma a los operadores (riferos). Tiene fondo blanco, tonos cálidos y formas redondeadas. A la derecha hay una maquinita que imprime boletos, solo como ilustración.
 
-> **Estado: propuesta para aprobación.** Es una página estática hecha en HTML y CSS. Cuando llegue el código de la plataforma (React), hay que pasarla a sus componentes.
+> **Estado: prototipo para aprobación.** Es una página estática en HTML, CSS y JavaScript. Las rifas activas son de prueba y el envío de denuncias está simulado. Cuando llegue el código de la plataforma (React), hay que pasarla a sus componentes y conectarla a la API.
 
 ## Qué hay en esta carpeta
 
 ```
 sencilla/
-├── front/
-│   └── index.html    la página, autocontenida (la maquinita es un SVG dentro del archivo)
 ├── vista-previa/
-│   └── index.html    la misma página en computadora y en teléfono, una al lado de la otra
+│   └── index.html    fuente: diseño y lógica; es lo que se publica como artefacto
+├── front/
+│   └── index.html    la página completa para cualquier hosting (generada, no editar a mano)
+├── build_front.py    genera front/index.html desde la vista previa
 └── README.md
 ```
 
-Para verla, abre `vista-previa/index.html` o `front/index.html` en el navegador. Solo carga la fuente *Plus Jakarta Sans* de Google Fonts. Si no hay conexión, usa Segoe UI o Arial.
+- **Probarla:** abre `front/index.html` en el navegador.
+- **Cambiar algo:** edita `vista-previa/index.html` y luego ejecuta `python3 build_front.py`.
+- **Fuente:** solo carga *Plus Jakarta Sans* de Google Fonts. Si no hay conexión, usa Segoe UI o Arial.
 
-## Secciones
+## Vistas
 
-1. **Barra:** logo; enlaces a Qué hacemos, Planes e Iniciar sesión; botón "Hablar con un asesor".
-2. **Portada:** "Vende tus rifas en línea" con una frase de apoyo y los botones "Hablar con un asesor" y "Ver planes". Debajo van tres etiquetas: Legal ante CONALOT, Bs y $ con tasa BCV y Soporte 24/7. A la derecha está la maquinita, que imprime un boleto en bucle.
-3. **Qué hacemos:** cuatro puntos con su color.
-   - Tu página, tu marca.
-   - Pagos verificados.
-   - Boletos automáticos.
-   - Todo en un panel.
-4. **Planes:** Free, Basic y Pro, con precio, mantenimiento y lo principal de cada uno.
-5. **Cierre:** "¿Listo para empezar?" con el botón de WhatsApp.
-6. **Pie:** Instagram, Términos y Privacidad.
+La página tiene tres vistas. Se cambia entre ellas con la barra o con el enlace directo: `#rifas` y `#denuncias`.
 
-## Cambios frente a la página actual
+1. **Inicio**
+   - **Portada:** "Vende tus rifas en línea", con los botones "Hablar con un asesor" y "Ver rifas activas".
+   - **Maquinita:** imprime un boleto con un número nuevo en cada vuelta. Al tocar el botón amarillo imprime otro de inmediato.
+   - **Qué hacemos:** cuatro puntos, más un aviso que lleva a Denuncias.
+   - **Planes:** Free, Basic y Pro.
+   - **Cierre:** con el botón de WhatsApp.
+2. **Rifas activas:** buscador, filtros por cifras (3, 4 o 6) y una sola tarjeta de **"Rifa de prueba"**. El resto de la lista queda vacía, con el mensaje "Pronto habrá más rifas aquí".
+3. **Denuncias:** formulario con estos campos:
+   - Motivo:
+     - rifa sin autorización de CONALOT;
+     - no entregaron el premio;
+     - pago no reconocido;
+     - suplantan a un operador;
+     - otro.
+   - Nombre de la rifa u operador.
+   - Enlace o usuario de Instagram (opcional).
+   - Qué pasó (mínimo 20 caracteres).
+   - Comprobante (opcional).
+   - Opción de denuncia anónima.
+   - Correo para responder (opcional).
 
-- **Nombre:** se usa **LottoGE**, no "LottoX".
-- **Sin registro directo:** el registro de operadores lo hace el equipo comercial. Por eso todos los botones abren WhatsApp con un mensaje ya escrito:
-  - "Hablar con un asesor" y "Escribir por WhatsApp": *"Hola, quiero información sobre LottoGE"*.
-  - "Solicitar" en cada plan: *"Hola, me interesa el Plan Free/Basic/Pro de LottoGE"*.
-  - "Iniciar sesión" sigue llevando a `lottoge.net/auth`, para los operadores que ya tienen cuenta.
-- **Sin datos inventados:** se quitaron las cifras (+350 loteros, $2M+ en premios, etc.), los casos de éxito y los testimonios.
-- **Sin ventana emergente:** se quitó la de "Precio exclusivo" que tapaba la portada.
+   El formulario valida los campos y, al enviar, muestra un número de referencia (`DN-2026-#####`). Al lado se explica qué pasa después y hay un contacto por WhatsApp para casos urgentes.
+
+**Animaciones:**
+- **Maquinita:** sale el boleto, la barra de progreso se llena, la máquina vibra, saltan chispas, flotan boletos y la mancha de fondo cambia de forma.
+- **Página:**
+  - entrada escalonada de la portada;
+  - secciones que aparecen al bajar;
+  - tarjetas que se levantan al pasar el ratón;
+  - transición entre vistas;
+  - menú móvil animado.
+- **Formulario de denuncias:** marca de "recibido" que se dibuja sola.
+
+Todo respeta `prefers-reduced-motion`.
+
+## Registro de operadores
+
+No hay registro directo: lo hace el equipo comercial. Todos los botones abren WhatsApp con un mensaje ya escrito:
+- "Hablar con un asesor": *"Hola, quiero información sobre LottoGE"*.
+- "Solicitar" en cada plan: *"Hola, me interesa el Plan … de LottoGE"*.
+
+"Iniciar sesión" lleva a `lottoge.net/auth`, para los operadores que ya tienen cuenta.
+
+## Qué conectar a la API
+
+| En el prototipo | En producción | Dónde (en el `<script>`) |
+| --- | --- | --- |
+| Lista `RAFFLES` con una rifa de prueba | `GET` rifas activas (nombre, operador, cifras, % vendido, fecha de sorteo, enlace) | `RAFFLES`, `renderRaffles` |
+| "Ver rifa" muestra un aviso | Abrir la página de compra de esa rifa | evento `click` de `data-open` |
+| La denuncia no se envía; el número de referencia sale en el navegador | `POST` de la denuncia con el archivo adjunto; el servidor devuelve la referencia | evento `submit` de `data-form` |
 
 ## Datos que hay que confirmar
 
 - **Número de WhatsApp:** `+58 422 738 3647`, el mismo de la preventa en la página actual.
 - **Precios:** se copiaron de la página actual.
-  - Free: $0 + $50 al mes de mantenimiento.
+  - Free: $0 + $50 al mes.
   - Basic: REF 799 + IVA + $50 al mes.
   - Pro: REF 1.199 + IVA + $50 al mes.
-- **"WhatsApp automatizado" en Basic y Pro:** el plan lo ofrece, pero los fronts de compra envían los números al comprador solo por correo. Hay que confirmar qué se promete.
-- **"Pago Móvil verificado al instante":** en la página actual aparece solo en el Plan Pro, como "Pasarela integrada de Pagos Inmediata".
-- **Enlaces:** Términos y Privacidad apuntan a `lottoge.net/terms` y `lottoge.net/privacy`.
+- **"WhatsApp automatizado" en Basic y Pro:** los fronts de compra envían los números al comprador solo por correo. Hay que confirmar qué se promete.
+- **Motivos de denuncia y quién la recibe:** hay que definir qué equipo revisa las denuncias y en qué plazo responde.
