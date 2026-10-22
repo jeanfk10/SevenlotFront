@@ -82,7 +82,8 @@ El precio en dólares, las cifras del número (2, 3 o 4), las series del tablero
 4. **Continuar → Pago:**
    - Pago Móvil al instante, Binance, Zelle y Pago Móvil manual, cada uno con su color.
    - Datos para pagar, con botón de copiar en cada fila y uno para copiar todo.
-   - Referencia y comprobante.
+   - Referencia del pago.
+   - Comprobante (foto, captura o PDF de hasta 10 MB), **obligatorio** en Binance, Zelle y Pago Móvil manual: sin él no se puede confirmar. Pago Móvil al instante no lo pide, porque se verifica con el banco.
 5. **Resultado:**
    - **¡Listo!** — Pago Móvil al instante aprobado: los números se revelan y se envían al correo.
    - **Compra rechazada** — Pago Móvil al instante que el banco no encuentra. Muestra el motivo y lleva de vuelta a "Corregir datos del pago".

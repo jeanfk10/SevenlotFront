@@ -395,6 +395,8 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .upload.has-file { background: var(--ink); color: var(--bg); }
 .upload.has-file small { color: inherit; opacity: .75; }
 input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outline-offset: 2px; }
+.upload.is-bad { outline: 2px solid var(--danger); outline-offset: -2px; }
+.upload.is-bad small { color: var(--danger); }
 
 /* Number board (manual mode) */
 .board-bg { position: absolute; inset: 0; z-index: 54; background: var(--scrim); animation: fadein .25s ease; }
@@ -1216,7 +1218,7 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
           <div data-f="bank"><label class="lbl" for="${p}-bank">Tu banco</label><select class="field" id="${p}-bank" data-in="bank"><option>Banesco</option><option>Banco de Venezuela</option><option>Mercantil</option><option>BBVA Provincial</option><option>BNC</option><option>Bancamiga</option></select></div>
           <label class="lbl" for="${p}-ref" data-ref-label>Número de referencia</label>
           <input class="field" id="${p}-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos">
-          <div data-f="file"><input class="sr-only" id="${p}-file" type="file" accept="image/*,.pdf" data-in="file"><label class="upload" for="${p}-file" data-upload><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg><span><span data-file-name>Subir comprobante</span><small data-file-sub>Opcional. Foto o PDF.</small></span></label></div>
+          <div data-f="file"><input class="sr-only" id="${p}-file" type="file" accept="image/*,.pdf" data-in="file" aria-required="true"><label class="upload" for="${p}-file" data-upload><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg><span><span data-file-name>Subir comprobante</span><small data-file-sub>Obligatorio. Foto, captura o PDF del pago.</small></span></label></div>
           <p class="err" data-err="pay" hidden></p>
           <button class="btn btn--accent btn--block go" type="button" data-action="confirm"><span>Confirmar pago</span><b data-go-bs></b></button>
         </div>
@@ -1433,7 +1435,14 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
         const t = e.target, k = t.dataset.in;
         if (k === 'bank') this.s.bank = t.value;
         if (k === 'estado') { this.s.estado = t.value; t.classList.remove('is-bad'); }
-        if (k === 'file') { this.s.file = t.files && t.files[0] ? t.files[0].name : ''; this.renderFile(); }
+        if (k === 'file') {
+          const f = t.files && t.files[0], err = this.$('[data-err="pay"]');
+          const bad = !f ? '' : !(/^image\//.test(f.type) || /pdf$/i.test(f.type) || /\.pdf$/i.test(f.name)) ? 'El comprobante debe ser una foto, una captura o un PDF.'
+            : f.size > 10 * 1024 * 1024 ? 'El comprobante pesa más de 10 MB. Sube una foto o captura más liviana.' : '';
+          if (bad) { t.value = ''; err.textContent = bad; err.hidden = false; } else if (f) err.hidden = true;
+          this.s.file = f && !bad ? f.name : '';
+          this.renderFile();
+        }
       });
       this.el.addEventListener('keydown', e => {
         if (e.key === 'Escape') { if (!this.$('[data-board]').hidden) this.board(false); if (!this.$('[data-lightbox]').hidden) this.flyer(false); }
@@ -1512,7 +1521,13 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
       let msg = '', field = '';
       if (m.payer && s.payer.replace(/\D/g, '').length !== 11) { msg = 'Escribe el teléfono desde el que hiciste el Pago Móvil (11 dígitos).'; field = 'payer'; }
       else if (s.ref.trim().length < 4) { msg = `Escribe ${m.refErr} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
-      if (msg) { err.textContent = msg; err.hidden = false; const f = this.$(`[data-in="${field}"]`); f.classList.add('is-bad'); f.focus(); return; }
+      else if (m.file && !s.file) { msg = 'Sube el comprobante de tu pago: una foto, una captura o un PDF. Sin él, el rifero no puede revisar tu pago.'; field = 'file'; }
+      if (msg) {
+        err.textContent = msg; err.hidden = false;
+        const f = this.$(`[data-in="${field}"]`);
+        (field === 'file' ? this.$('[data-upload]') : f).classList.add('is-bad');
+        f.focus(); return;
+      }
       err.hidden = true;
       this.verify(false);
     }
@@ -1655,8 +1670,9 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
     }
     renderFile() {
       this.$('[data-upload]').classList.toggle('has-file', !!this.s.file);
+      if (this.s.file) this.$('[data-upload]').classList.remove('is-bad');
       this.$('[data-file-name]').textContent = this.s.file || 'Subir comprobante';
-      this.$('[data-file-sub]').textContent = this.s.file ? 'Comprobante listo. Toca para cambiarlo.' : 'Opcional. Foto o PDF.';
+      this.$('[data-file-sub]').textContent = this.s.file ? 'Comprobante listo. Toca para cambiarlo.' : 'Obligatorio. Foto, captura o PDF del pago.';
     }
     copy(btn) {
       const text = btn.dataset.copy.replace(/^Bs /, '');
