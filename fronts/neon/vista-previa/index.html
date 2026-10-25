@@ -1748,9 +1748,10 @@ window.LOTTOGE_TEMA = {
         const go = () => this.scrollToSec(init.scrollTo, true);
         go(); requestAnimationFrame(go); window.addEventListener('load', go, { once: true }); document.fonts && document.fonts.ready.then(go);
       }
+      if (!screen.closest('.device')) this.setupHistory();
     }
 
-    destroy() { this.dead = true; this.fxio && this.fxio.disconnect(); this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.ro && this.ro.disconnect(); this.ro2 && this.ro2.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
+    destroy() { this.dead = true; this.onPop && window.removeEventListener('popstate', this.onPop); this.fxio && this.fxio.disconnect(); this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.ro && this.ro.disconnect(); this.ro2 && this.ro2.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
     later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
 
     bind() {
@@ -1841,6 +1842,7 @@ window.LOTTOGE_TEMA = {
       if (name === 'pay') this.renderMethod();
       if (!instant) this.scrollToSec('buy');
       this.renderTotals();
+      this.syncHist();
     }
     participar() {
       const s = this.s;
@@ -1924,6 +1926,7 @@ window.LOTTOGE_TEMA = {
       this.$('[data-board]').hidden = !on; this.$('[data-board-bg]').hidden = !on;
       if (on) { this.renderGrid(true); this.renderPicks(); this.$('[data-board] .board__x').focus({ preventScroll: true }); }
       else if (this.s.mode === 'manual' && this.s.stage === 'pick') this.$('[data-action="board"]').focus({ preventScroll: true });
+      this.syncHist();
     }
     renderGrid(resetScroll) {
       const s = this.s, q = s.search, grid = this.$('[data-grid]');
@@ -2084,10 +2087,50 @@ window.LOTTOGE_TEMA = {
       this.el.dataset.view = view;
       this.$$('[data-v]').forEach(v => v.hidden = v.dataset.v !== view);
       if (view === 'ok') this.$('[data-ok-scroller]').scrollTop = 0;
+      this.syncHist();
     }
     flyer(on) {
       this.$('[data-lightbox]').hidden = !on; this.el.classList.toggle('is-dark-top', on);
       if (on) { const box = this.$('[data-lb-scroll]'), img = box.children[this.slide || 0]; box.scrollTop = img ? img.offsetTop : 0; }
+      this.syncHist();
+    }
+    /* The phone's or browser's back button walks back one step inside the page (payment → data → tickets,
+       closes the number board or the photos, leaves a result or "Mis boletos" for the start) instead of leaving
+       the raffle. It is still one page and one load: a single extra history entry stands for "inside the
+       purchase", with no change of address. Only on the real page, not in the showcase frames. */
+    setupHistory() {
+      this.hist = true;
+      this.onPop = () => {
+        if (this.dropPop) { this.dropPop = false; return; }
+        this.inHist = false; this.popping = true;
+        this.stepBack();
+        this.popping = false; this.syncHist();
+      };
+      window.addEventListener('popstate', this.onPop);
+      this.syncHist();
+    }
+    atStart() {
+      return this.s.view === 'home' && this.s.stage === 'pick' && this.$('[data-board]').hidden && this.$('[data-lightbox]').hidden && this.$('[data-verify]').hidden;
+    }
+    stepBack() {
+      const s = this.s, view = s.view;
+      if (!this.$('[data-verify]').hidden) return; // a payment being checked is not interrupted
+      if (!this.$('[data-board]').hidden) return this.board(false);
+      if (!this.$('[data-lightbox]').hidden) return this.flyer(false);
+      if (view !== 'home') {
+        this.show('home');
+        // after a finished purchase, going back starts a new one; after a rejected one, the payment stays to fix it
+        if (view === 'ok' || view === 'held') { Object.assign(s, { picks: [], mode: 'random', ref: '', file: '' }); this.syncInputs(); this.stage('pick', true); }
+        return;
+      }
+      if (s.stage === 'pay') return this.stage('data');
+      if (s.stage === 'data') return this.stage('pick');
+    }
+    syncHist() {
+      if (!this.hist || this.popping) return;
+      const deep = !this.atStart();
+      if (deep && !this.inHist) { history.pushState({ lottoge: 1 }, ''); this.inHist = true; }
+      else if (!deep && this.inHist) { this.inHist = false; this.dropPop = true; history.back(); }
     }
     /* Photo carousel: swipe on phones, arrows and dots for everyone. */
     setupGallery() {
