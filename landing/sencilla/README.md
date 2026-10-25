@@ -11,12 +11,16 @@ sencilla/
 ├── vista-previa/
 │   └── index.html    fuente: diseño y lógica; es lo que se publica como artefacto
 ├── front/
-│   └── index.html    la página completa para cualquier hosting (generada, no editar a mano)
+│   ├── index.html    la página completa para cualquier hosting (generada, no editar a mano)
+│   └── config.js     WhatsApp, planes y precios, rifas de prueba, correo de denuncias y API
 ├── build_front.py    genera front/index.html desde la vista previa
 └── README.md
 ```
 
-- **Probarla:** abre `front/index.html` en el navegador.
+- **Probarla:** dentro de `front/`, ejecuta `npx serve .` o `python3 -m http.server 8080` y abre `http://localhost:8080`.
+- **Cambiar precios, WhatsApp o la API:** edita `front/config.js`. No hace falta tocar `index.html`.
+  - **Valores por defecto:** los trae la vista previa, dentro de `DEFAULTS` en el `<script>`, y son los que usa el artefacto.
+  - **Si cambias un valor por defecto:** cámbialo en los dos lugares, `DEFAULTS` y `config.js`.
 - **Cambiar algo:** edita `vista-previa/index.html` y luego ejecuta `python3 build_front.py`.
 - **Fuente:** solo carga *Plus Jakarta Sans* de Google Fonts. Si no hay conexión, usa Segoe UI o Arial.
 
@@ -68,29 +72,33 @@ La página tiene cuatro vistas. Se cambia entre ellas con la barra o con el enla
 
 Todo respeta `prefers-reduced-motion`.
 
-## Registro de operadores
+## Registro de operadores y WhatsApp
 
-No hay registro directo: lo hace el equipo comercial. Todos los botones abren WhatsApp con un mensaje ya escrito:
-- "Hablar con un asesor": *"Hola, quiero información sobre LottoGE"*.
-- "Solicitar" en cada plan: *"Hola, me interesa el Plan … de LottoGE"*.
+No hay registro directo: lo hace el equipo comercial. Todos los botones de WhatsApp abren el chat de Sevenlot (**0412-166-5356**) con el mensaje *"Hola, quiero más información acerca de LottoGE"*. El número y el mensaje están en `config.js` (`whatsapp`); cada plan puede tener su propio mensaje en `planes[].mensaje`.
 
 "Iniciar sesión" abre la vista de login, para los operadores que ya tienen cuenta.
 
-## Qué conectar a la API
+## API
 
-| En el prototipo | En producción | Dónde (en el `<script>`) |
+La página ya trae el código que llama a la API. Basta con escribir las direcciones en `config.js` (`api`); mientras estén vacías, funciona en modo prueba.
+
+| Campo | Sin dirección | Con dirección |
 | --- | --- | --- |
-| Lista `RAFFLES` con una rifa de prueba | `GET` rifas activas (nombre, operador, cifras, % vendido, fecha de sorteo, enlace) | `RAFFLES`, `renderRaffles` |
-| El login acepta cualquier correo y contraseña; la sesión se guarda en `sessionStorage` | Autenticación real (`POST` de inicio de sesión, recuperación de contraseña) y la redirección a cada panel | evento `submit` de `data-login` y `data-forgot-form` |
-| "Ver rifa" muestra un aviso | Abrir la página de compra de esa rifa | evento `click` de `data-open` |
-| La denuncia no se envía; el número de referencia sale en el navegador | `POST` de la denuncia con el archivo adjunto; el servidor devuelve la referencia | evento `submit` de `data-form` |
+| `api.login` | Acepta cualquier correo y contraseña de 6 caracteres o más | `POST` JSON `{ email, password, remember }`. Con 401 muestra "Correo o contraseña incorrectos"; con 200 usa `user.name` y va a `redirect` si viene. |
+| `api.recuperar` | No envía nada | `POST` JSON `{ email }`. Siempre muestra el mismo mensaje. |
+| `api.rifas` | Muestra `rifasDePrueba` | `GET ?status=active`. Acepta los campos del contrato (`title`, `operator.name`, `digits`, `soldPct`, `drawAt`, `url`); "Ver rifa" abre `url`. |
+| `api.denuncias` | Envío simulado | `POST` multipart con `reason`, `target`, `link`, `description`, `file`, `anonymous`, `email` y `notify` (el correo de Sevenlot). Muestra la `reference` que devuelve. |
 
-## Datos que hay que confirmar
+El formato completo está en `kit/02-contrato-api.md`.
 
-- **Número de WhatsApp:** `+58 422 738 3647`, el mismo de la preventa en la página actual.
-- **Precios:** se copiaron de la página actual.
+## Datos
+
+- **WhatsApp:** 0412-166-5356 (Sevenlot), confirmado.
+- **Precios:** se mantienen los de la página actual.
   - Free: $0 + $50 al mes.
   - Basic: REF 799 + IVA + $50 al mes.
   - Pro: REF 1.199 + IVA + $50 al mes.
-- **"WhatsApp automatizado" en Basic y Pro:** los fronts de compra envían los números al comprador solo por correo. Hay que confirmar qué se promete.
-- **Motivos de denuncia y quién la recibe:** hay que definir qué equipo revisa las denuncias y en qué plazo responde.
+
+  Se cambian en `config.js`.
+- **"WhatsApp automatizado" en Basic y Pro:** todavía no funciona, pero se deja porque viene en camino.
+- **Denuncias:** llegan a la plataforma de LottoGE. En `config.js` (`denuncias.correo`) va el correo de Sevenlot; lo coloca el equipo de LottoGE.

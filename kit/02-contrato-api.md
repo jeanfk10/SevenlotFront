@@ -2,11 +2,13 @@
 
 Estos son los datos que necesitan las pantallas. Los nombres de las rutas y los campos son una propuesta: si el backend ya tiene los suyos, se adaptan las llamadas del front y se deja anotado aquí.
 
+Las direcciones se escriben en `config.js` (`api.login`, `api.recuperar`, `api.rifas` y `api.denuncias`). Mientras estén vacías, la página funciona en modo prueba.
+
 Todas las respuestas van en JSON. Las fechas van en ISO 8601 con la hora de Venezuela (`-04:00`). Los montos en bolívares van en enteros o con dos decimales, nunca como texto con formato.
 
 ## Página principal
 
-### Iniciar sesión
+### Iniciar sesión (api.login)
 
 `POST /api/auth/login`
 
@@ -14,19 +16,19 @@ Todas las respuestas van en JSON. Las fechas van en ISO 8601 con la hora de Vene
 { "email": "operador@correo.com", "password": "••••••••", "remember": true }
 ```
 
-- **200:** `{ "user": { "name": "Yosmer", "role": "operador" }, "redirect": "/panel" }`. La sesión va en una cookie `HttpOnly`, `Secure` y `SameSite=Lax`; no se devuelve el token al JavaScript.
+- **200:** `{ "user": { "name": "Yosmer", "role": "operador" }, "redirect": "/panel" }`. La sesión va en una cookie `HttpOnly`, `Secure` y `SameSite=Lax`; no se devuelve el token al JavaScript. Si viene `redirect`, la página lleva ahí al usuario.
 - **401:** `{ "error": "credenciales" }`. El front muestra "Correo o contraseña incorrectos" sin decir cuál de los dos falló.
 - **429:** demasiados intentos. Hay que limitar los intentos por correo y por IP.
 
 `POST /api/auth/logout` → **204**.
 
-### Recuperar contraseña
+### Recuperar contraseña (api.recuperar)
 
 `POST /api/auth/forgot` con `{ "email": "…" }` → **204** siempre, exista o no la cuenta, para no revelar qué correos están registrados.
 
-### Rifas activas
+### Rifas activas (api.rifas)
 
-`GET /api/raffles?status=active&q=texto&digits=4`
+`GET /api/raffles?status=active`
 
 ```json
 [
@@ -48,7 +50,7 @@ Todas las respuestas van en JSON. Las fechas van en ISO 8601 con la hora de Vene
 - La tarjeta usa `title`, `operator.name`, `digits`, `soldPct` y `drawAt`. "Ver rifa" lleva a `url`.
 - **Lista vacía:** `[]`. El front muestra "Pronto habrá más rifas aquí".
 
-### Denuncias
+### Denuncias (api.denuncias)
 
 `POST /api/reports` (multipart/form-data):
 
@@ -61,6 +63,7 @@ Todas las respuestas van en JSON. Las fechas van en ISO 8601 con la hora de Vene
 | `file` | archivo | no | Imagen o PDF, máximo 5 MB |
 | `anonymous` | sí/no | sí | Si es `true`, se ignora `email` |
 | `email` | texto | no | Para responder al denunciante |
+| `notify` | texto | no | Correo de Sevenlot (`denuncias.correo` en `config.js`). El servidor le reenvía la denuncia con su referencia y su archivo. |
 
 - **201:** `{ "reference": "DN-2026-04821" }`. El front muestra ese número.
 - **422:** `{ "errors": { "campo": "mensaje" } }`. El front pone cada mensaje debajo de su campo.

@@ -25,6 +25,10 @@ head = head.replace("<title>LottoGE Página Principal</title>", "<title>LottoGE 
 START = "  const START = 'login';"
 assert START in body, "No encontré la vista inicial en la vista previa"
 body = body.replace(START, "  const START = 'inicio';")
+# La configuración (WhatsApp, planes, API, correo de denuncias) se lee de front/config.js.
+SCRIPT = "<script>\n(() => {"
+assert body.count(SCRIPT) == 1, "No encontré el script principal en la vista previa"
+body = body.replace(SCRIPT, '<script src="config.js"></script>\n' + SCRIPT)
 
 page = f"""<!doctype html>
 <html lang="es-VE">

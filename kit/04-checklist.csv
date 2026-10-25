@@ -1,11 +1,12 @@
 Área,Qué revisar,Cómo se comprueba,Responsable,Estado,Notas
-Marca,"El logo, el título, los metadatos og: y el pie dicen LottoGE (no LottoX)",Buscar "LottoX" en el código y en la página publicada,,Pendiente,
+Instalación,La página se probó en localhost con index.html y config.js juntos,npx serve . o python3 -m http.server 8080 y abrir http://localhost:8080,,Pendiente,Antes de subirla a la plataforma real
+Marca,"El logo, el título, los metadatos og: y el pie dicen LottoGE (no LottoX)","Buscar ""LottoX"" en el código y en la página publicada",,Pendiente,
 Marca,El ícono de la pestaña (favicon) es el de LottoGE,Abrir lottoge.net y mirar la pestaña,,Pendiente,Usar 03 Recursos/logo-lottoge-icono.svg
 Contenido,No hay cifras ni testimonios inventados,Revisar portada y planes,,Pendiente,
 Contenido,No aparece la ventana emergente de Precio exclusivo,Entrar a la portada en una ventana privada,,Pendiente,
-Contenido,"Precios de los planes confirmados (Free, Basic, Pro)",Comparar con la lista oficial,,Pendiente,
-Contenido,Número de WhatsApp confirmado (+58 422 738 3647),Tocar cada botón de WhatsApp,,Pendiente,
-Contenido,"Qué se promete de ""WhatsApp automatizado"" en los planes",Decisión comercial,,Pendiente,Al comprador los números le llegan solo por correo
+Contenido,Los precios y planes coinciden con config.js (planes),Comparar la página con config.js,,Pendiente,"Para cambiar precios se edita config.js, no index.html"
+Contenido,"Los botones de WhatsApp abren el chat de Sevenlot (0412-166-5356) con el mensaje ""Hola, quiero más información acerca de LottoGE""",Tocar cada botón de WhatsApp,,Pendiente,Se cambia en config.js (whatsapp)
+Contenido,"""WhatsApp automatizado"" sigue en los planes Basic y Pro",Revisar los planes,,Pendiente,Todavía no está activo; se deja porque viene en camino
 Registro,No hay formulario de registro abierto; los botones llevan a WhatsApp,"Revisar barra, planes y login",,Pendiente,
 Login,Inicia sesión con una cuenta real y lleva al panel correcto,Probar con un operador de prueba,,Pendiente,
 Login,Error claro con datos incorrectos (sin decir cuál falló),Probar con contraseña errada,,Pendiente,
@@ -19,7 +20,7 @@ Rifas activas,Sin rifas se ve el aviso de lista vacía,Probar con la lista vací
 Denuncias,La denuncia se guarda y devuelve un número de referencia del servidor,Enviar una de prueba,,Pendiente,
 Denuncias,El archivo adjunto se valida en el servidor (tipo y tamaño máximo 5 MB),Subir un PDF y una imagen grande,,Pendiente,
 Denuncias,Hay protección contra spam (captcha o límite por IP),Enviar varias seguidas,,Pendiente,
-Denuncias,Está definido quién recibe las denuncias y en qué plazo responde,Decisión operativa,,Pendiente,
+Denuncias,El correo de Sevenlot está en config.js (denuncias.correo) y cada denuncia le llega con su referencia,Enviar una denuncia de prueba y revisar ese correo,,Pendiente,Lo coloca el equipo de LottoGE
 Fronts de venta,Cada plantilla lee su config.js o la API,Abrir una rifa de cada plantilla,,Pendiente,
 Fronts de venta,El total se recalcula en el servidor,Cambiar el monto desde el navegador y comprobar que se rechaza,,Pendiente,
 Fronts de venta,Pago Móvil al instante verifica con R4 y asigna números,Pago de prueba,,Pendiente,

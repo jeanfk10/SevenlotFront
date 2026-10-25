@@ -7,6 +7,7 @@ Fuente del kit que se entrega al equipo de LottoGE en la carpeta de Google Drive
 | `00-LEEME.md` | `00 LÉEME - Kit de instalación LottoGE` (documento) |
 | `01-guia-pagina-principal.md` | `01 Página principal / Guía de implementación - Página principal` (documento) |
 | `../landing/sencilla/front/index.html` | `01 Página principal / index.html` |
+| `../landing/sencilla/front/config.js` | `01 Página principal / config.js` |
 | `03-leeme-fronts-de-venta.md` | `02 Fronts de venta / LÉEME - Fronts de venta` (documento); las carpetas de cada plantilla quedan vacías para que Sevenlot las llene |
 | `recursos/` | `03 Recursos /` (`tokens.css`, `logo-lottoge.svg`, `logo-lottoge-icono.svg`) |
 | `02-contrato-api.md` | `04 Herramientas / Contrato de API (propuesta)` (documento) |
