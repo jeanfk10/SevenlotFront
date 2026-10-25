@@ -106,7 +106,7 @@ for img in sorted((FRONTS / 'minimalista' / 'front' / 'img').glob('*.jpg')):
     dest = C / 'img' / img.name
     # lighter sample photos for the Drive; the template looks the same
     if shutil.which('convert'):
-        subprocess.run(['convert', str(img), '-strip', '-resize', '900x900>', '-quality', '72', str(dest)], check=True)
+        subprocess.run(['convert', str(img), '-strip', '-resize', '720x720>', '-sampling-factor', '4:2:0', '-interlace', 'JPEG', '-quality', '66', str(dest)], check=True)
     else:
         shutil.copy(img, dest)
 
