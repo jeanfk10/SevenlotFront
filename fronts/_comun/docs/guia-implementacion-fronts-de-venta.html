@@ -8,12 +8,19 @@
 <h1>Guía de implementación: fronts de venta</h1>
 <p>Para el equipo de desarrollo de LottoGE. Explica cómo está armada la página de compra, cómo llevarla a la plataforma (React + Vite) sin que cambie el diseño, cómo guardar los métodos de pago con sus iconos y qué endpoints conectar. Va de la mano con el <b>Contrato de API</b> y el <b>Mapeo al API real de LottoGE</b>, en 04 Herramientas.</p>
 
-<h2>1. La regla principal</h2>
+<h2>1. Cómo se implementa: requisitos</h2>
+<p>Estas condiciones son parte de la entrega. Sin ellas, el front no funciona como se diseñó.</p>
+<ol>
+<li><b>Una sola pantalla y una sola carga.</b> Toda la compra pasa dentro de la misma página: elegir los boletos, la cédula y los datos del comprador, el pago, el comprobante, la verificación y el resultado, además de "Mis boletos". La página se carga una vez y no cambia de dirección ni se recarga entre un paso y otro.</li>
+<li><b>Reemplaza el flujo actual de varias pantallas.</b> Las pantallas separadas de cédula, pago y checkout que tiene hoy la plataforma no se usan con estos fronts. La compra no se divide en rutas ni en pantallas, y no se reescribe en componentes.</li>
+<li><b>La plataforma se adapta al front.</b> El front se instala tal cual, como se explica en la Guía de implementación. El backend responde lo que pide conexion.js, con los datos y el formato de la guía. Si un endpoint no existe todavía, se crea con ese formato.</li>
+<li><b>Los cambios los hace Sevenlot.</b> Cualquier cambio de diseño o de flujo se le pide a Sevenlot, que entrega un kit actualizado. Los archivos del kit no se editan a mano: lo propio de la plataforma va en config.js y en conexion.js.</li>
+</ol>
 <p>El diseño se entrega terminado y probado en teléfono y computadora. Para que quede igual:</p>
 <ul>
 <li>Los archivos CSS se usan tal cual, en el orden de la sección 2. No se pasan a Tailwind ni a CSS Modules, ni se cambian nombres de clases.</li>
 <li>venta.js no se edita. Todo lo que cambia de una plataforma a otra está fuera de él: los datos en config.js y la conexión en conexion.js.</li>
-<li>Si algo del diseño debe cambiar, se cambia en el repositorio (fronts/&lt;plantilla&gt;/vista-previa) y se regenera el kit con build_kit.py. Así las seis plantillas siguen iguales entre sí.</li>
+<li>Si algo del diseño o del flujo debe cambiar, se le pide a Sevenlot, que entrega un kit nuevo con las seis plantillas iguales entre sí.</li>
 </ul>
 
 <h2>2. Cómo está armada</h2>
@@ -33,8 +40,8 @@
 </table>
 <p>La página no usa librerías ni bundler: es JavaScript del navegador, sin dependencias, y solo carga la fuente de Google Fonts de cada plantilla. Pesa unos 180 KB sin las fotos.</p>
 
-<h2>3. Cómo llevarla a React + Vite</h2>
-<h3>Camino A, el recomendado: páginas aparte, servidas tal cual</h3>
+<h2>3. Cómo instalarla en la plataforma (React + Vite)</h2>
+<h3>Opción A, la recomendada: páginas aparte, servidas tal cual</h3>
 <p>La página de compra es lo que abre el comprador desde el enlace de la rifa. No necesita vivir dentro de la aplicación React: se sirve como archivos estáticos y el diseño queda exacto.</p>
 <ol>
 <li>Copia la carpeta 02 Fronts de venta dentro de <code>public/fronts/</code> del proyecto Vite. Vite sirve public/ sin procesarlo.</li>
@@ -45,8 +52,8 @@
 </ol>
 <p>Si prefieren una dirección corta (lottoge.net/r/&lt;rifa&gt;), el servidor puede responder con el index.html de la plantilla y agregar <code>&lt;base href="/fronts/minimalista/"&gt;</code> en el head para que las rutas relativas sigan funcionando. En ese caso los ids van en config.js, que el servidor genera por rifa.</p>
 
-<h3>Camino B: dentro de la aplicación React</h3>
-<p>Si la compra tiene que verse dentro de una pantalla de la aplicación, se monta la página del camino A en un iframe a pantalla completa. Así sus estilos y su JavaScript no chocan con los de la aplicación, y la página decide sola si va en vista móvil o de computadora.</p>
+<h3>Opción B: dentro de la aplicación React</h3>
+<p>Si la compra tiene que verse dentro de una pantalla de la aplicación, se monta la página de la opción A en un iframe a pantalla completa. Así sus estilos y su JavaScript no chocan con los de la aplicación, y la página decide sola si va en vista móvil o de computadora.</p>
 <pre>export default function FrontVenta({ plantilla = 'minimalista', companyId, raffleId }) {
   const src = '/fronts/' + plantilla + '/?empresa=' + encodeURIComponent(companyId) + '&amp;rifa=' + encodeURIComponent(raffleId);
   return &lt;iframe title="Compra de boletos" src={src} allow="clipboard-write"
@@ -54,14 +61,8 @@
 }</pre>
 <p>allow="clipboard-write" deja funcionar los botones "Copiar" de los datos de pago.</p>
 
-<h3>Camino C: reescribirla en componentes React</h3>
-<p>No lo recomendamos para la primera versión: es rehacer y volver a probar lo que ya funciona. Si se hace, estas son las condiciones para que quede igual:</p>
-<ul>
-<li>Importar los cinco CSS como estilos globales, en el orden de la sección 2.</li>
-<li>Copiar el HTML que genera venta.js con las mismas etiquetas, clases y atributos data-. Está en appHTML y en las funciones build*.</li>
-<li>Copiar la lógica de App.setupDesk (clases desk y mid) y el comportamiento de cada etapa: elegir, datos y pago.</li>
-<li>Comparar capturas contra el kit en 390 × 844 (teléfono) y 1440 × 900 (computadora), en cada plantilla, en modo claro y oscuro.</li>
-</ul>
+<h3>Lo que no se hace</h3>
+<p>La compra no se reescribe en componentes React ni se divide en pantallas o rutas. Sería rehacer lo que ya está probado, y el resultado dejaría de ser el mismo front. Si la plataforma necesita algo que el front no hace, se le pide a Sevenlot.</p>
 
 <h2>4. Datos de la rifa: de dónde sale cada campo</h2>
 <table>
@@ -198,7 +199,7 @@
 </ul>
 
 <h2>10. Cómo se actualiza el kit</h2>
-<p>El kit se genera desde el repositorio https://github.com/jeanfk10/SevenlotFront con <code>python3 build_kit.py</code>. Antes de escribir nada, comprueba que la parte común sea idéntica en las seis plantillas. Al final, revisa que todos los .js se puedan leer. Cuando Sevenlot entregue una versión nueva, se reemplazan las carpetas y se conservan solo los archivos propios de la plataforma: conexion.js y los config.js que genere el servidor.</p>
+<p>El kit lo mantiene Sevenlot. Cuando Sevenlot entregue una versión nueva, se reemplazan las carpetas y se conservan solo los archivos propios de la plataforma: conexion.js y los config.js que genere el servidor.</p>
 <p><i>Preparado por Sevenlot como parte del Kit de instalación LottoGE.</i></p>
 </body>
 </html>

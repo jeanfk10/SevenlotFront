@@ -9,6 +9,15 @@
 <p>Aquí están las páginas de compra: la que ve el comprador cuando entra al enlace de una rifa. Elige sus boletos, escribe sus datos y paga, todo en una sola página. Hay seis plantillas. Todas tienen el mismo flujo, la misma configuración y la misma conexión con la plataforma; solo cambia el diseño.</p>
 <p>Cada plantilla se ve en teléfono y en computadora. En un teléfono (Android, iPhone o cualquier otro) sale la vista móvil. En una computadora con la ventana de 900 px o más sale la de escritorio.</p>
 
+<h2>Cómo se implementa: requisitos</h2>
+<p>Estas condiciones son parte de la entrega. Sin ellas, el front no funciona como se diseñó.</p>
+<ol>
+<li><b>Una sola pantalla y una sola carga.</b> Toda la compra pasa dentro de la misma página: elegir los boletos, la cédula y los datos del comprador, el pago, el comprobante, la verificación y el resultado, además de "Mis boletos". La página se carga una vez y no cambia de dirección ni se recarga entre un paso y otro.</li>
+<li><b>Reemplaza el flujo actual de varias pantallas.</b> Las pantallas separadas de cédula, pago y checkout que tiene hoy la plataforma no se usan con estos fronts. La compra no se divide en rutas ni en pantallas, y no se reescribe en componentes.</li>
+<li><b>La plataforma se adapta al front.</b> El front se instala tal cual, como se explica en la Guía de implementación. El backend responde lo que pide conexion.js, con los datos y el formato de la guía. Si un endpoint no existe todavía, se crea con ese formato.</li>
+<li><b>Los cambios los hace Sevenlot.</b> Cualquier cambio de diseño o de flujo se le pide a Sevenlot, que entrega un kit actualizado. Los archivos del kit no se editan a mano: lo propio de la plataforma va en config.js y en conexion.js.</li>
+</ol>
+
 <h2>Qué hay en esta carpeta</h2>
 <table>
 <tr><td><b>Carpeta</b></td><td><b>Qué trae</b></td></tr>
@@ -30,7 +39,7 @@
 
 <h2>Probarlas en tu computadora</h2>
 <ol>
-<li>Descarga la carpeta <b>02 Fronts de venta</b> completa. Las plantillas necesitan la carpeta comun/ al lado.</li>
+<li>Descarga la carpeta <b>02 Fronts de venta</b> completa: en Google Drive, clic derecho en la carpeta y "Descargar". Drive la baja en un .zip; extráelo. Las plantillas necesitan la carpeta comun/ al lado.</li>
 <li>En una terminal, dentro de esa carpeta: <code>npx serve .</code> o <code>python3 -m http.server 8080</code>.</li>
 <li>Abre http://localhost:8080/Minimalista/ (o la plantilla que quieras). Para ver la vista móvil, abre la misma dirección desde un teléfono en tu red, o usa el modo de dispositivo del navegador.</li>
 <li>Todo funciona en modo demostración: los datos son de ejemplo, la búsqueda por cédula y el pago se simulan y nada se envía. Para probar la cédula usa cualquier número de 6 dígitos o más. Una referencia de Pago Móvil que termine en 0 simula un pago rechazado.</li>
@@ -85,6 +94,6 @@
 
 <h2>Siguiente paso</h2>
 <p>Para conectarlas a la plataforma y llevarlas a React + Vite sin que cambie el diseño, lee la <b>Guía de implementación - Fronts de venta</b>, en esta misma carpeta.</p>
-<p>Código fuente: https://github.com/jeanfk10/SevenlotFront, carpeta fronts/. El kit se genera con build_kit.py; no se editan sus archivos a mano.</p>
+<p>El kit lo mantiene Sevenlot. Los cambios de diseño o de flujo se le piden a Sevenlot, que entrega una versión nueva.</p>
 </body>
 </html>

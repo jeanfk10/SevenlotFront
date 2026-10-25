@@ -83,7 +83,7 @@ old_cfg = '  let CFG = JSON.parse(JSON.stringify(SAMPLE));'
 assert old_cfg in core
 core_kit = core.replace(old_cfg, '  let CFG = Object.assign(JSON.parse(JSON.stringify(SAMPLE)), window.LOTTOGE_RIFA || {});')
 
-HEAD = '/* LottoGE · fronts de venta · {qué}\n   Generado con build_kit.py desde fronts/<plantilla>/vista-previa/index.html (repositorio SevenlotFront). {nota} */\n'
+HEAD = '/* LottoGE · fronts de venta · {qué}\n   Lo mantiene Sevenlot; los cambios se le piden a Sevenlot. {nota} */\n'
 if OUT.exists():
     shutil.rmtree(OUT)
 
@@ -92,11 +92,11 @@ C = VENTA / 'comun'
 write(C / 'venta.css', HEAD.format(qué='estilos de la página de compra (teléfono)', nota='Común a todas las plantillas; cada una pone su tema.css después de este archivo.') + base_kit.strip('\n') + '\n')
 write(C / 'venta-computadora.css', HEAD.format(qué='vista de computadora', nota='Se aplica cuando la página tiene la clase "desk" (ver App.setupDesk en venta.js). Va después de tema.css.') + desk.strip('\n') + '\n')
 write(C / 'pagina.css', HEAD.format(qué='página completa', nota='Contenedor de la página a pantalla completa. Va al final.') + """
-/* La pantalla donde se dibuja la página (en la vista previa es la del iPhone o la Mac). */
+/* La pantalla donde se dibuja la página. */
 .screen { position: relative; overflow: hidden; background: var(--bg); color: var(--ink); isolation: isolate; font-size: 16px; line-height: 1.45; }
 """ + STANDALONE.strip('\n') + '\n')
 write(C / 'metodos-pago.js', pagos.strip('\n') + '\n')
-write(C / 'venta.js', HEAD.format(qué='la página de compra', nota='''No se edita a mano: se cambia la vista previa y se vuelve a generar.
+write(C / 'venta.js', HEAD.format(qué='la página de compra', nota='''No se edita a mano.
    Lee window.LOTTOGE_RIFA (config.js), window.LOTTOGE_PAGOS (metodos-pago.js), window.LOTTOGE_TEMA (tema.js)
    y, si existe, window.LOTTOGE_CONEXION (conexion.js, ver conexion.ejemplo.js). Las demostraciones están
    en "puntos de conexión con la plataforma".''') + core_kit + TAIL.lstrip('\n'))
@@ -140,7 +140,7 @@ for slug, nombre in PLANTILLAS:
 {css_links}
 </head>
 <body class="standalone">
-<!-- Plantilla {nombre}. Generado con build_kit.py; no editar a mano. -->
+<!-- Plantilla {nombre}. La mantiene Sevenlot; no editar a mano. -->
 <div class="shell"><div class="screen screen--full" id="app"></div></div>
 <script src="config.js"></script>
 <script src="../comun/metodos-pago.js"></script>

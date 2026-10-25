@@ -1,5 +1,5 @@
 /* LottoGE · fronts de venta · la página de compra
-   Generado con build_kit.py desde fronts/<plantilla>/vista-previa/index.html (repositorio SevenlotFront). No se edita a mano: se cambia la vista previa y se vuelve a generar.
+   Lo mantiene Sevenlot; los cambios se le piden a Sevenlot. No se edita a mano.
    Lee window.LOTTOGE_RIFA (config.js), window.LOTTOGE_PAGOS (metodos-pago.js), window.LOTTOGE_TEMA (tema.js)
    y, si existe, window.LOTTOGE_CONEXION (conexion.js, ver conexion.ejemplo.js). Las demostraciones están
    en "puntos de conexión con la plataforma". */

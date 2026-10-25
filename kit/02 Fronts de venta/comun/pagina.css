@@ -1,7 +1,7 @@
 /* LottoGE · fronts de venta · página completa
-   Generado con build_kit.py desde fronts/<plantilla>/vista-previa/index.html (repositorio SevenlotFront). Contenedor de la página a pantalla completa. Va al final. */
+   Lo mantiene Sevenlot; los cambios se le piden a Sevenlot. Contenedor de la página a pantalla completa. Va al final. */
 
-/* La pantalla donde se dibuja la página (en la vista previa es la del iPhone o la Mac). */
+/* La pantalla donde se dibuja la página. */
 .screen { position: relative; overflow: hidden; background: var(--bg); color: var(--ink); isolation: isolate; font-size: 16px; line-height: 1.45; }
 /* ---------- Página completa (sin marcos de iPhone ni de Mac) ----------
    La misma página se adapta sola: en un teléfono, la vista móvil; en una computadora (ventana de 900px
