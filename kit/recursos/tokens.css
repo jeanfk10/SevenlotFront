@@ -1,0 +1,42 @@
+/* LottoGE: colores, tipografía y radios de la página principal.
+   Copia este bloque en la hoja de estilos global y usa siempre las variables. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap');
+
+:root {
+  /* Fondos */
+  --bg: #ffffff;          /* fondo de página */
+  --soft: #f6f5f2;        /* tarjetas y campos */
+  --soft-2: #ecebe6;      /* hover de lo suave */
+  --line: #e4e2dc;        /* bordes suaves */
+
+  /* Texto */
+  --ink: #1d2340;         /* texto principal y botones oscuros */
+  --muted: #5b6078;       /* texto secundario */
+
+  /* Marca */
+  --coral: #ff5a36;       /* color principal: botones, acentos */
+  --coral-press: #e8461f; /* coral al presionar o para texto sobre blanco */
+  --coral-soft: #ffe7e0;
+  --sun: #ffc23c;         /* amarillo: insignias, detalles */
+  --sun-soft: #fff3d6;
+  --teal: #12a594;        /* verde: éxito, pagado */
+  --teal-ink: #0b6b60;
+  --teal-soft: #dcf5f1;
+  --sky: #4f7cff;         /* azul: foco, enlaces de ayuda */
+  --sky-ink: #2546a8;
+  --sky-soft: #e5ecff;
+  --danger: #c4321a;      /* errores de formulario */
+
+  /* Tipografía */
+  --font: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
+  /* Pesos: 400 texto, 500 enlaces, 700 botones y subtítulos, 800 títulos */
+
+  /* Formas */
+  --radius: 22px;         /* tarjetas */
+  --radius-lg: 28px;      /* formularios y paneles */
+  /* Botones: radio 999px (píldora), alto mínimo 52px (44px el pequeño) */
+
+  /* Movimiento */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --pop: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
