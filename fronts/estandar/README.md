@@ -24,7 +24,7 @@ Detrás de las fotos del premio se mueve una mancha amarilla, como la de la maqu
 - compra en el mismo recuadro (boletos, datos y pago);
 - modo al azar o manual con tablero de números;
 - autocompletado por cédula;
-- 4 métodos de pago con copiar todos los datos;
+- los métodos de pago del rifero, sin límite y con su icono, con copiar todos los datos;
 - resultados aprobado, reservado y rechazado;
 - entrega solo por correo;
 - "Mis boletos", carrusel de fotos y modo claro y oscuro (el oscuro, en azul marino profundo).
@@ -52,7 +52,7 @@ estandar/
 3. **Publicar:** `front/` es una carpeta estática y se sube tal cual.
 4. **Cambiar el diseño:** edita `vista-previa/index.html` y ejecuta `python3 build_front.py`.
    - La capa de diseño de esta plantilla está antes de las reglas de computadora ("Computer") del `<style>`, y sus ajustes para computadora, al final.
-   - Las etiquetas "Autorizada por CONALOT" y "Tus números llegan por correo" se agregan en la función `themeFx` del `<script>`.
+   - Las etiquetas "Autorizada por CONALOT" y "Tus números llegan por correo" se agregan en la función `fx` del bloque `<script data-part="tema">`.
 
 Las animaciones respetan `prefers-reduced-motion`. En la vista previa, las animaciones en bucle se pausan cuando la pantalla no está a la vista.
 

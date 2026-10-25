@@ -14,7 +14,7 @@ En el resultado aprobado, el boleto se monta sobre una franja oscura. Los tonos 
 - compra en el mismo recuadro (boletos, datos y pago);
 - modo al azar o manual con tablero de números;
 - autocompletado por cédula;
-- 4 métodos de pago con copiar todos los datos;
+- los métodos de pago del rifero, sin límite y con su icono, con copiar todos los datos;
 - resultados aprobado, reservado y rechazado;
 - entrega solo por correo;
 - "Mis boletos", carrusel de fotos y modo claro y oscuro.
@@ -45,7 +45,7 @@ experimental/
 3. **Publicar:** `front/` es una carpeta estática y se sube tal cual.
 4. **Cambiar el diseño:** edita `vista-previa/index.html` y ejecuta `python3 build_front.py`.
    - La capa de diseño de esta plantilla está al final del `<style>`.
-   - La reorganización está en la función `themeFx` del `<script>`. Mueve las mismas secciones de la minimalista a la hoja y sus pestañas, y agrega las barras de la historia. `scrollToSec` abre la pestaña de la sección antes de bajar hasta ella.
+   - La reorganización está en la función `fx` del bloque `<script data-part="tema">`. Mueve las mismas secciones de la minimalista a la hoja y sus pestañas, y agrega las barras de la historia. `scrollToSec` abre la pestaña de la sección antes de bajar hasta ella.
 
 Las animaciones respetan `prefers-reduced-motion`: con esa preferencia, las fotos no avanzan solas. En la vista previa, las animaciones en bucle se pausan cuando la pantalla no está a la vista.
 

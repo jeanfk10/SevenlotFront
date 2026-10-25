@@ -1,0 +1,18 @@
+/* LottoGE · plantilla Vibrante · ajustes para computadora, encima de comun/venta-computadora.css */
+/* ---- Vibrante on a computer: the rifero's colour becomes one wide field behind the photos, price, countdown and sales ---- */
+.desk .page::before { content: ""; grid-column: full; grid-row: 1 / 4; align-self: stretch; margin-bottom: -56px; z-index: -1; background: var(--accent); border-radius: 0 0 56px 56px; }
+.desk .hero__img { margin-top: 36px; }
+.desk .hero__body { padding-top: 40px; }
+.desk .hero__title { font-size: 84px; }
+.desk .price__bs { font-size: 68px; }
+.desk .clock, .desk .sold { color: var(--accent-ink); }
+.desk .clock p, .desk .sold__n { color: inherit; opacity: .85; }
+.desk .bar { background: color-mix(in srgb, var(--accent-ink) 22%, transparent); }
+.desk .sold__left b { color: inherit; text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.desk .prizes { padding-top: 104px; }
+.desk .buy { margin-top: 104px; }
+.desk .p1 b { font-size: 52px; }
+.desk .board { border-radius: 30px; }
+.desk .afoot { border-radius: 56px 56px 0 0; }
+.desk .ok-head h1 { font-size: 132px; }
+.desk .st-head h1 { font-size: 80px; }

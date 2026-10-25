@@ -1,0 +1,13 @@
+/* LottoGE · plantilla Neón · ajustes para computadora, encima de comun/venta-computadora.css */
+/* ---- Neón on a computer: the rays turn behind the photos, both ribbons cross the whole width ---- */
+.desk .page { overflow: clip; }
+.desk .hero::before { left: calc(var(--side) + 330px); top: 320px; width: 1300px; height: 1300px; margin: -650px 0 0 -650px; }
+.desk .hero__title { font-size: 42px; }
+.desk .price__bs { font-size: 50px; }
+.desk .fx-ribbon { grid-column: full; grid-row: 4; margin: 76px -40px 0; }
+.desk .fx-ribbon--b { grid-row: 5; margin: -4px -40px 0; }
+.desk .fx-aurora i { width: 820px; height: 820px; }
+.desk .board { border-radius: 28px; }
+.desk .afoot { border-radius: 40px 40px 0 0; }
+.desk .ok-head h1 { font-size: 92px; }
+.desk .st-head h1 { font-size: 46px; }

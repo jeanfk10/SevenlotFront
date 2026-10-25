@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es-VE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Iconos de pago LottoGE</title>
+<meta name="description" content="Los iconos de métodos de pago de los fronts de venta de LottoGE, en sus cuatro estilos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: a header with the rules, then one card per icon with its four styles and its data. LottoGE brand. */
+:root {
+  --bg: #ffffff; --soft: #f6f5f2; --line: #e4e2dc; --ink: #1d2340; --muted: #5b6078; --coral: #ff5a36;
+  --font: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif; color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #11152a; --soft: #1a1f3a; --line: #2e3558; --ink: #f3f2ee; --muted: #a8adc4; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #11152a; --soft: #1a1f3a; --line: #2e3558; --ink: #f3f2ee; --muted: #a8adc4; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { margin: 0; font-size: clamp(2rem, 1.3rem + 2.6vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; text-wrap: balance; }
+h1 b { color: var(--coral); }
+.lede { margin: 14px 0 0; max-width: 62ch; color: var(--muted); font-size: 1.0625rem; }
+.rules { margin: 28px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.rules li { background: var(--soft); border-radius: 18px; padding: 16px 18px; font-size: .9375rem; }
+.rules b { display: block; margin-bottom: 2px; }
+code { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: .875em; background: var(--soft); padding: 1px 6px; border-radius: 6px; }
+.rules code { background: var(--bg); }
+h2 { margin: 56px 0 18px; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.ic { border-radius: 22px; box-shadow: inset 0 0 0 2px var(--line); padding: 18px; display: grid; gap: 14px; }
+.ic__row { display: flex; align-items: center; gap: 12px; }
+.ic__row svg { display: block; flex: none; }
+.ic__glyph { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--soft); }
+.ic h3 { margin: 0; font-size: 1.0625rem; font-weight: 700; }
+.ic dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; font-size: .875rem; }
+.ic dt { color: var(--muted); }
+.ic dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: -1px; margin-right: 6px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+.demo { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); max-width: 900px; }
+.method { border-radius: 18px; background: var(--soft); padding: 14px 12px; display: grid; gap: 4px; }
+.method i { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; margin-bottom: 6px; }
+.method i svg { width: 22px; height: 22px; }
+.method b { font-size: 1rem; }
+.method span { font-size: .8125rem; color: var(--muted); }
+.foot { margin-top: 56px; color: var(--muted); font-size: .9375rem; max-width: 70ch; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Iconos de pago <b>LottoGE</b></h1>
+  <p class="lede">Los iconos de los métodos de pago de los fronts de venta, en sus cuatro estilos. Son dibujos propios en un solo color, no logos oficiales. Cada uno trae un color aproximado al de su marca, que se puede cambiar por método.</p>
+  <ul class="rules">
+    <li><b>En la base de datos</b>Guarda en cada método de pago la clave del icono, por ejemplo <code>pago-movil</code>, en un campo <code>icon</code>.</li>
+    <li><b>Un icono, muchos métodos</b>Cinco Pago Móvil de bancos distintos usan el mismo <code>pago-movil</code>, cada uno con su <code>color</code>.</li>
+    <li><b>Sin icono</b>Si un método no lo trae, la página lo adivina por el nombre (Zelle, Binance, Nequi…). Si no lo reconoce, usa <code>billetera</code>.</li>
+    <li><b>Archivos</b><code>metodos-pago.json</code> trae cada icono en SVG y sus datos; <code>iconos-pago.svg</code> es la hoja de símbolos.</li>
+  </ul>
+
+  <h2>Así se ven en la página de compra</h2>
+  <div class="demo" data-demo></div>
+
+  <h2>Los iconos</h2>
+  <div class="grid" data-grid></div>
+
+  <p class="foot">Estilos: dibujo solo (<code>glyph</code>), ficha cuadrada (<code>tile</code>, la que usa la página), círculo (<code>circle</code>) y contorno (<code>outline</code>). En código: <code>LOTTOGE_PAGOS.svg('zelle', 'tile', 48)</code>.</p>
+</main>
+<script>
+/*__CATALOGO__*/
+</script>
+<script>
+(() => {
+  const P = window.LOTTOGE_PAGOS;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  document.querySelector('[data-grid]').innerHTML = Object.entries(P.ICONS).map(([k, ic]) => {
+    const d = P.DEFAULTS[k], cur = P.CURRENCIES[d.currency];
+    return `<article class="ic">
+      <div class="ic__row"><span class="ic__glyph" style="color:${ic.color}">${P.svg(k, 'glyph', 26)}</span>${P.svg(k, 'tile', 48)}${P.svg(k, 'circle', 48)}${P.svg(k, 'outline', 48)}</div>
+      <h3>${esc(ic.name)}</h3>
+      <dl><dt>Clave</dt><dd><code>${k}</code></dd><dt>Color</dt><dd><span class="sw" style="background:${ic.color}"></span>${ic.color}</dd>
+      <dt>Moneda</dt><dd>${esc(cur.name)} (${d.currency})</dd><dt>Pide</dt><dd>${esc(d.ref.label)}</dd></dl>
+    </article>`;
+  }).join('');
+  const demo = [
+    { icon: 'pago-movil', name: 'Pago Móvil Banesco', note: 'Se verifica solo con el banco', color: '#0f9d58' },
+    { icon: 'pago-movil', name: 'Pago Móvil Venezuela', note: 'Con comprobante', color: '#c8102e' },
+    { icon: 'pago-movil', name: 'Pago Móvil Mercantil', note: 'Con comprobante', color: '#0a4ea2' },
+    { icon: 'transferencia', name: 'Transferencia BNC', note: 'Bolívares' },
+    { icon: 'binance', name: 'Binance Pay', note: 'USDT' }, { icon: 'zelle', name: 'Zelle', note: 'Dólares desde EE. UU.' },
+    { icon: 'nequi', name: 'Nequi', note: 'Pesos desde Colombia' }, { icon: 'yape', name: 'Yape', note: 'Soles desde Perú' }
+  ].map((m, i) => P.normalize(m, i));
+  document.querySelector('[data-demo]').innerHTML = demo.map(m =>
+    `<div class="method"><i style="background:${m.color};color:${m.ink}">${P.svg(m.icon, 'glyph', 22)}</i><b>${esc(m.name)}</b><span>${esc(m.note)}</span></div>`).join('');
+})();
+</script>
+</body>
+</html>

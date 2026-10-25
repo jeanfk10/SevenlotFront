@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-VE">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -58,6 +58,7 @@ button:disabled { cursor: default; }
 .top { padding-block: 28px 64px; display: grid; gap: 26px; }
 .top__bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .lgmark { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-stretch: 150%; font-size: 21px; }
+.lgmark b { font-weight: inherit; }
 .lgmark i { width: 26px; height: 26px; background: currentColor; display: block; clip-path: polygon(0 0, 100% 0, 100% 62%, 62% 100%, 0 100%); }
 .themebtn { border: 0; background: var(--surface); padding: 10px 16px; font-size: 15px; font-weight: 500; display: inline-flex; gap: 10px; align-items: center; transition: background .2s, transform .15s; }
 .themebtn:hover { background: var(--surface-2); }
@@ -351,6 +352,12 @@ legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
 .copyall.is-done { background: var(--good); color: var(--good-ink); }
 .paybox__brand { display: flex; align-items: center; gap: 8px; padding: 8px 0 4px; font-size: 14px; font-weight: 700; }
 .paybox__brand i { width: 12px; height: 12px; background: var(--mc); }
+.paybox__how { margin: 0 0 6px; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.methods__group { grid-column: 1 / -1; margin: 12px 0 2px; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.methods__group:first-child { margin-top: 0; }
+.method small { font-size: 12px; font-weight: 700; color: var(--muted); }
+.method:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.method:disabled small { color: var(--danger); }
 
 /* Reserved (manual review) and rejected (instant payment not found) */
 .st-head { padding: 22px 20px 26px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
@@ -878,8 +885,249 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
 <div class="shell"><div class="screen screen--full" id="app"></div></div>
 <script src="config.js"></script>
 <script>
+/* ================= Métodos de pago de LottoGE =================
+   Catálogo común a todas las plantillas de venta: iconos, valores por defecto de cada tipo de pago,
+   monedas y bancos de Venezuela.
+
+   - La página toma los métodos de config.js (paymentMethods). En la plataforma vienen del API
+     (GET /api/v1/payment-methods/active?companyId=…): LOTTOGE_PAGOS.fromApi() convierte cada uno.
+   - Cada método solo necesita id, name e icon, más los datos de su cuenta (accountInfo).
+     Lo demás (color, qué se le pide al comprador, moneda) sale del icono si no se indica.
+   - Un mismo icono sirve para varios métodos: por ejemplo, cinco Pago Móvil de bancos distintos,
+     cada uno con su color.
+   - Sin límite de métodos. Con más de 4, la página los agrupa por moneda. */
+window.LOTTOGE_PAGOS = (() => {
+  const S = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+  const F = 'fill="currentColor"';
+
+  /* Iconos de 24 × 24 en un solo color (currentColor). Son dibujos propios, no logos oficiales:
+     si LottoGE consigue el permiso de una marca, puede cambiar el dibujo aquí sin tocar nada más.
+     color e ink: fondo y dibujo de la ficha cuadrada que se ve en la página (aproximados a cada marca). */
+  const ICONS = {
+    'pago-movil': { name: 'Pago Móvil', color: '#0f9d58', ink: '#ffffff', kind: 'banco-ve',
+      glyph: `<rect x="6" y="2" width="12" height="20" rx="2.5" ${S}/><path d="M10.5 18.5h3" ${S}/><path d="m9.2 10.4 2 2 3.8-4.2" ${S}/>` },
+    'comprobante': { name: 'Pago con comprobante', color: '#1d5fbf', ink: '#ffffff', kind: 'banco-ve',
+      glyph: `<path d="M6 2.5h8.5L19 7v14.5H6z" ${S}/><path d="M14 2.5V7h4.5M9.5 12h6M9.5 16h6" ${S}/>` },
+    'transferencia': { name: 'Transferencia bancaria', color: '#24408e', ink: '#ffffff', kind: 'banco-ve',
+      glyph: `<path d="M3.5 9.5 12 4.5l8.5 5" ${S}/><path d="M5.5 10.5v7M9.8 10.5v7M14.2 10.5v7M18.5 10.5v7M3.5 20.5h17" ${S}/>` },
+    'transferencia-inmediata': { name: 'Transferencia inmediata', color: '#0b7a75', ink: '#ffffff', kind: 'banco-ve',
+      glyph: `<path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5" ${S}/>` },
+    'tarjeta': { name: 'Tarjeta de débito o crédito', color: '#334155', ink: '#ffffff', kind: 'pasarela',
+      glyph: `<rect x="3" y="5" width="18" height="14" rx="2.5" ${S}/><path d="M3 10h18M7 15h4" ${S}/>` },
+    'qr': { name: 'Pago con QR', color: '#111827', ink: '#ffffff', kind: 'pasarela',
+      glyph: `<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" ${S}/><path d="M14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5zM14 18h2.5v2H14zM18 14h2v2.5h-2z" ${F}/>` },
+    'zelle': { name: 'Zelle', color: '#6d1ed4', ink: '#ffffff', kind: 'usd',
+      glyph: `<path d="M6 5h12v2.9L9.9 16.4H18V19H6v-2.9l8.1-8.5H6z" ${F}/><path d="M11 2h2v3h-2zM11 19h2v3h-2z" ${F}/>` },
+    'binance': { name: 'Binance Pay', color: '#f0b90b', ink: '#1e2026', kind: 'cripto',
+      glyph: `<path d="m12 2.6 3.4 3.4L12 9.4 8.6 6zM6 8.6 9.4 12 6 15.4 2.6 12zm12 0 3.4 3.4-3.4 3.4-3.4-3.4zm-6 6 3.4 3.4-3.4 3.4-3.4-3.4z" ${F}/>` },
+    'usdt': { name: 'USDT', color: '#26a17b', ink: '#ffffff', kind: 'cripto',
+      glyph: `<circle cx="12" cy="12" r="9" ${S}/><path d="M8 8h8M12 8v9" ${S}/><path d="M8.3 11.6c1 .6 2.3.9 3.7.9s2.7-.3 3.7-.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>` },
+    'cripto': { name: 'Criptomonedas', color: '#f7931a', ink: '#1a1206', kind: 'cripto',
+      glyph: `<path d="M12 2.5 20.2 7v10L12 21.5 3.8 17V7z" ${S}/><path d="M12 7.6 15.8 9.8v4.4L12 16.4l-3.8-2.2V9.8z" ${F}/>` },
+    'paypal': { name: 'PayPal', color: '#003087', ink: '#ffffff', kind: 'usd',
+      glyph: `<path fill-rule="evenodd" d="M7 3h6.2a5 5 0 0 1 0 10h-2.7v8H7zm3.5 3.2v3.6h2.6a1.8 1.8 0 0 0 0-3.6z" ${F}/>` },
+    'zinli': { name: 'Zinli', color: '#7b3fe4', ink: '#ffffff', kind: 'usd',
+      glyph: `<rect x="3" y="5" width="18" height="14" rx="3" ${S}/><path d="M8.5 9h7l-7 6h7" ${S}/>` },
+    'wally': { name: 'Wally', color: '#00a19a', ink: '#ffffff', kind: 'usd',
+      glyph: `<path d="M3.5 6h2.6l2.1 8.2L10.6 6h2.8l2.4 8.2L17.9 6h2.6L17 18h-2.6L12 10l-2.4 8H7z" ${F}/>` },
+    'airtm': { name: 'AirTM', color: '#1f6feb', ink: '#ffffff', kind: 'usd',
+      glyph: `<path fill-rule="evenodd" d="M12 4 20 20h-3.3l-1.6-3.4H8.9L7.3 20H4zm0 6.2-2 4.2h4z" ${F}/>` },
+    'billetera': { name: 'Billetera digital', color: '#475569', ink: '#ffffff', kind: 'usd',
+      glyph: `<path d="M4.5 8V7A2.5 2.5 0 0 1 7 4.5h10.5V8" ${S}/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5" ${S}/><circle cx="16" cy="13.75" r="1.5" ${F}/>` },
+    'nequi': { name: 'Nequi', color: '#da0081', ink: '#ffffff', kind: 'exterior',
+      glyph: `<path d="M6 19V5h2.6l6.8 9.2V5H18v14h-2.6L8.6 9.8V19z" ${F}/>` },
+    'daviplata': { name: 'DaviPlata', color: '#e1251b', ink: '#ffffff', kind: 'exterior',
+      glyph: `<path fill-rule="evenodd" d="M6 4h5.5a8 8 0 0 1 0 16H6zm3 3v10h2.5a5 5 0 0 0 0-10z" ${F}/>` },
+    'yape': { name: 'Yape', color: '#742284', ink: '#ffffff', kind: 'exterior',
+      glyph: `<path d="M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z" ${F}/>` }
+  };
+
+  /* Qué se le pide al comprador según el tipo de icono. Un método puede cambiar cualquiera de estos datos. */
+  const REF = {
+    banco: { label: 'Número de referencia', placeholder: 'Últimos 6 dígitos', error: 'la referencia', numeric: true },
+    zelle: { label: 'Código de confirmación', placeholder: 'Ej. ZL7Q2K', error: 'el código de confirmación', numeric: false },
+    binance: { label: 'ID de la orden en Binance', placeholder: 'Ej. 2849104772', error: 'el ID de la orden', numeric: true },
+    hash: { label: 'Hash de la transacción (TxID)', placeholder: 'Pega aquí el TxID', error: 'el hash de la transacción', numeric: false },
+    paypal: { label: 'ID de la transacción', placeholder: 'Ej. 7XK21934LM881', error: 'el ID de la transacción', numeric: false },
+    operacion: { label: 'Número de operación', placeholder: 'Ej. 48211904', error: 'el número de operación', numeric: false },
+    comprobante: { label: 'Número de comprobante', placeholder: 'Ej. M1234567', error: 'el número de comprobante', numeric: false },
+    autorizacion: { label: 'Número de autorización', placeholder: 'Ej. 004821', error: 'el número de autorización', numeric: true }
+  };
+  const DEFAULTS = {
+    'pago-movil': { currency: 'VES', ref: REF.banco }, 'comprobante': { currency: 'VES', ref: REF.banco },
+    'transferencia': { currency: 'VES', ref: REF.banco }, 'transferencia-inmediata': { currency: 'VES', ref: REF.banco },
+    'tarjeta': { currency: 'VES', ref: REF.autorizacion }, 'qr': { currency: 'VES', ref: REF.autorizacion },
+    'zelle': { currency: 'USD', ref: REF.zelle }, 'binance': { currency: 'USDT', ref: REF.binance },
+    'usdt': { currency: 'USDT', ref: REF.hash }, 'cripto': { currency: 'USDT', ref: REF.hash },
+    'paypal': { currency: 'USD', ref: REF.paypal }, 'zinli': { currency: 'USD', ref: REF.operacion },
+    'wally': { currency: 'USD', ref: REF.operacion }, 'airtm': { currency: 'USD', ref: REF.operacion },
+    'billetera': { currency: 'USD', ref: REF.operacion }, 'nequi': { currency: 'COP', ref: REF.comprobante },
+    'daviplata': { currency: 'COP', ref: REF.comprobante }, 'yape': { currency: 'PEN', ref: REF.operacion }
+  };
+
+  /* Monedas. El monto en Bs es la base; los demás salen de la tasa BCV (Bs por $) y, fuera del dólar,
+     de config.js → fx (unidades de esa moneda por 1 $). group: cómo se agrupan los métodos en la página. */
+  const CURRENCIES = {
+    VES: { name: 'Bolívares', prefix: 'Bs ', suffix: '', decimals: 2, group: 'bs' },
+    USD: { name: 'Dólares', prefix: '$', suffix: '', decimals: 2, group: 'usd' },
+    USDT: { name: 'Tether (USDT)', prefix: '', suffix: ' USDT', decimals: 2, group: 'usd' },
+    EUR: { name: 'Euros', prefix: '€', suffix: '', decimals: 2, group: 'usd' },
+    COP: { name: 'Pesos colombianos', prefix: 'COP ', suffix: '', decimals: 0, group: 'ext' },
+    PEN: { name: 'Soles', prefix: 'S/ ', suffix: '', decimals: 2, group: 'ext' },
+    CLP: { name: 'Pesos chilenos', prefix: 'CLP ', suffix: '', decimals: 0, group: 'ext' },
+    BRL: { name: 'Reales', prefix: 'R$ ', suffix: '', decimals: 2, group: 'ext' },
+    MXN: { name: 'Pesos mexicanos', prefix: 'MX$ ', suffix: '', decimals: 2, group: 'ext' },
+    ARS: { name: 'Pesos argentinos', prefix: 'ARS ', suffix: '', decimals: 0, group: 'ext' }
+  };
+  const GROUPS = [['bs', 'En bolívares'], ['usd', 'En dólares y cripto'], ['ext', 'Desde otros países']];
+
+  /* Bancos de Venezuela con su código, para "Tu banco" en Pago Móvil y transferencias. */
+  const BANCOS_VE = [
+    ['0102', 'Banco de Venezuela'], ['0104', 'Venezolano de Crédito'], ['0105', 'Mercantil'], ['0108', 'BBVA Provincial'],
+    ['0114', 'Bancaribe'], ['0115', 'Banco Exterior'], ['0128', 'Banco Caroní'], ['0134', 'Banesco'], ['0137', 'Sofitasa'],
+    ['0138', 'Banco Plaza'], ['0146', 'Bangente'], ['0151', 'BFC Banco Fondo Común'], ['0156', '100% Banco'], ['0157', 'DelSur'],
+    ['0163', 'Banco del Tesoro'], ['0166', 'Banco Agrícola de Venezuela'], ['0168', 'Bancrecer'], ['0169', 'R4 Banco Microfinanciero'],
+    ['0171', 'Banco Activo'], ['0172', 'Bancamiga'], ['0174', 'Banplus'], ['0175', 'Banco Bicentenario'], ['0177', 'Banfanb'],
+    ['0178', 'N58 Banco Digital'], ['0191', 'BNC Nacional de Crédito']
+  ].map(([code, name]) => ({ code, name }));
+
+  /* Si un método no trae icono, se adivina por su nombre. */
+  const GUESS = [
+    [/pago\s*m[oó]vil/i, 'pago-movil'], [/zelle/i, 'zelle'], [/binance/i, 'binance'], [/usdt|tether/i, 'usdt'],
+    [/bitcoin|btc|cripto|eth/i, 'cripto'], [/paypal/i, 'paypal'], [/zinli/i, 'zinli'], [/wally/i, 'wally'], [/airtm/i, 'airtm'],
+    [/nequi/i, 'nequi'], [/davi\s*plata/i, 'daviplata'], [/yape/i, 'yape'], [/transfer/i, 'transferencia'],
+    [/tarjeta|d[eé]bito|cr[eé]dito|punto/i, 'tarjeta'], [/\bqr\b/i, 'qr']
+  ];
+  const guessIcon = name => (GUESS.find(([re]) => re.test(name || '')) || [, 'billetera'])[1];
+
+  /* accountInfo puede venir como lista [['Banco', 'Banesco'], …], como lista de { label, value },
+     como objeto { Banco: 'Banesco', … } o como texto con una línea "Etiqueta: valor" por dato. */
+  const rowsOf = info => {
+    if (!info) return [];
+    if (Array.isArray(info)) return info.map(r => Array.isArray(r) ? [String(r[0]), String(r[1])] : [String(r.label ?? r.key ?? 'Dato'), String(r.value ?? '')]);
+    if (typeof info === 'object') return Object.entries(info).map(([k, v]) => [k, String(v)]);
+    return String(info).split(/\n+/).map(l => l.trim()).filter(Boolean).map(l => { const i = l.indexOf(':'); return i > 0 ? [l.slice(0, i).trim(), l.slice(i + 1).trim()] : ['Dato', l]; });
+  };
+
+  /* Completa un método con los valores de su icono. Es lo que usa la página para todo. */
+  function normalize(raw, i = 0) {
+    const icon = ICONS[raw.icon] ? raw.icon : guessIcon(raw.name);
+    const base = ICONS[icon], def = DEFAULTS[icon];
+    const isOnline = !!raw.isOnline, bankVE = base.kind === 'banco-ve';
+    const cur = String(raw.currency || def.currency).toUpperCase();
+    return {
+      id: String(raw.id ?? `metodo-${i + 1}`),
+      icon, name: raw.name || base.name,
+      note: raw.note ?? (isOnline ? 'Se verifica solo con el banco' : ''),
+      badge: raw.badge ?? (isOnline ? 'Al instante' : ''),
+      color: raw.color || base.color, ink: raw.colorInk || raw.ink || base.ink,
+      currency: CURRENCIES[cur] ? cur : 'USD',
+      isOnline, requireReceipt: raw.requireReceipt ?? !isOnline,
+      minTickets: Math.max(1, parseInt(raw.minTickets, 10) || 1),
+      commissionRate: Math.max(0, +raw.commissionRate || 0),
+      accountInfo: rowsOf(raw.accountInfo),
+      instructions: raw.instructions || '',
+      askPayer: raw.askPayer ?? (isOnline && bankVE),
+      askBank: raw.askBank ?? bankVE,
+      ref: Object.assign({}, def.ref, raw.ref)
+    };
+  }
+
+  /* Un método tal como lo devuelve el API real de LottoGE (payment-methods/active):
+     { id, name, accountInfo, requireReceipt, isOnline, minTickets, currencyId, commissionRate, countryFlag, instructions }.
+     icon y color son opcionales: conviene guardarlos en la base de datos junto a cada método.
+     currencyId: si el API usa ids propios en vez de códigos (VES, USD…), se traducen en CURRENCY_IDS. */
+  const CURRENCY_IDS = {};
+  function fromApi(a, i) {
+    const cur = a.currency || CURRENCY_IDS[a.currencyId] || (typeof a.currencyId === 'string' && /^[A-Za-z]{3,4}$/.test(a.currencyId) ? a.currencyId : undefined);
+    return normalize({
+      id: a.id, name: a.name, icon: a.icon, color: a.color, colorInk: a.colorInk, note: a.note, badge: a.badge,
+      isOnline: a.isOnline, requireReceipt: a.requireReceipt, minTickets: a.minTickets, commissionRate: a.commissionRate,
+      currency: cur, accountInfo: a.accountInfo, instructions: a.instructions
+    }, i);
+  }
+
+  /* El icono como SVG. style: 'glyph' (solo el dibujo), 'tile' (ficha cuadrada con su color),
+     'circle' (círculo con su color) u 'outline' (borde y dibujo en su color, fondo transparente). */
+  function svg(key, style = 'glyph', size = 24, color, ink) {
+    const ic = ICONS[key] || ICONS.billetera, c = color || ic.color, k = ink || ic.ink;
+    if (style === 'glyph') return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true">${ic.glyph}</svg>`;
+    const bg = style === 'circle' ? `<circle cx="24" cy="24" r="24" fill="${c}"/>`
+      : style === 'outline' ? `<rect x="1.5" y="1.5" width="45" height="45" rx="12.5" fill="none" stroke="${c}" stroke-width="3"/>`
+      : `<rect width="48" height="48" rx="14" fill="${c}"/>`;
+    return `<svg viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true">${bg}<g transform="translate(12 12)" color="${style === 'outline' ? c : k}">${ic.glyph}</g></svg>`;
+  }
+
+  const groupOf = code => (CURRENCIES[code] || CURRENCIES.USD).group;
+  return { ICONS, DEFAULTS, REF, CURRENCIES, GROUPS, BANCOS_VE, CURRENCY_IDS, normalize, fromApi, guessIcon, rowsOf, svg, groupOf };
+})();
+</script>
+<script>
+/* Plantilla Experimental: reordena la página común (historia de fotos, hoja con pestañas).
+   venta.js llama a fx(app, ayudas) cada vez que monta la página, después de dibujarla.
+   accent: color del rifero que usa la plantilla si config.js no trae uno. */
+window.LOTTOGE_TEMA = {
+  fx(app, { CFG, D, num, esc, reduce }) {
+    const el = app.el, $ = q => el.querySelector(q), $$ = q => [...el.querySelectorAll(q)];
+    el.classList.add('xp', 'own-layout'); // lays the page out itself, on phones and on computers
+    const hero = $('.hero'), slides = $$('.slide'), n = slides.length;
+
+    // story bars and tap zones over the photos
+    hero.insertAdjacentHTML('afterbegin', `<div class="xp-segs" aria-hidden="true">${'<i><b></b></i>'.repeat(n)}</div>`
+      + (n > 1 ? '<button class="xp-tap xp-tap--prev" type="button" data-action="g-prev" aria-label="Foto anterior"></button><button class="xp-tap xp-tap--next" type="button" data-action="g-next" aria-label="Foto siguiente"></button>' : ''));
+    const segs = $$('.xp-segs i');
+    const paintSegs = () => segs.forEach((s, i) => {
+      s.className = i < app.slide ? 'done' : '';
+      if (i === app.slide) { s.classList.remove('now'); void s.offsetWidth; s.classList.add('now'); }
+    });
+    const paintGallery = app.paintGallery.bind(app);
+    app.paintGallery = () => { paintGallery(); paintSegs(); };
+    paintSegs();
+    // stories advance on their own (not when the visitor prefers less motion)
+    if (n > 1 && !reduce) segs.forEach((s, i) => s.firstChild.addEventListener('animationend', () => { if (i === app.slide) app.goSlide((app.slide + 1) % n); }));
+
+    // the sheet: live ticker, swipeable figures, sticky tabs and three panels
+    const tabs = [['buy', 'Comprar'], ['prizes', 'Premios'], ['info', 'Info']];
+    hero.insertAdjacentHTML('afterend', `<div class="xp-sheet"><span class="xp-grab" aria-hidden="true"></span><div class="xp-stats" data-sec="stats" aria-label="Cifras de la rifa"></div>
+      <div class="xp-tabs" role="tablist" aria-label="Secciones">${tabs.map(([k, t], i) => `<button type="button" role="tab" data-xp-tab="${k}" aria-selected="${i === 0}">${t}</button>`).join('')}</div>
+      ${tabs.map(([k], i) => `<div data-xp-panel="${k}" role="tabpanel"${i ? ' hidden' : ''}></div>`).join('')}</div>`);
+    const sheet = $('.xp-sheet');
+    sheet.insertBefore($('.ticker'), $('.xp-stats'));
+    $('.xp-stats').append($('.sold'), $('.clock'));
+    $('[data-xp-panel="buy"]').append($('[data-sec="buy"]'));
+    const prizes = $('.prizes'); prizes.dataset.sec = 'prizes';
+    prizes.classList.add('is-seen'); // the steps slide out each time the tab opens
+    $('[data-xp-panel="prizes"]').append(prizes, $('.rank'));
+    const org = $('.orgcard'); org.dataset.sec = 'org';
+    const acc = $$('.acc-sec'); if (acc[0]) acc[0].dataset.sec = 'how';
+    $('[data-xp-panel="info"]').append(org, ...acc);
+    // sections live in tabs: open the right tab first, and stop below the sticky tabs
+    app.secOffset = () => app.desk ? 150 : 74;
+    app.openSection = t => { const panel = t.closest('[data-xp-panel]'); if (panel && panel.hidden) app.xpTab(panel.dataset.xpPanel); };
+    app.xpTab = name => {
+      $$('[data-xp-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.xpTab === name));
+      $$('[data-xp-panel]').forEach(p => { p.hidden = p.dataset.xpPanel !== name; });
+    };
+    sheet.addEventListener('click', e => {
+      const b = e.target.closest('[data-xp-tab]');
+      if (!b) return;
+      app.xpTab(b.dataset.xpTab);
+      const tabsBar = $('.xp-tabs'), y = sheet.offsetTop + tabsBar.offsetTop - (app.desk ? 72 : 0);
+      if (app.sc.scrollTop > y) app.sc.scrollTop = y;
+    });
+
+    // pause the endless loops while this phone is off screen
+    app.fxio = new IntersectionObserver(([e]) => el.classList.toggle('fx-paused', !e.isIntersecting));
+    app.fxio.observe(app.device);
+  }
+};
+</script>
+<script>
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Lo propio de cada plantilla (window.LOTTOGE_TEMA) y el catálogo de métodos de pago (window.LOTTOGE_PAGOS).
+  const TEMA = window.LOTTOGE_TEMA || {};
+  const PAGOS = window.LOTTOGE_PAGOS;
   // Phones always get the mobile layout, even turned sideways; tablets and computers go by the window width.
   const PHONE = /Android.+Mobile|iPhone|iPod|Windows Phone|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent) || !!(navigator.userAgentData && navigator.userAgentData.mobile);
 
@@ -889,10 +1137,32 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
     prize: 'Toyota Agya 2026', prizeExtra: '+ 3.000 en la guantera', second: '2.000 Bendiciones', third: '1.000 Bendiciones',
     price: 4799, rate: 881.88, total: 10000, soldPct: 76,
     date: '2026-10-22', time: '22:00', times2: ['4:00 PM', '1:00 PM'], lottery: 'Supergana',
-    accent: 'oro', images: ['img/flyer.jpg', 'img/burj-al-arab.jpg', 'img/sala.jpg']
+    accent: TEMA.accent || 'oro', images: ['img/flyer.jpg', 'img/burj-al-arab.jpg', 'img/sala.jpg'],
+    // Monedas fuera del dólar: unidades por 1 $ (ejemplo). En la plataforma salen del API de tasas.
+    fx: { COP: 4150, PEN: 3.75 },
+    // Métodos de pago del rifero, en el orden en que salen. Cuentas de ejemplo. La forma es la del API
+    // (payment-methods/active) más icon y color; lo que falte lo completa LOTTOGE_PAGOS.normalize.
+    paymentMethods: [
+      { id: 'pm-auto', icon: 'pago-movil', name: 'Pago Móvil', isOnline: true,
+        accountInfo: [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']] },
+      { id: 'binance', icon: 'binance', name: 'Binance', note: 'USDT con Binance Pay',
+        accountInfo: [['Pay ID', '412 908 337'], ['Titular', 'Rifas La Bendición']] },
+      { id: 'zelle', icon: 'zelle', name: 'Zelle', note: 'Dólares desde EE. UU.',
+        accountInfo: [['Correo', 'pagos@rifero-ejemplo.com'], ['Titular', 'Rifas La Bendición']] },
+      { id: 'pm-manual', icon: 'comprobante', name: 'Pago Móvil manual', note: 'Con comprobante, lo revisa el rifero',
+        accountInfo: [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']] },
+      { id: 'transferencia', icon: 'transferencia', name: 'Transferencia', note: 'Banco de Venezuela',
+        accountInfo: [['Banco', 'Banco de Venezuela (0102)'], ['Cuenta', '0102-0123-45-0001234567'], ['Titular', 'Rifas La Bendición'], ['RIF', 'J-50123456-7']] },
+      { id: 'zinli', icon: 'zinli', name: 'Zinli', note: 'Dólares en tu tarjeta Zinli',
+        accountInfo: [['Correo', 'pagos@rifero-ejemplo.com'], ['Titular', 'Rifas La Bendición']] },
+      { id: 'paypal', icon: 'paypal', name: 'PayPal', note: 'Con la comisión de PayPal', minTickets: 5, commissionRate: 5.4,
+        accountInfo: [['Correo', 'pagos@rifero-ejemplo.com']], instructions: 'El monto ya incluye la comisión de PayPal. Escribe tu cédula en la nota del pago.' },
+      { id: 'nequi', icon: 'nequi', name: 'Nequi', note: 'Pesos desde Colombia',
+        accountInfo: [['Número Nequi', '300 555 0199'], ['Titular', 'Rifas La Bendición']] }
+    ]
   };
   const ACCENTS = {
-    oro: ['#e9b227', '#17130a', 'Oro'], rojo: ['#d42a33', '#ffffff', 'Rojo'], verde: ['#0e8a55', '#ffffff', 'Verde'],
+    coral: ['#ff5a36', '#ffffff', 'Coral'], oro: ['#e9b227', '#17130a', 'Oro'], rojo: ['#d42a33', '#ffffff', 'Rojo'], verde: ['#0e8a55', '#ffffff', 'Verde'],
     azul: ['#1d5bd0', '#ffffff', 'Azul'], naranja: ['#f07a1f', '#1a0e04', 'Naranja'], turquesa: ['#14a6a0', '#04201f', 'Turquesa']
   };
   const ESTADOS = ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital',
@@ -925,12 +1195,20 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       tag: `${d} ${MON[m - 1].toUpperCase()}`,
       hour: `${h12}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'AM' : 'PM'}`,
       unitUsd: c.price / c.rate,
-      series: c.total >= 1000 ? c.total / 10 : c.total
+      series: c.total >= 1000 ? c.total / 10 : c.total,
+      // the rifero's payment methods, completed by the catalog (any number of them)
+      pays: (c.paymentMethods && c.paymentMethods.length ? c.paymentMethods : SAMPLE.paymentMethods).map(PAGOS.normalize)
     };
   }
   let D = derive(CFG);
   const pad = n => String(n).padStart(D.digits, '0');
-  const taken = n => ((Math.imul(n + 17, 2654435761) >>> 0) % 100) < CFG.soldPct;
+  const methodOf = id => D.pays.find(m => m.id === id) || D.pays[0];
+  const demoTaken = n => ((Math.imul(n + 17, 2654435761) >>> 0) % 100) < CFG.soldPct;
+  const taken = n => CONEXION.numeroVendido(n);
+  // Platform service fee (config serviceFee, a %), added to the tickets before the method's own commission.
+  const serviceFee = () => Math.max(0, +CFG.serviceFee || 0);
+  const withFee = totBs => totBs * (1 + serviceFee() / 100);
+  const pct = v => `${num(v, v % 1 ? 1 : 0)}%`;
   const freeFrom = (start, count, skip = []) => { const out = []; for (let i = 0; out.length < count && i < CFG.total; i++) { const c = (start + i) % CFG.total, k = pad(c); if (!taken(c) && !skip.includes(k)) out.push(k); } return out; };
 
   /* ---------- shared live figures (sample) ---------- */
@@ -980,17 +1258,53 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
     { name: 'Luis Eduardo Marcano', phone: '0416-555-0952', email: 'lemarcano@ejemplo.com' }
   ];
   const personFor = ced => ced === '18456732' ? PEOPLE[0] : PEOPLE[[...ced].reduce((a, c) => a + +c, 0) % PEOPLE.length];
-
-  const METHODS = {
-    'pm-auto': { auto: true, color: ['#0f9d58', '#ffffff'], label: 'Pago Móvil', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: true, bank: true, file: false, cur: 'bs',
-      rows: () => [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'Esto toma unos segundos. No cierres esta pantalla.' },
-    'binance': { color: ['#f0b90b', '#1e2026'], label: 'Binance Pay', refErr: 'el ID de la orden', ref: 'ID de la orden en Binance', refPh: 'Ej. 2849104772', payer: false, bank: false, file: true, cur: 'usdt',
-      rows: () => [['Pay ID', '412 908 337'], ['Titular', CFG.rifero]], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' },
-    'zelle': { color: ['#6d1ed4', '#ffffff'], label: 'Zelle', refErr: 'el código de confirmación', ref: 'Código de confirmación', refPh: 'Ej. ZL7Q2K', payer: false, bank: false, file: true, cur: 'usd',
-      rows: () => [['Correo', 'pagos@rifero-ejemplo.com'], ['Titular', CFG.rifero]], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' },
-    'pm-manual': { color: ['#1d5fbf', '#ffffff'], label: 'Pago Móvil manual', refErr: 'la referencia', ref: 'Número de referencia', refPh: 'Últimos 6 dígitos', payer: false, bank: true, file: true, cur: 'bs',
-      rows: () => [['Banco', 'Banesco (0134)'], ['Teléfono', '0412-555-0199'], ['RIF', 'J-50123456-7']], note: 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.' }
+  const demoNumbers = (q, seedBase) => {
+    const nums = []; let seed = seedBase + q * 37, guard = 0;
+    while (nums.length < q && guard++ < 50000) { seed = (seed * 1103515245 + 12345) % 2147483648; const n = seed % CFG.total, k = pad(n); if (!taken(n) && !nums.includes(k)) nums.push(k); }
+    return nums;
   };
+
+  /* ---------- puntos de conexión con la plataforma ----------
+     Lo único que habla con el servidor. Cada uno trae aquí una versión de demostración; la plataforma
+     los cambia por los suyos definiendo window.LOTTOGE_CONEXION antes de cargar la página
+     (ver conexion.ejemplo.js en el kit). Si falta alguno, se usa el de demostración. */
+  const CONEXION = Object.assign({
+    // Datos del comprador por su cédula ('V18456732') → { name, phone, email } o null si no está registrado.
+    buscarCliente: cedula => new Promise(ok => setTimeout(() => ok(personFor(cedula.slice(1))), 500)),
+    // Si un número ya se vendió. Responde al instante: la plataforma precarga la lista de vendidos.
+    numeroVendido: n => demoTaken(n),
+    // Envía la compra (ver order() en App) → { estado: 'aprobado' | 'reservado' | 'rechazado', orden, numeros }.
+    // Demo: Pago Móvil al instante se aprueba, salvo una referencia que termine en 0 (el banco no la encuentra);
+    // los demás métodos quedan reservados hasta que el rifero los revise.
+    enviarPago: orden => new Promise(ok => setTimeout(() => {
+      const m = methodOf(orden.metodo);
+      ok(!m.isOnline ? { estado: 'reservado' } : /0$/.test(orden.referencia) ? { estado: 'rechazado' } : { estado: 'aprobado' });
+    }, 2400)),
+    // Órdenes de una cédula en esta rifa → { nombre, boletos, ordenes: [{ id, metodo, monto, estado: 'pagado' | 'por-verificar', numeros, nota }] }.
+    misBoletos: cedula => {
+      const ced = cedula.slice(1), p = personFor(ced);
+      return Promise.resolve({ demo: true, nombre: p.name, boletos: 7, ordenes: [
+        { id: 'LG-48035', metodo: 'Pago Móvil', monto: bs(5 * CFG.price), estado: 'pagado', numeros: demoNumbers(5, +ced.slice(-4)) },
+        { id: 'LG-48112', metodo: 'Zelle', monto: usd(2 * CFG.price / CFG.rate), estado: 'por-verificar', nota: '2 boletos al azar. Los números se asignan cuando se apruebe el pago y te llegan a tu correo.' }
+      ] });
+    }
+  }, window.LOTTOGE_CONEXION || {});
+
+  /* ---------- payment methods on the page ---------- */
+  const methodBtn = m => `<button class="method" type="button" role="radio" data-action="method" data-m="${esc(m.id)}" aria-checked="false"><i class="mico" style="--mc:${esc(m.color)};--mci:${esc(m.ink)}">${PAGOS.svg(m.icon)}</i><b>${esc(m.name)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ''}${m.badge ? `<em>${esc(m.badge)}</em>` : ''}${m.minTickets > 1 ? `<small>Desde ${m.minTickets} boletos</small>` : ''}</button>`;
+  // With more than four methods in more than one currency, they go in groups: bolívares, dólares, other countries.
+  const methodsHTML = () => {
+    const groups = PAGOS.GROUPS.map(([g, title]) => [title, D.pays.filter(m => PAGOS.groupOf(m.currency) === g)]).filter(([, ms]) => ms.length);
+    const titled = D.pays.length > 4 && groups.length > 1;
+    return groups.map(([title, ms]) => (titled ? `<p class="methods__group">${title}</p>` : '') + ms.map(methodBtn).join('')).join('');
+  };
+  const ordersHTML = r => !r || !r.ordenes || !r.ordenes.length
+    ? '<p class="mine-who">No encontramos boletos con esa cédula en esta rifa.</p>'
+    : `<p class="mine-who"><b>${esc(r.nombre)}</b> tiene ${boletos(r.boletos)} en esta rifa.</p>` + r.ordenes.map(o =>
+      `<div class="ord"><div class="ord__head"><span><b>Orden ${esc(o.id)}</b><br>${esc(o.metodo)} · ${esc(o.monto)}</span>${o.estado === 'pagado' ? '<span class="tag tag--ok">Pagado</span>' : '<span class="tag tag--wait">Por verificar</span>'}</div>`
+      + (o.numeros && o.numeros.length ? `<ul>${o.numeros.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : `<p>${esc(o.nota || 'Los números se asignan cuando se apruebe el pago y te llegan a tu correo.')}</p>`) + '</div>').join('')
+      + (r.demo ? '<p class="hint">Datos de ejemplo. En producción, esta consulta va contra la API de LottoGE.</p>' : '');
+
 
   /* ---------- the buyer's page, built from the configuration ---------- */
   const PLUS = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M8 2h2v14H8zM2 8h14v2H2z" fill="currentColor"/></svg>';
@@ -1128,15 +1442,10 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
           <h2 class="buy__h">Pago</h2>
           <div class="recap"><span data-qword></span><b data-go-bs></b></div>
           <p class="go__sub" style="margin:0 0 14px; text-align:right" data-go-usd></p>
-          <div class="methods" role="radiogroup" aria-label="Método de pago">
-            <button class="method" type="button" role="radio" data-action="method" data-m="pm-auto" aria-checked="false"><i class="mico" style="--mc:${METHODS['pm-auto'].color[0]};--mci:${METHODS['pm-auto'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="7" y="2" width="14" height="24" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 21h6" stroke="currentColor" stroke-width="2.4"/><path d="M10 11l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></i><b>Pago Móvil</b><span>Se verifica solo con el banco</span><em>Al instante</em></button>
-            <button class="method" type="button" role="radio" data-action="method" data-m="binance" aria-checked="false"><i class="mico" style="--mc:${METHODS['binance'].color[0]};--mci:${METHODS['binance'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3l4 4-4 4-4-4zM7 10l4 4-4 4-4-4zM21 10l4 4-4 4-4-4zM14 17l4 4-4 4-4-4z" fill="currentColor"/></svg></i><b>Binance</b><span>USDT con Binance Pay</span></button>
-            <button class="method" type="button" role="radio" data-action="method" data-m="zelle" aria-checked="false"><i class="mico" style="--mc:${METHODS['zelle'].color[0]};--mci:${METHODS['zelle'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 6h14v3.4L11.8 19H21v3H7v-3.4L16.2 9H7z" fill="currentColor"/><path d="M13 3h2v4h-2zM13 21h2v4h-2z" fill="currentColor"/></svg></i><b>Zelle</b><span>Dólares desde EE. UU.</span></button>
-            <button class="method" type="button" role="radio" data-action="method" data-m="pm-manual" aria-checked="false"><i class="mico" style="--mc:${METHODS['pm-manual'].color[0]};--mci:${METHODS['pm-manual'].color[1]}"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 3h11l5 5v17H6z" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 14h8M10 19h8" stroke="currentColor" stroke-width="2.4"/></svg></i><b>Pago Móvil manual</b><span>Con comprobante, lo revisa el rifero</span></button>
-          </div>
+          <div class="methods" role="radiogroup" aria-label="Método de pago">${methodsHTML()}</div>
           <div class="paybox" data-paybox></div>
           <div data-f="payer"><label class="lbl" for="${p}-payer">Teléfono desde el que pagas</label><input class="field" id="${p}-payer" type="tel" inputmode="tel" placeholder="0414-555-0000" data-in="payer"></div>
-          <div data-f="bank"><label class="lbl" for="${p}-bank">Tu banco</label><select class="field" id="${p}-bank" data-in="bank"><option>Banesco</option><option>Banco de Venezuela</option><option>Mercantil</option><option>BBVA Provincial</option><option>BNC</option><option>Bancamiga</option></select></div>
+          <div data-f="bank"><label class="lbl" for="${p}-bank">Tu banco</label><select class="field" id="${p}-bank" data-in="bank">${PAGOS.BANCOS_VE.map(b => `<option value="${b.name}">${b.name} (${b.code})</option>`).join('')}</select></div>
           <label class="lbl" for="${p}-ref" data-ref-label>Número de referencia</label>
           <input class="field" id="${p}-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos">
           <div data-f="file"><input class="sr-only" id="${p}-file" type="file" accept="image/*,.pdf" data-in="file" aria-required="true"><label class="upload" for="${p}-file" data-upload><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg><span class="upcheck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z" fill="currentColor"/></svg></span><span><span data-file-name>Subir comprobante</span><small data-file-sub>Obligatorio. Foto, captura o PDF del pago.</small></span></label></div>
@@ -1168,7 +1477,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       </div>
       <footer class="afoot">
         <p class="afoot__pow">Rifa de <b>${org}</b>, montada sobre</p>
-        <span class="lgmark"><i aria-hidden="true"></i>LottoGE</span>
+        <span class="lgmark"><i aria-hidden="true"></i>Lotto<b>GE</b></span>
         <p>LottoGE es la plataforma autorizada que procesa la venta y asigna los números. Cada rifero responde por sus premios.</p>
         <p>Prototipo de demostración: no procesa pagos ni guarda datos. Rifero, compradores, montos y cuentas son de ejemplo.</p>
       </footer>
@@ -1259,7 +1568,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
         <ul>
           <li>El <b>monto exacto</b>, sin redondear.</li>
           <li>La <b>referencia</b>: los últimos 6 dígitos del comprobante.</li>
-          <li>El <b>teléfono</b> y el <b>banco</b> desde los que pagaste.</li>
+          <li data-rej-payer>El <b>teléfono</b> y el <b>banco</b> desde los que pagaste.</li>
         </ul>
       </div>
       <div class="st-body">
@@ -1298,6 +1607,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
         method: 'pm-auto', ref: '', payer: '', bank: 'Banesco', file: '', series: 0, search: '' }, JSON.parse(JSON.stringify(init)));
       const seeds = { first: 7, second: 2026, third: 4821 };
       this.s.picks = this.s.picks.reduce((out, x) => { const k = seeds[x] != null ? freeFrom(seeds[x] % CFG.total, 1, out)[0] : x; if (k) out.push(k); return out; }, []);
+      if (!D.pays.some(m => m.id === this.s.method)) this.s.method = D.pays[0].id;
       this.timers = [];
       const p = 'p' + (++uid);
       screen.innerHTML = appHTML(CFG, p);
@@ -1310,7 +1620,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       this.bind();
       this.setupHome();
       this.setupGallery();
-      themeFx(this);
+      if (TEMA.fx) TEMA.fx(this, { CFG, D, num, esc, reduce });
       if (this.s.cedula) this.fillPerson(personFor(this.s.cedula), false);
       this.syncInputs();
       this.show(this.s.view);
@@ -1329,7 +1639,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       }
     }
 
-    destroy() { this.fxio && this.fxio.disconnect(); this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.ro && this.ro.disconnect(); this.ro2 && this.ro2.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
+    destroy() { this.dead = true; this.fxio && this.fxio.disconnect(); this.timers.forEach(clearTimeout); this.io && this.io.disconnect(); this.ro && this.ro.disconnect(); this.ro2 && this.ro2.disconnect(); this.io2 && this.io2.disconnect(); cancelAnimationFrame(this.raf); }
     later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
 
     bind() {
@@ -1363,6 +1673,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
             : f.size > 10 * 1024 * 1024 ? 'El comprobante pesa más de 10 MB. Sube una foto o captura más liviana.' : '';
           if (bad) { t.value = ''; err.textContent = bad; err.hidden = false; } else if (f) err.hidden = true;
           this.s.file = f && !bad ? f.name : '';
+          this.fileObj = f && !bad ? f : null;
           this.renderFile();
         }
       });
@@ -1416,6 +1727,7 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
         st.classList.toggle('is-in', on && !instant && !reduce);
       });
       this.$('[data-err="data"]').hidden = true; this.$('[data-err="pay"]').hidden = true;
+      if (name === 'pay') this.renderMethod();
       if (!instant) this.scrollToSec('buy');
       this.renderTotals();
     }
@@ -1439,11 +1751,11 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       this.stage('pay');
     }
     confirm() {
-      const s = this.s, err = this.$('[data-err="pay"]'), m = METHODS[s.method];
+      const s = this.s, err = this.$('[data-err="pay"]'), m = methodOf(s.method);
       let msg = '', field = '';
-      if (m.payer && s.payer.replace(/\D/g, '').length !== 11) { msg = 'Escribe el teléfono desde el que hiciste el Pago Móvil (11 dígitos).'; field = 'payer'; }
-      else if (s.ref.trim().length < 4) { msg = `Escribe ${m.refErr} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
-      else if (m.file && !s.file) { msg = 'Sube el comprobante de tu pago: una foto, una captura o un PDF. Sin él, el rifero no puede revisar tu pago.'; field = 'file'; }
+      if (m.askPayer && s.payer.replace(/\D/g, '').length !== 11) { msg = 'Escribe el teléfono desde el que hiciste el Pago Móvil (11 dígitos).'; field = 'payer'; }
+      else if (s.ref.trim().length < 4) { msg = `Escribe ${m.ref.error} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
+      else if (m.requireReceipt && !s.file) { msg = 'Sube el comprobante de tu pago: una foto, una captura o un PDF. Sin él, el rifero no puede revisar tu pago.'; field = 'file'; }
       if (msg) {
         err.textContent = msg; err.hidden = false;
         const f = this.$(`[data-in="${field}"]`);
@@ -1514,9 +1826,9 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
     }
 
     renderTotals() {
-      const q = this.count(), tot = q * CFG.price;
+      const q = this.count(), tot = withFee(q * CFG.price), f = serviceFee();
       this.$$('[data-go-bs]').forEach(n => n.textContent = bs(tot));
-      this.$$('[data-go-usd]').forEach(n => n.textContent = `${usd(tot / CFG.rate)} · tasa BCV Bs ${num(CFG.rate, 2)}`);
+      this.$$('[data-go-usd]').forEach(n => n.textContent = `${usd(tot / CFG.rate)} · tasa BCV Bs ${num(CFG.rate, 2)}${f ? ` · incluye ${pct(f)} de servicio` : ''}`);
       this.$$('[data-qword]').forEach(n => n.textContent = boletos(q));
       this.$('[data-action="participar"]').disabled = q < 1;
       this.renderPaybox();
@@ -1538,11 +1850,15 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       } else if (k === 'cedula') {
         t.value = t.value.replace(/\D/g, '').slice(0, 9);
         s.cedula = t.value; t.classList.remove('is-bad');
-        clearTimeout(this.lk);
-        const lk = this.$('[data-lookup]');
+        const lk = this.$('[data-lookup]'), seq = this.lkSeq = (this.lkSeq || 0) + 1;
         if (s.cedula.length >= 6) {
           lk.className = 'lookup'; lk.innerHTML = '<span class="spin" aria-hidden="true"></span>Buscando tus datos…';
-          this.lk = this.later(() => this.fillPerson(personFor(s.cedula), true), 900);
+          const stale = () => seq !== this.lkSeq || this.dead;
+          // one lookup per cédula: wait until the typing stops
+          setTimeout(() => stale() || CONEXION.buscarCliente(s.idType + s.cedula).then(p => {
+            if (stale()) return;
+            if (p) this.fillPerson(p, true); else { lk.className = 'lookup'; lk.textContent = 'No encontramos esa cédula. Escribe tus datos.'; }
+          }, () => { if (!stale()) { lk.className = 'lookup'; lk.textContent = 'No pudimos buscar tus datos. Escríbelos tú.'; } }), 400);
         } else { lk.className = 'lookup'; lk.textContent = 'Con tu cédula llenamos el resto.'; }
       } else if (['name', 'phone', 'email', 'ref', 'payer'].includes(k)) {
         s[k] = t.value; t.classList.remove('is-bad');
@@ -1571,23 +1887,37 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
 
     /* ---- payment ---- */
     renderMethod() {
-      const m = METHODS[this.s.method];
-      this.$$('[data-action="method"]').forEach(b => b.setAttribute('aria-checked', b.dataset.m === this.s.method));
-      this.$('[data-f="payer"]').hidden = !m.payer;
-      this.$('[data-f="bank"]').hidden = !m.bank;
-      this.$('[data-f="file"]').hidden = !m.file;
-      this.$('[data-ref-label]').textContent = m.ref;
-      const r = this.$('[data-in="ref"]'); r.placeholder = m.refPh; r.inputMode = this.s.method === 'zelle' ? 'text' : 'numeric';
+      const q = this.count();
+      // a method can ask for a minimum of tickets; below it the button turns off and another one is picked
+      this.$$('[data-action="method"]').forEach(b => { b.disabled = q < methodOf(b.dataset.m).minTickets; });
+      if (q < methodOf(this.s.method).minTickets) { const ok = D.pays.find(x => q >= x.minTickets); if (ok) this.s.method = ok.id; }
+      const m = methodOf(this.s.method);
+      this.$$('[data-action="method"]').forEach(b => b.setAttribute('aria-checked', b.dataset.m === m.id));
+      this.$('[data-f="payer"]').hidden = !m.askPayer;
+      this.$('[data-f="bank"]').hidden = !m.askBank;
+      this.$('[data-f="file"]').hidden = !m.requireReceipt;
+      this.$('[data-ref-label]').textContent = m.ref.label;
+      const r = this.$('[data-in="ref"]'); r.placeholder = m.ref.placeholder; r.inputMode = m.ref.numeric ? 'numeric' : 'text';
       this.renderPaybox();
     }
-    amount(m, tot) { return m.cur === 'bs' ? bs(tot) : m.cur === 'usdt' ? num(tot / CFG.rate, 2) + ' USDT' : usd(tot / CFG.rate); }
+    /* What to pay with this method: the total in Bs plus the platform's service fee, turned into its currency
+       (BCV rate, and config fx outside the dollar), plus the method's own commission if it has one. */
+    amount(m, totBs) {
+      totBs = withFee(totBs);
+      const c = PAGOS.CURRENCIES[m.currency], k = 1 + m.commissionRate / 100, inUsd = totBs / CFG.rate;
+      const fx = CFG.fx || {};
+      const v = m.currency === 'VES' ? totBs * k : ['USD', 'USDT'].includes(m.currency) ? inUsd * k : fx[m.currency] ? inUsd * fx[m.currency] * k : null;
+      return v == null ? usd(inUsd * k) + ' (equivalente)' : c.prefix + num(v, c.decimals) + c.suffix;
+    }
     renderPaybox() {
-      const m = METHODS[this.s.method];
-      const rows = [...m.rows(), ['Monto exacto', this.amount(m, this.count() * CFG.price)]];
-      const all = [`Pago a ${CFG.rifero} por ${m.label}`, ...rows.map(([k, v]) => `${k}: ${v}`)].join('\n');
-      this.$('[data-paybox]').innerHTML = `<p class="paybox__brand" style="--mc:${m.color[0]}"><i aria-hidden="true"></i>Paga con ${m.label}</p>
-        <table aria-label="Datos para pagar con ${m.label}"><tbody>${rows.map(([k, v]) =>
-        `<tr><td>${k}</td><td>${esc(v)}</td><td><button type="button" class="copy" data-copy="${esc(v)}" aria-label="Copiar ${k.toLowerCase()}">Copiar</button></td></tr>`).join('')}</tbody></table>
+      const m = methodOf(this.s.method);
+      const rows = [...m.accountInfo, ...(serviceFee() ? [['Comisión de servicio', `${pct(serviceFee())} incluida`]] : []),
+        ...(m.commissionRate ? [['Comisión', `${pct(m.commissionRate)} incluida`]] : []), ['Monto exacto', this.amount(m, this.count() * CFG.price)]];
+      const all = [`Pago a ${CFG.rifero} por ${m.name}`, ...rows.map(([k, v]) => `${k}: ${v}`)].join('\n');
+      this.$('[data-paybox]').innerHTML = `<p class="paybox__brand" style="--mc:${esc(m.color)}"><i aria-hidden="true"></i>Paga con ${esc(m.name)}</p>
+        ${m.instructions ? `<p class="paybox__how">${esc(m.instructions)}</p>` : ''}
+        <table aria-label="Datos para pagar con ${esc(m.name)}"><tbody>${rows.map(([k, v]) =>
+        `<tr><td>${esc(k)}</td><td>${esc(v)}</td><td><button type="button" class="copy" data-copy="${esc(v)}" aria-label="Copiar ${esc(k.toLowerCase())}">Copiar</button></td></tr>`).join('')}</tbody></table>
         <button type="button" class="copyall" data-copy-all="${esc(all)}">${COPY_ICON}<span>Copiar todos los datos</span></button>`;
     }
     renderFile() {
@@ -1607,19 +1937,34 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       try { navigator.clipboard.writeText(btn.dataset.copyAll).then(done, done); } catch (e) { done(); }
     }
     verify(hold) {
-      const s = this.s, m = METHODS[s.method];
-      this.$('[data-verify-line]').innerHTML = `${m.label} · ref. ${esc(s.ref || '—')} · <b>${this.amount(m, this.count() * CFG.price)}</b>`;
-      this.$('[data-verify-note]').textContent = m.note;
-      this.$('[data-verify] h2').textContent = m.auto ? 'Verificando tu pago' : 'Enviando tu comprobante';
+      const s = this.s, m = methodOf(s.method);
+      this.$('[data-verify-line]').innerHTML = `${esc(m.name)} · ref. ${esc(s.ref || '—')} · <b>${this.amount(m, this.count() * CFG.price)}</b>`;
+      this.$('[data-verify-note]').textContent = m.isOnline ? 'Esto toma unos segundos. No cierres esta pantalla.' : 'El rifero revisa tu pago desde su panel y lo aprueba o lo rechaza.';
+      this.$('[data-verify] h2').textContent = m.isOnline ? 'Verificando tu pago' : 'Enviando tu comprobante';
       this.$('[data-verify]').hidden = false;
       this.el.classList.add('is-dark-top');
       if (hold) return;
-      this.later(() => {
+      const done = res => {
+        if (this.dead) return;
         this.$('[data-verify]').hidden = true; this.el.classList.remove('is-dark-top');
-        const out = this.outcome();
+        this.result = res || {};
+        const out = { aprobado: 'ok', reservado: 'held' }[this.result.estado] || 'rej';
         this.show(out);
         if (out === 'ok') this.buildSuccess(true); else if (out === 'held') this.buildHeld(); else this.buildRejected();
-      }, 2400);
+      };
+      CONEXION.enviarPago(this.order()).then(done, () => done({ estado: 'rechazado' }));
+    }
+    /* The purchase as it goes to the platform. The server recalculates the total with the real price
+       and checks that the chosen numbers are still free. */
+    order() {
+      const s = this.s, m = methodOf(s.method), q = this.count();
+      return {
+        metodo: m.id, cantidad: q, modo: s.mode, numeros: s.mode === 'manual' ? [...s.picks] : [],
+        cedula: s.idType + s.cedula, nombre: s.name.trim(), telefono: s.phone, correo: s.email.trim(), estado: s.estado,
+        referencia: s.ref.trim(), telefonoPago: m.askPayer ? s.payer : '', banco: m.askBank ? s.bank : '',
+        comprobante: m.requireReceipt ? this.fileObj || null : null,
+        moneda: m.currency, monto: this.amount(m, q * CFG.price), montoBs: q * CFG.price
+      };
     }
 
     /* ---- views ---- */
@@ -1693,19 +2038,12 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       if (instant || reduce) this.sc.scrollTop = top; else this.sc.scrollTo({ top, behavior: 'smooth' });
     }
 
-    /* Demo rule: Pago Móvil al instante is checked against the bank (R4 gateway); a reference ending in 0
-       stands for a payment the bank can't find. The other methods wait for the rifero to review them. */
-    outcome() {
-      const m = METHODS[this.s.method];
-      if (!m.auto) return 'held';
-      return /0$/.test(this.s.ref.trim()) ? 'rej' : 'ok';
-    }
     buildHeld() {
-      const s = this.s, q = Math.max(1, this.count()), p = s.name ? s : PEOPLE[0], m = METHODS[s.method], tot = q * CFG.price;
+      const s = this.s, q = Math.max(1, this.count()), p = s.name ? s : PEOPLE[0], m = methodOf(s.method), tot = q * CFG.price, r = this.result || {};
       const chosen = s.mode === 'manual' && s.picks.length > 0, first = esc(p.name.split(' ')[0]), mail = esc(p.email);
       this.$('[data-held-lede]').innerHTML = chosen
-        ? `${first}, apartamos los <b>${q === 1 ? 'el número' : q + ' números'}</b> que elegiste mientras ${esc(CFG.rifero)} revisa tu pago por ${m.label}.`.replace('los <b>el número</b>', 'el <b>número</b>')
-        : `${first}, tu compra de <b>${boletos(q)}</b> está en revisión: ${esc(CFG.rifero)} verifica tu pago por ${m.label}.`;
+        ? `${first}, apartamos los <b>${q === 1 ? 'el número' : q + ' números'}</b> que elegiste mientras ${esc(CFG.rifero)} revisa tu pago por ${esc(m.name)}.`.replace('los <b>el número</b>', 'el <b>número</b>')
+        : `${first}, tu compra de <b>${boletos(q)}</b> está en revisión: ${esc(CFG.rifero)} verifica tu pago por ${esc(m.name)}.`;
       this.$('[data-held-box]').hidden = !chosen;
       this.$('[data-held-random]').hidden = chosen;
       if (chosen) {
@@ -1717,13 +2055,16 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       this.$('[data-held-sent]').innerHTML = chosen
         ? `Cuando se apruebe, te enviamos la confirmación a <b>${mail}</b>. Si se rechaza, te escribimos al mismo correo para corregirlo.`
         : `Si el pago se rechaza, te escribimos a <b>${mail}</b> para corregirlo.`;
-      const order = [['Orden', 'LG-' + (48100 + q * 7)], ['Números', chosen ? s.picks.join(', ') : 'Al azar, al aprobar'], ['Método', m.label], ['Referencia', s.ref || '—'], ['Comprobante', s.file ? 'Cargado' : 'No adjuntado'], ['Total', m.cur === 'bs' ? bs(tot) : this.amount(m, tot)], ['Estado', 'Por verificar']];
+      const order = [['Orden', r.orden || 'LG-' + (48100 + q * 7)], ['Números', chosen ? s.picks.join(', ') : 'Al azar, al aprobar'], ['Método', m.name], ['Referencia', s.ref || '—'], ['Comprobante', s.file ? 'Cargado' : 'No adjuntado'], ['Total', this.amount(m, tot)], ['Estado', 'Por verificar']];
       this.$('[data-held-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('');
       this.$('[data-held-scroller]').scrollTop = 0;
     }
     buildRejected() {
-      const s = this.s, m = METHODS[s.method], tot = this.count() * CFG.price;
-      this.$('[data-rej-lede]').innerHTML = `El banco no encontró un ${m.label} de <b>${bs(tot)}</b> con la referencia <b>${esc(s.ref || '—')}</b> desde el <b>${esc(s.payer || '—')}</b> (${esc(s.bank)}).`;
+      const s = this.s, m = methodOf(s.method), amt = this.amount(m, this.count() * CFG.price);
+      this.$('[data-rej-lede]').innerHTML = m.isOnline
+        ? `El banco no encontró un ${esc(m.name)} de <b>${amt}</b> con la referencia <b>${esc(s.ref || '—')}</b> desde el <b>${esc(s.payer || '—')}</b> (${esc(s.bank)}).`
+        : `No pudimos registrar tu pago por ${esc(m.name)} de <b>${amt}</b> con la referencia <b>${esc(s.ref || '—')}</b>. Revisa los datos e intenta de nuevo.`;
+      this.$('[data-rej-payer]').hidden = !m.askPayer;
       this.$('[data-rej-scroller]').scrollTop = 0;
     }
 
@@ -1734,8 +2075,8 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       return nums;
     }
     buildSuccess(playNow) {
-      const s = this.s, q = Math.max(1, this.count()), p = s.name ? s : PEOPLE[0];
-      const nums = this.pickNumbers(q, 4821);
+      const s = this.s, q = Math.max(1, this.count()), p = s.name ? s : PEOPLE[0], r = this.result || {};
+      const nums = r.numeros && r.numeros.length ? r.numeros.map(String) : this.pickNumbers(q, 4821);
       const digits = n => [...n].map(d => `<i data-d="${d}">${d}</i>`).join('');
       this.$('[data-ok-lede]').innerHTML = `${esc(p.name.split(' ')[0])}, ${q === 1 ? 'tu boleto ya está' : `tus <b>${q} boletos</b> ya están`} en el sorteo del <b>${D.long}</b>.`;
       this.$('[data-ok-sent]').innerHTML = `Te enviamos tus números a tu correo <b>${esc(p.email)}</b>.`;
@@ -1744,8 +2085,8 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       this.$('[data-stubs-title]').textContent = q === 2 ? 'Tu otro número' : `Tus otros ${q - 1} números`;
       this.$('[data-stubs]').innerHTML = nums.slice(1).map(n => `<li><span class="num" aria-label="Número ${n}">${digits(n)}</span></li>`).join('');
       this.$('[data-barcode]').innerHTML = barcode(nums[0]);
-      const m = METHODS[s.method], tot = q * CFG.price;
-      const order = [['Orden', 'LG-' + (48000 + q * 7)], ['Método', m.label], ['Referencia', s.ref || '004821'], ['Total', bs(tot)], ['En dólares', usd(tot / CFG.rate)]];
+      const m = methodOf(s.method), tot = q * CFG.price;
+      const order = [['Orden', r.orden || 'LG-' + (48000 + q * 7)], ['Método', m.name], ['Referencia', s.ref || '004821'], ['Total', bs(tot)], ['En dólares', usd(tot / CFG.rate)]];
       this.$('[data-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('');
       this.okPlayed = false;
       if (playNow) this.celebrate(); else this.whenVisible(() => this.celebrate());
@@ -1768,12 +2109,10 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
       const ced = inp.value;
       if (!/^\d{6,9}$/.test(ced)) { err.textContent = 'Escribe tu cédula, solo números (de 6 a 9 dígitos).'; err.hidden = false; inp.classList.add('is-bad'); res.innerHTML = ''; return; }
       err.hidden = true; inp.classList.remove('is-bad');
-      const p = personFor(ced), a = this.pickNumbers(5, +ced.slice(-4));
-      res.innerHTML = `
-        <p class="mine-who"><b>${esc(p.name)}</b> tiene 7 boletos en esta rifa.</p>
-        <div class="ord"><div class="ord__head"><span><b>Orden LG-48035</b><br>Pago Móvil · ${bs(5 * CFG.price)}</span><span class="tag tag--ok">Pagado</span></div><ul>${a.map(n => `<li>${n}</li>`).join('')}</ul></div>
-        <div class="ord"><div class="ord__head"><span><b>Orden LG-48112</b><br>Zelle · ${usd(2 * CFG.price / CFG.rate)}</span><span class="tag tag--wait">Por verificar</span></div><p>2 boletos al azar. Los números se asignan cuando se apruebe el pago y te llegan a tu correo.</p></div>
-        <p class="hint">Datos de ejemplo. En producción, esta consulta va contra la API de LottoGE.</p>`;
+      res.innerHTML = '<p class="lookup"><span class="spin" aria-hidden="true"></span>Buscando tus boletos…</p>';
+      const idt = (this.$('[data-v="mine"] [data-action="idtype"][aria-checked="true"]') || { dataset: { t: 'V' } }).dataset.t;
+      CONEXION.misBoletos(idt + ced).then(r => { if (!this.dead) res.innerHTML = ordersHTML(r); },
+        () => { if (!this.dead) res.innerHTML = '<p class="err">No pudimos buscar tus boletos. Intenta de nuevo en un momento.</p>'; });
     }
     setupHome() {
       const bar = this.$('[data-buybar]'), heroBuy = this.$('[data-hero-buy]'), buy = this.$('[data-sec="buy"]');
@@ -1811,75 +2150,25 @@ body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
     app.raf = requestAnimationFrame(frame);
   }
 
-  /* ---------- Experimental: rearrange the shared page ---------- */
-  function themeFx(app) {
-    const el = app.el, $ = q => el.querySelector(q), $$ = q => [...el.querySelectorAll(q)];
-    el.classList.add('xp', 'own-layout'); // lays the page out itself, on phones and on computers
-    const hero = $('.hero'), slides = $$('.slide'), n = slides.length;
-
-    // story bars and tap zones over the photos
-    hero.insertAdjacentHTML('afterbegin', `<div class="xp-segs" aria-hidden="true">${'<i><b></b></i>'.repeat(n)}</div>`
-      + (n > 1 ? '<button class="xp-tap xp-tap--prev" type="button" data-action="g-prev" aria-label="Foto anterior"></button><button class="xp-tap xp-tap--next" type="button" data-action="g-next" aria-label="Foto siguiente"></button>' : ''));
-    const segs = $$('.xp-segs i');
-    const paintSegs = () => segs.forEach((s, i) => {
-      s.className = i < app.slide ? 'done' : '';
-      if (i === app.slide) { s.classList.remove('now'); void s.offsetWidth; s.classList.add('now'); }
-    });
-    const paintGallery = app.paintGallery.bind(app);
-    app.paintGallery = () => { paintGallery(); paintSegs(); };
-    paintSegs();
-    // stories advance on their own (not when the visitor prefers less motion)
-    if (n > 1 && !reduce) segs.forEach((s, i) => s.firstChild.addEventListener('animationend', () => { if (i === app.slide) app.goSlide((app.slide + 1) % n); }));
-
-    // the sheet: live ticker, swipeable figures, sticky tabs and three panels
-    const tabs = [['buy', 'Comprar'], ['prizes', 'Premios'], ['info', 'Info']];
-    hero.insertAdjacentHTML('afterend', `<div class="xp-sheet"><span class="xp-grab" aria-hidden="true"></span><div class="xp-stats" data-sec="stats" aria-label="Cifras de la rifa"></div>
-      <div class="xp-tabs" role="tablist" aria-label="Secciones">${tabs.map(([k, t], i) => `<button type="button" role="tab" data-xp-tab="${k}" aria-selected="${i === 0}">${t}</button>`).join('')}</div>
-      ${tabs.map(([k], i) => `<div data-xp-panel="${k}" role="tabpanel"${i ? ' hidden' : ''}></div>`).join('')}</div>`);
-    const sheet = $('.xp-sheet');
-    sheet.insertBefore($('.ticker'), $('.xp-stats'));
-    $('.xp-stats').append($('.sold'), $('.clock'));
-    $('[data-xp-panel="buy"]').append($('[data-sec="buy"]'));
-    const prizes = $('.prizes'); prizes.dataset.sec = 'prizes';
-    prizes.classList.add('is-seen'); // the steps slide out each time the tab opens
-    $('[data-xp-panel="prizes"]').append(prizes, $('.rank'));
-    const org = $('.orgcard'); org.dataset.sec = 'org';
-    const acc = $$('.acc-sec'); if (acc[0]) acc[0].dataset.sec = 'how';
-    $('[data-xp-panel="info"]').append(org, ...acc);
-    // sections live in tabs: open the right tab first, and stop below the sticky tabs
-    app.secOffset = () => app.desk ? 150 : 74;
-    app.openSection = t => { const panel = t.closest('[data-xp-panel]'); if (panel && panel.hidden) app.xpTab(panel.dataset.xpPanel); };
-    app.xpTab = name => {
-      $$('[data-xp-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.xpTab === name));
-      $$('[data-xp-panel]').forEach(p => { p.hidden = p.dataset.xpPanel !== name; });
-    };
-    sheet.addEventListener('click', e => {
-      const b = e.target.closest('[data-xp-tab]');
-      if (!b) return;
-      app.xpTab(b.dataset.xpTab);
-      const tabsBar = $('.xp-tabs'), y = sheet.offsetTop + tabsBar.offsetTop - (app.desk ? 72 : 0);
-      if (app.sc.scrollTop > y) app.sc.scrollTop = y;
-    });
-
-    // pause the endless loops while this phone is off screen
-    app.fxio = new IntersectionObserver(([e]) => el.classList.toggle('fx-paused', !e.isIntersecting));
-    app.fxio.observe(app.device);
-  }
-
 
   /* ---------- tema claro / oscuro ---------- */
   const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
   function toggleTheme() { document.documentElement.dataset.theme = isDark() ? 'light' : 'dark'; }
 
-  /* ---------- color de la marca: un nombre de ACCENTS o un hex propio ---------- */
-  const [ac, aci] = ACCENTS[CFG.accent] || [CFG.accent, CFG.accentInk || '#ffffff'];
-  document.documentElement.style.setProperty('--accent', ac);
-  document.documentElement.style.setProperty('--accent-ink', aci);
-  document.title = `${CFG.prize} · ${CFG.rifero}`;
-
-  /* ---------- montar la página ---------- */
+  /* ---------- montar la página ----------
+     Si la plataforma necesita traer datos antes de mostrar la página (la rifa, la tasa, los métodos de pago),
+     define window.LOTTOGE_ANTES como una promesa: la página espera a que termine y vuelve a leer LOTTOGE_RIFA. */
   const host = document.getElementById('app');
-  new App(host, { view: 'home' }, host);
+  Promise.resolve(window.LOTTOGE_ANTES).catch(() => {}).then(() => {
+    CFG = Object.assign(JSON.parse(JSON.stringify(SAMPLE)), window.LOTTOGE_RIFA || {});
+    D = derive(CFG);
+    // color de la marca: un nombre de ACCENTS o un hex propio
+    const [ac, aci] = ACCENTS[CFG.accent] || [CFG.accent, CFG.accentInk || '#ffffff'];
+    document.documentElement.style.setProperty('--accent', ac);
+    document.documentElement.style.setProperty('--accent-ink', aci);
+    document.title = `${CFG.prize} · ${CFG.rifero}`;
+    new App(host, { view: 'home' }, host);
+  });
 })();
 </script>
 </body>

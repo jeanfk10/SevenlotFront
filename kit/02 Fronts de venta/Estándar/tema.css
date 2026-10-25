@@ -1,0 +1,187 @@
+/* LottoGE · plantilla Estándar · su diseño, encima de comun/venta.css */
+/* ================= Plantilla ESTÁNDAR =================
+   LottoGE's own look, the same as the lottoge.net home page: a white page, navy type, coral for actions,
+   sun, teal and sky for small signals, rounded cards, pill buttons that lift. Same structure and logic. */
+:root, .force-light {
+  --bg: #ffffff;
+  --surface: #f6f5f2;
+  --surface-2: #ecebe6;
+  --ink: #1d2340;
+  --muted: #5b6078;
+  --line: #e4e2dc;
+  --good: #12a594;
+  --good-ink: #ffffff;
+  --wait: #a86a00;
+  --danger: #c4321a;
+  --island: #1d2340;
+  --on-island: #ffffff;
+  --scrim: rgba(29, 35, 64, .5);
+  --coral: #ff5a36;
+  --sun: #ffc23c;
+  --sun-soft: #fff3d6;
+  --sun-ink: #7a5600;
+  --teal: #12a594;
+  --teal-soft: #dcf5f1;
+  --teal-ink: #0b6b60;
+  --sky: #4f7cff;
+  --sky-soft: #e5ecff;
+  --sky-ink: #2546a8;
+  --lift: 0 20px 34px -24px rgba(29, 35, 64, .5);
+  --font: "Plus Jakarta Sans", "Segoe UI", Arial, system-ui, sans-serif;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --pop: cubic-bezier(.34, 1.4, .64, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11152a; --surface: #1a1f3a; --surface-2: #262c4f; --ink: #f3f2ee; --muted: #a8adc4; --line: #2e3558;
+    --good: #3fd0bd; --good-ink: #062a25; --wait: #ffc23c; --danger: #ff8a73; --island: #0a0d1c; --scrim: rgba(0, 0, 0, .65);
+    --sun-soft: rgba(255, 194, 60, .16); --sun-ink: #ffd27a; --teal-soft: rgba(18, 165, 148, .2); --teal-ink: #6fe0d1;
+    --sky-soft: rgba(79, 124, 255, .22); --sky-ink: #a9bfff; --lift: 0 20px 34px -22px rgba(0, 0, 0, .85);
+  }
+}
+:root[data-theme="dark"], .force-dark {
+  --bg: #11152a; --surface: #1a1f3a; --surface-2: #262c4f; --ink: #f3f2ee; --muted: #a8adc4; --line: #2e3558;
+  --good: #3fd0bd; --good-ink: #062a25; --wait: #ffc23c; --danger: #ff8a73; --island: #0a0d1c; --scrim: rgba(0, 0, 0, .65);
+  --sun-soft: rgba(255, 194, 60, .16); --sun-ink: #ffd27a; --teal-soft: rgba(18, 165, 148, .2); --teal-ink: #6fe0d1;
+  --sky-soft: rgba(79, 124, 255, .22); --sky-ink: #a9bfff; --lift: 0 20px 34px -22px rgba(0, 0, 0, .85);
+}
+
+/* type and the LottoGE mark */
+.wide { font-weight: 800; font-stretch: 100%; text-transform: none; letter-spacing: -0.035em; line-height: 1; }
+.top h1 { letter-spacing: -0.045em; }
+.cfg h2, .group__head h2 { font-stretch: 100%; letter-spacing: -0.03em; }
+.lgmark { font-stretch: 100%; letter-spacing: -0.03em; }
+.lgmark b { color: var(--coral); font-weight: inherit; }
+.lgmark i { clip-path: none; border-radius: 8px; background: var(--coral) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 6.5A1.5 1.5 0 0 1 4.5 5h11A1.5 1.5 0 0 1 17 6.5V8a2 2 0 0 0 0 4v1.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 3 13.5V12a2 2 0 0 0 0-4z' fill='white'/%3E%3C/svg%3E") center / 64% no-repeat; }
+.island { background: #000000; }
+:focus-visible { outline-color: var(--sky); }
+
+/* the showcase controls take the same shapes */
+.themebtn, .pbtn, .sw span { border-radius: 999px; }
+.in { border-radius: 14px; border-color: var(--line); }
+.in:focus { border-color: var(--sky); box-shadow: 0 0 0 4px var(--sky-soft); }
+
+/* buttons: pills that lift a little */
+.app .btn { border-radius: 999px; font-weight: 700; transition: transform .18s var(--ease), box-shadow .18s var(--ease), background .2s, color .2s; }
+.app .btn--accent:hover:not(:disabled) { opacity: 1; transform: translateY(-2px); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--accent) 75%, transparent); }
+.app .btn--ink:hover:not(:disabled) { opacity: 1; transform: translateY(-2px); box-shadow: var(--lift); }
+.app .btn:active { transform: scale(.97); box-shadow: none; }
+.chip, .flyerbtn, .gal__count, .gal__nav, .lightbox__bar button, .copy, .copyall, .series button, .rand button, .tag, .seg, .seg button { border-radius: 999px; }
+.org__mark { border-radius: 11px; }
+.board__x, .st-icon, .steps3 i { border-radius: 50%; }
+.nav { background: color-mix(in srgb, var(--bg) 94%, transparent); box-shadow: 0 1px 0 var(--line); }
+.chip { font-weight: 700; }
+.ticker__label { border-radius: 0 999px 999px 0; }
+
+/* hero: the photos sit on a soft sun blob that keeps changing shape, like the home page's ticket machine */
+.hero { position: relative; isolation: isolate; overflow-x: clip; }
+.hero::before { content: ""; position: absolute; z-index: -1; left: -16px; right: -12px; top: 0; height: 336px; border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%; background: var(--sun-soft); animation: morph 9s ease-in-out infinite; }
+.hero__img { margin: 18px 18px 0; border-radius: 22px; overflow: hidden; box-shadow: var(--lift); }
+.hero__body { padding: 22px 20px 30px; }
+.hero__when { font-weight: 600; }
+.hero__title { font-weight: 800; letter-spacing: -0.035em; line-height: 1.04; }
+.hero__extra { justify-self: start; margin-top: 12px; background: var(--sun-soft); color: var(--sun-ink); padding: 6px 14px; border-radius: 999px; font-size: 16px; font-weight: 700; }
+.price__bs { letter-spacing: -0.035em; }
+.hero .btn--accent::after { content: "↓"; display: inline-block; transition: transform .2s var(--ease); }
+.hero .btn--accent:hover::after { transform: translateY(3px); }
+.live .dot { color: var(--teal); }
+.std-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+.std-tags span { padding: 7px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; transition: transform .25s var(--pop); }
+.std-tags span:hover { transform: translateY(-3px) rotate(-2deg); }
+.t-teal { background: var(--teal-soft); color: var(--teal-ink); }
+.t-sky { background: var(--sky-soft); color: var(--sky-ink); }
+
+/* countdown and sales */
+.clock p { font-weight: 700; }
+.cd { gap: 8px; }
+.cd div { background: var(--surface); color: var(--ink); border-radius: 18px; padding: 14px 0 12px; }
+.cd b { letter-spacing: -0.02em; }
+.cd b.tick { animation: tickPop .45s var(--pop); }
+.cd span { color: var(--muted); opacity: 1; font-weight: 600; }
+.sold__pct { letter-spacing: -0.03em; }
+.bar { height: 10px; border-radius: 99px; background: var(--surface-2); }
+.bar span { border-radius: 99px; background: var(--teal); }
+.sold__left b { color: var(--teal-ink); }
+
+/* prizes: a navy card for the first, soft cards for the others */
+.h2, .buy__h { font-weight: 800; letter-spacing: -0.03em; }
+.p1 { background: var(--island); color: #ffffff; border-radius: 22px; padding: 22px 20px 24px; }
+.p1 small { opacity: 1; color: #c3c7da; }
+.p1 b { letter-spacing: -0.03em; }
+.p1 span { color: var(--sun); }
+.p23row { gap: 10px; margin-top: 10px; }
+.p23 { background: var(--surface); border-radius: 20px; }
+.p1, .p23 { transition: transform .3s var(--pop), box-shadow .3s var(--ease); }
+.p1:hover, .p23:hover { transform: translateY(-4px); box-shadow: var(--lift); }
+
+/* the purchase box */
+.buy { margin: 56px 14px 0; padding: 26px 18px 28px; border-radius: 28px; }
+.seg, .field { background: var(--surface); }
+.buy .seg, .buy .field { background: var(--bg); }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+.quick { gap: 8px; }
+.qbtn { border-radius: 18px; text-align: center; place-items: center; transition: transform .25s var(--pop), box-shadow .25s var(--ease), background .2s, color .2s; }
+.qbtn:hover { background: var(--bg); transform: translateY(-3px); box-shadow: var(--lift); }
+.qbtn em { top: -9px; right: -4px; border-radius: 999px; background: var(--sun); color: #1d2340; padding: 3px 9px; animation: bump 2.6s var(--ease) infinite; }
+.qbtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.stepper button { border-radius: 50%; }
+.stepper button:hover { background: var(--bg); box-shadow: var(--lift); }
+.field { border-radius: 16px; border-color: transparent; transition: border-color .2s, box-shadow .2s; }
+.field:focus { border-color: var(--sky); box-shadow: 0 0 0 4px var(--sky-soft); }
+.field.is-bad { border-color: var(--danger); }
+.stepper .field { border-radius: 999px; font-weight: 800; }
+.go { border-radius: 999px; min-height: 64px; }
+.chips li { border-radius: 999px; padding-left: 14px; }
+.recap { border-radius: 16px; }
+.method { border-radius: 18px; transition: transform .25s var(--pop), background .2s, color .2s; }
+.method:hover { background: var(--bg); transform: translateY(-2px); }
+.method:hover .mico { animation: wiggle .5s var(--ease); }
+.mico { border-radius: 12px; }
+.paybox, .upload { border-radius: 18px; }
+.lookup.is-ok { color: var(--teal-ink); }
+
+/* number board */
+.board { border-radius: 28px 28px 0 0; }
+.board__head h2 { font-stretch: 100%; letter-spacing: -0.02em; }
+.grid button { border-radius: 12px; }
+.grid button[aria-pressed="true"] { animation: popIn .35s var(--pop); }
+
+/* rest of the page */
+.orgcard { margin: 56px 14px 0; border-radius: 22px; }
+.seal { border-radius: 16px; }
+.seal circle { fill: var(--teal); }
+.rank li { border-radius: 18px; background: var(--bg); box-shadow: inset 0 0 0 2px var(--line); }
+.rank li:first-child { background: var(--sun-soft); color: var(--ink); box-shadow: none; }
+.acc__item { border-radius: 18px; overflow: hidden; }
+.acc__item button { font-weight: 700; }
+.afoot { background: var(--island); color: #ffffff; border-radius: 32px 32px 0 0; }
+.buybar { left: 10px; right: 10px; bottom: 26px; padding: 10px 10px 10px 22px; border-radius: 999px; transform: translateY(170%); background: var(--bg); color: var(--ink); box-shadow: 0 0 0 1px var(--line), 0 18px 36px -18px rgba(29, 35, 64, .45); }
+.buybar.is-on { transform: none; }
+
+/* after paying */
+.ok-head h1 { color: var(--coral); }
+.tkt { border-radius: 22px; box-shadow: var(--lift); }
+.tkt__main { border-radius: 22px 22px 0 0; }
+.stubs li { border-radius: 16px; text-align: center; }
+.order { border-collapse: separate; border-spacing: 0; border-radius: 18px; overflow: hidden; }
+.steps3 li, .held li, .why, .support, .held-note, .ord { border-radius: 18px; }
+.held-note svg { border-radius: 12px; }
+.st-icon--wait { background: var(--sun); color: #1d2340; }
+.held li span { color: var(--sun-ink); }
+.tag--wait { background: var(--sun-soft); color: var(--sun-ink); }
+.tag--ok { background: var(--teal-soft); color: var(--teal-ink); }
+.verify h2 { font-stretch: 100%; letter-spacing: -0.03em; }
+.vbar, .vbar span { border-radius: 99px; }
+
+/* motion: things rise into place, little badges bump */
+.rise { animation: stdRise .8s var(--ease) both; }
+.stage.is-in { animation: stdStage .5s var(--ease) both; }
+@keyframes stdRise { from { opacity: 0; transform: translateY(18px); } }
+@keyframes stdStage { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+@keyframes morph { 50% { border-radius: 54% 46% 44% 56% / 46% 56% 44% 54%; transform: rotate(3deg); } }
+@keyframes bump { 0%, 70%, 100% { transform: none; } 80% { transform: translateY(-3px) rotate(-4deg); } 90% { transform: rotate(3deg); } }
+@keyframes wiggle { 30% { transform: rotate(-10deg) scale(1.08); } 60% { transform: rotate(8deg); } }
+@keyframes tickPop { from { transform: translateY(-30%) scale(.9); opacity: .3; } }
+@keyframes popIn { from { transform: scale(.85); } }
+/* while a screen is out of view only the endless loops pause; entrances always finish */
+.fx-paused .hero::before, .fx-paused .qbtn em, .fx-paused .ticker__track, .fx-paused .dot { animation-play-state: paused !important; }

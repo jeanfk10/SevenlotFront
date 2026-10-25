@@ -1,0 +1,20 @@
+/* LottoGE · plantilla Pop · ajustes para computadora, encima de comun/venta-computadora.css */
+/* ---- Pop on a computer: one sand band behind the photos and price, sticker cards for the countdown and sales ---- */
+.desk .page::before { content: ""; grid-column: full; grid-row: 1 / 4; align-self: stretch; margin-bottom: -44px; z-index: -1; background: var(--c4); border-bottom: 3px solid var(--line); }
+.desk .hero__img { margin-top: 44px; }
+.desk .hero__body { padding-top: 44px; }
+.desk .hero__title { font-size: 66px; }
+.desk .price__bs { font-size: 50px; }
+.desk .clock, .desk .sold { background: var(--c2); border: 3px solid var(--line); border-radius: 22px; box-shadow: 5px 5px 0 var(--line); margin-top: 22px; padding: 16px 18px 18px; }
+.desk .clock::before { display: none; }
+.desk .fx-ribbon { grid-column: full; grid-row: 4; margin: 76px -40px 0; }
+.desk .fx-ribbon--b { grid-row: 5; margin: 6px -40px -10px; }
+.desk .prizes { margin-top: 72px; padding: 32px 32px 40px; border: 3px solid var(--line); border-radius: 28px; box-shadow: 8px 8px 0 var(--line); }
+.desk .buy { margin-top: 72px; }
+.desk .fx-badge { right: auto; left: calc(100% - var(--side) - 600px); top: 16px; width: 132px; height: 132px; }
+.desk .fx-badge b { font-size: 15px; }
+.desk .fx-badge span { font-size: 20px; }
+.desk .board { border: 3px solid var(--line); border-radius: 26px; }
+.desk .afoot { margin-top: 110px; }
+.desk .ok-head h1 { font-size: 120px; }
+.desk .st-head h1 { font-size: 64px; }

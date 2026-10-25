@@ -1,0 +1,672 @@
+{
+  "version": "2026-10-25",
+  "descripcion": "Catálogo de métodos de pago de los fronts de venta de LottoGE: iconos (cuatro estilos), monedas y bancos de Venezuela. Es el mismo de 02 Fronts de venta/comun/metodos-pago.js. Para la base de datos: guardar en cada método de pago la clave del icono (campo icon) y, si se quiere otro color, color y colorInk.",
+  "campos": {
+    "id": "Identificador del método.",
+    "name": "Nombre que ve el comprador.",
+    "icon": "Clave de un icono de este catálogo. Si falta, se adivina por el nombre. El mismo icono sirve para varios métodos.",
+    "color / colorInk": "Fondo y dibujo de la ficha del icono. Opcional: cada icono trae los suyos.",
+    "note / badge": "Texto chico debajo del nombre y etiqueta resaltada. Opcionales.",
+    "isOnline": "true: se verifica solo con la pasarela (Chinchin, AvilaPay o R4) y entrega los números al instante.",
+    "requireReceipt": "true: pide comprobante y la compra queda como boletos reservados. Por defecto, si no es isOnline.",
+    "currency": "Código de moneda (ver monedas). En el API real viene como currencyId.",
+    "minTickets": "Mínimo de boletos para usar el método.",
+    "commissionRate": "% que se suma al monto de este método.",
+    "accountInfo": "Datos para pagar: [[\"Banco\", \"Banesco (0134)\"], …], un objeto o texto con una línea \"Etiqueta: valor\" por dato.",
+    "instructions": "Indicación corta que sale arriba de los datos.",
+    "ref": "{ label, placeholder, error, numeric }: lo que se pide como referencia. Por defecto, el del icono.",
+    "askPayer / askBank": "Pedir el teléfono desde el que paga y su banco."
+  },
+  "sqlSugerido": "ALTER TABLE payment_methods ADD COLUMN icon VARCHAR(40) NULL, ADD COLUMN color CHAR(7) NULL, ADD COLUMN color_ink CHAR(7) NULL;",
+  "iconos": [
+    {
+      "clave": "pago-movil",
+      "nombre": "Pago Móvil",
+      "color": "#0f9d58",
+      "colorTexto": "#ffffff",
+      "tipo": "banco-ve",
+      "monedaPorDefecto": "VES",
+      "referencia": {
+        "label": "Número de referencia",
+        "placeholder": "Últimos 6 dígitos",
+        "error": "la referencia",
+        "numeric": true
+      },
+      "dibujo": "<rect x=\"6\" y=\"2\" width=\"12\" height=\"20\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M10.5 18.5h3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"m9.2 10.4 2 2 3.8-4.2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><rect x=\"6\" y=\"2\" width=\"12\" height=\"20\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M10.5 18.5h3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"m9.2 10.4 2 2 3.8-4.2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#0f9d58\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><rect x=\"6\" y=\"2\" width=\"12\" height=\"20\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M10.5 18.5h3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"m9.2 10.4 2 2 3.8-4.2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"
+    },
+    {
+      "clave": "comprobante",
+      "nombre": "Pago con comprobante",
+      "color": "#1d5fbf",
+      "colorTexto": "#ffffff",
+      "tipo": "banco-ve",
+      "monedaPorDefecto": "VES",
+      "referencia": {
+        "label": "Número de referencia",
+        "placeholder": "Últimos 6 dígitos",
+        "error": "la referencia",
+        "numeric": true
+      },
+      "dibujo": "<path d=\"M6 2.5h8.5L19 7v14.5H6z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M14 2.5V7h4.5M9.5 12h6M9.5 16h6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M6 2.5h8.5L19 7v14.5H6z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M14 2.5V7h4.5M9.5 12h6M9.5 16h6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#1d5fbf\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M6 2.5h8.5L19 7v14.5H6z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M14 2.5V7h4.5M9.5 12h6M9.5 16h6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"
+    },
+    {
+      "clave": "transferencia",
+      "nombre": "Transferencia bancaria",
+      "color": "#24408e",
+      "colorTexto": "#ffffff",
+      "tipo": "banco-ve",
+      "monedaPorDefecto": "VES",
+      "referencia": {
+        "label": "Número de referencia",
+        "placeholder": "Últimos 6 dígitos",
+        "error": "la referencia",
+        "numeric": true
+      },
+      "dibujo": "<path d=\"M3.5 9.5 12 4.5l8.5 5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M5.5 10.5v7M9.8 10.5v7M14.2 10.5v7M18.5 10.5v7M3.5 20.5h17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M3.5 9.5 12 4.5l8.5 5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M5.5 10.5v7M9.8 10.5v7M14.2 10.5v7M18.5 10.5v7M3.5 20.5h17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#24408e\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M3.5 9.5 12 4.5l8.5 5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M5.5 10.5v7M9.8 10.5v7M14.2 10.5v7M18.5 10.5v7M3.5 20.5h17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"
+    },
+    {
+      "clave": "transferencia-inmediata",
+      "nombre": "Transferencia inmediata",
+      "color": "#0b7a75",
+      "colorTexto": "#ffffff",
+      "tipo": "banco-ve",
+      "monedaPorDefecto": "VES",
+      "referencia": {
+        "label": "Número de referencia",
+        "placeholder": "Últimos 6 dígitos",
+        "error": "la referencia",
+        "numeric": true
+      },
+      "dibujo": "<path d=\"M4 8h14l-3.5-3.5M20 16H6l3.5 3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M4 8h14l-3.5-3.5M20 16H6l3.5 3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#0b7a75\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M4 8h14l-3.5-3.5M20 16H6l3.5 3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"
+    },
+    {
+      "clave": "tarjeta",
+      "nombre": "Tarjeta de débito o crédito",
+      "color": "#334155",
+      "colorTexto": "#ffffff",
+      "tipo": "pasarela",
+      "monedaPorDefecto": "VES",
+      "referencia": {
+        "label": "Número de autorización",
+        "placeholder": "Ej. 004821",
+        "error": "el número de autorización",
+        "numeric": true
+      },
+      "dibujo": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M3 10h18M7 15h4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M3 10h18M7 15h4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#334155\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M3 10h18M7 15h4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"
+    },
+    {
+      "clave": "qr",
+      "nombre": "Pago con QR",
+      "color": "#111827",
+      "colorTexto": "#ffffff",
+      "tipo": "pasarela",
+      "monedaPorDefecto": "VES",
+      "referencia": {
+        "label": "Número de autorización",
+        "placeholder": "Ej. 004821",
+        "error": "el número de autorización",
+        "numeric": true
+      },
+      "dibujo": "<path d=\"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5zM14 18h2.5v2H14zM18 14h2v2.5h-2z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5zM14 18h2.5v2H14zM18 14h2v2.5h-2z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#111827\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5zM14 18h2.5v2H14zM18 14h2v2.5h-2z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "zelle",
+      "nombre": "Zelle",
+      "color": "#6d1ed4",
+      "colorTexto": "#ffffff",
+      "tipo": "usd",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "Código de confirmación",
+        "placeholder": "Ej. ZL7Q2K",
+        "error": "el código de confirmación",
+        "numeric": false
+      },
+      "dibujo": "<path d=\"M6 5h12v2.9L9.9 16.4H18V19H6v-2.9l8.1-8.5H6z\" fill=\"currentColor\"/><path d=\"M11 2h2v3h-2zM11 19h2v3h-2z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M6 5h12v2.9L9.9 16.4H18V19H6v-2.9l8.1-8.5H6z\" fill=\"currentColor\"/><path d=\"M11 2h2v3h-2zM11 19h2v3h-2z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#6d1ed4\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M6 5h12v2.9L9.9 16.4H18V19H6v-2.9l8.1-8.5H6z\" fill=\"currentColor\"/><path d=\"M11 2h2v3h-2zM11 19h2v3h-2z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "binance",
+      "nombre": "Binance Pay",
+      "color": "#f0b90b",
+      "colorTexto": "#1e2026",
+      "tipo": "cripto",
+      "monedaPorDefecto": "USDT",
+      "referencia": {
+        "label": "ID de la orden en Binance",
+        "placeholder": "Ej. 2849104772",
+        "error": "el ID de la orden",
+        "numeric": true
+      },
+      "dibujo": "<path d=\"m12 2.6 3.4 3.4L12 9.4 8.6 6zM6 8.6 9.4 12 6 15.4 2.6 12zm12 0 3.4 3.4-3.4 3.4-3.4-3.4zm-6 6 3.4 3.4-3.4 3.4-3.4-3.4z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"m12 2.6 3.4 3.4L12 9.4 8.6 6zM6 8.6 9.4 12 6 15.4 2.6 12zm12 0 3.4 3.4-3.4 3.4-3.4-3.4zm-6 6 3.4 3.4-3.4 3.4-3.4-3.4z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#f0b90b\"/><g transform=\"translate(12 12)\" color=\"#1e2026\"><path d=\"m12 2.6 3.4 3.4L12 9.4 8.6 6zM6 8.6 9.4 12 6 15.4 2.6 12zm12 0 3.4 3.4-3.4 3.4-3.4-3.4zm-6 6 3.4 3.4-3.4 3.4-3.4-3.4z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "usdt",
+      "nombre": "USDT",
+      "color": "#26a17b",
+      "colorTexto": "#ffffff",
+      "tipo": "cripto",
+      "monedaPorDefecto": "USDT",
+      "referencia": {
+        "label": "Hash de la transacción (TxID)",
+        "placeholder": "Pega aquí el TxID",
+        "error": "el hash de la transacción",
+        "numeric": false
+      },
+      "dibujo": "<circle cx=\"12\" cy=\"12\" r=\"9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8 8h8M12 8v9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8.3 11.6c1 .6 2.3.9 3.7.9s2.7-.3 3.7-.9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8 8h8M12 8v9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8.3 11.6c1 .6 2.3.9 3.7.9s2.7-.3 3.7-.9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#26a17b\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><circle cx=\"12\" cy=\"12\" r=\"9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8 8h8M12 8v9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8.3 11.6c1 .6 2.3.9 3.7.9s2.7-.3 3.7-.9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></g></svg>"
+    },
+    {
+      "clave": "cripto",
+      "nombre": "Criptomonedas",
+      "color": "#f7931a",
+      "colorTexto": "#1a1206",
+      "tipo": "cripto",
+      "monedaPorDefecto": "USDT",
+      "referencia": {
+        "label": "Hash de la transacción (TxID)",
+        "placeholder": "Pega aquí el TxID",
+        "error": "el hash de la transacción",
+        "numeric": false
+      },
+      "dibujo": "<path d=\"M12 2.5 20.2 7v10L12 21.5 3.8 17V7z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M12 7.6 15.8 9.8v4.4L12 16.4l-3.8-2.2V9.8z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M12 2.5 20.2 7v10L12 21.5 3.8 17V7z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M12 7.6 15.8 9.8v4.4L12 16.4l-3.8-2.2V9.8z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#f7931a\"/><g transform=\"translate(12 12)\" color=\"#1a1206\"><path d=\"M12 2.5 20.2 7v10L12 21.5 3.8 17V7z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M12 7.6 15.8 9.8v4.4L12 16.4l-3.8-2.2V9.8z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "paypal",
+      "nombre": "PayPal",
+      "color": "#003087",
+      "colorTexto": "#ffffff",
+      "tipo": "usd",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "ID de la transacción",
+        "placeholder": "Ej. 7XK21934LM881",
+        "error": "el ID de la transacción",
+        "numeric": false
+      },
+      "dibujo": "<path fill-rule=\"evenodd\" d=\"M7 3h6.2a5 5 0 0 1 0 10h-2.7v8H7zm3.5 3.2v3.6h2.6a1.8 1.8 0 0 0 0-3.6z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M7 3h6.2a5 5 0 0 1 0 10h-2.7v8H7zm3.5 3.2v3.6h2.6a1.8 1.8 0 0 0 0-3.6z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#003087\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path fill-rule=\"evenodd\" d=\"M7 3h6.2a5 5 0 0 1 0 10h-2.7v8H7zm3.5 3.2v3.6h2.6a1.8 1.8 0 0 0 0-3.6z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "zinli",
+      "nombre": "Zinli",
+      "color": "#7b3fe4",
+      "colorTexto": "#ffffff",
+      "tipo": "usd",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "Número de operación",
+        "placeholder": "Ej. 48211904",
+        "error": "el número de operación",
+        "numeric": false
+      },
+      "dibujo": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8.5 9h7l-7 6h7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8.5 9h7l-7 6h7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#7b3fe4\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8.5 9h7l-7 6h7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"
+    },
+    {
+      "clave": "wally",
+      "nombre": "Wally",
+      "color": "#00a19a",
+      "colorTexto": "#ffffff",
+      "tipo": "usd",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "Número de operación",
+        "placeholder": "Ej. 48211904",
+        "error": "el número de operación",
+        "numeric": false
+      },
+      "dibujo": "<path d=\"M3.5 6h2.6l2.1 8.2L10.6 6h2.8l2.4 8.2L17.9 6h2.6L17 18h-2.6L12 10l-2.4 8H7z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M3.5 6h2.6l2.1 8.2L10.6 6h2.8l2.4 8.2L17.9 6h2.6L17 18h-2.6L12 10l-2.4 8H7z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#00a19a\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M3.5 6h2.6l2.1 8.2L10.6 6h2.8l2.4 8.2L17.9 6h2.6L17 18h-2.6L12 10l-2.4 8H7z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "airtm",
+      "nombre": "AirTM",
+      "color": "#1f6feb",
+      "colorTexto": "#ffffff",
+      "tipo": "usd",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "Número de operación",
+        "placeholder": "Ej. 48211904",
+        "error": "el número de operación",
+        "numeric": false
+      },
+      "dibujo": "<path fill-rule=\"evenodd\" d=\"M12 4 20 20h-3.3l-1.6-3.4H8.9L7.3 20H4zm0 6.2-2 4.2h4z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M12 4 20 20h-3.3l-1.6-3.4H8.9L7.3 20H4zm0 6.2-2 4.2h4z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#1f6feb\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path fill-rule=\"evenodd\" d=\"M12 4 20 20h-3.3l-1.6-3.4H8.9L7.3 20H4zm0 6.2-2 4.2h4z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "billetera",
+      "nombre": "Billetera digital",
+      "color": "#475569",
+      "colorTexto": "#ffffff",
+      "tipo": "usd",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "Número de operación",
+        "placeholder": "Ej. 48211904",
+        "error": "el número de operación",
+        "numeric": false
+      },
+      "dibujo": "<path d=\"M4.5 8V7A2.5 2.5 0 0 1 7 4.5h10.5V8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"3.5\" y=\"8\" width=\"17\" height=\"11.5\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"16\" cy=\"13.75\" r=\"1.5\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M4.5 8V7A2.5 2.5 0 0 1 7 4.5h10.5V8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"3.5\" y=\"8\" width=\"17\" height=\"11.5\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"16\" cy=\"13.75\" r=\"1.5\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#475569\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M4.5 8V7A2.5 2.5 0 0 1 7 4.5h10.5V8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"3.5\" y=\"8\" width=\"17\" height=\"11.5\" rx=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"16\" cy=\"13.75\" r=\"1.5\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "nequi",
+      "nombre": "Nequi",
+      "color": "#da0081",
+      "colorTexto": "#ffffff",
+      "tipo": "exterior",
+      "monedaPorDefecto": "COP",
+      "referencia": {
+        "label": "Número de comprobante",
+        "placeholder": "Ej. M1234567",
+        "error": "el número de comprobante",
+        "numeric": false
+      },
+      "dibujo": "<path d=\"M6 19V5h2.6l6.8 9.2V5H18v14h-2.6L8.6 9.8V19z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M6 19V5h2.6l6.8 9.2V5H18v14h-2.6L8.6 9.8V19z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#da0081\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M6 19V5h2.6l6.8 9.2V5H18v14h-2.6L8.6 9.8V19z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "daviplata",
+      "nombre": "DaviPlata",
+      "color": "#e1251b",
+      "colorTexto": "#ffffff",
+      "tipo": "exterior",
+      "monedaPorDefecto": "COP",
+      "referencia": {
+        "label": "Número de comprobante",
+        "placeholder": "Ej. M1234567",
+        "error": "el número de comprobante",
+        "numeric": false
+      },
+      "dibujo": "<path fill-rule=\"evenodd\" d=\"M6 4h5.5a8 8 0 0 1 0 16H6zm3 3v10h2.5a5 5 0 0 0 0-10z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M6 4h5.5a8 8 0 0 1 0 16H6zm3 3v10h2.5a5 5 0 0 0 0-10z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#e1251b\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path fill-rule=\"evenodd\" d=\"M6 4h5.5a8 8 0 0 1 0 16H6zm3 3v10h2.5a5 5 0 0 0 0-10z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "yape",
+      "nombre": "Yape",
+      "color": "#742284",
+      "colorTexto": "#ffffff",
+      "tipo": "exterior",
+      "monedaPorDefecto": "PEN",
+      "referencia": {
+        "label": "Número de operación",
+        "placeholder": "Ej. 48211904",
+        "error": "el número de operación",
+        "numeric": false
+      },
+      "dibujo": "<path d=\"M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#742284\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z\" fill=\"currentColor\"/></g></svg>"
+    }
+  ],
+  "monedas": [
+    {
+      "codigo": "VES",
+      "nombre": "Bolívares",
+      "prefijo": "Bs ",
+      "sufijo": "",
+      "decimales": 2,
+      "grupo": "bs"
+    },
+    {
+      "codigo": "USD",
+      "nombre": "Dólares",
+      "prefijo": "$",
+      "sufijo": "",
+      "decimales": 2,
+      "grupo": "usd"
+    },
+    {
+      "codigo": "USDT",
+      "nombre": "Tether (USDT)",
+      "prefijo": "",
+      "sufijo": " USDT",
+      "decimales": 2,
+      "grupo": "usd"
+    },
+    {
+      "codigo": "EUR",
+      "nombre": "Euros",
+      "prefijo": "€",
+      "sufijo": "",
+      "decimales": 2,
+      "grupo": "usd"
+    },
+    {
+      "codigo": "COP",
+      "nombre": "Pesos colombianos",
+      "prefijo": "COP ",
+      "sufijo": "",
+      "decimales": 0,
+      "grupo": "ext"
+    },
+    {
+      "codigo": "PEN",
+      "nombre": "Soles",
+      "prefijo": "S/ ",
+      "sufijo": "",
+      "decimales": 2,
+      "grupo": "ext"
+    },
+    {
+      "codigo": "CLP",
+      "nombre": "Pesos chilenos",
+      "prefijo": "CLP ",
+      "sufijo": "",
+      "decimales": 0,
+      "grupo": "ext"
+    },
+    {
+      "codigo": "BRL",
+      "nombre": "Reales",
+      "prefijo": "R$ ",
+      "sufijo": "",
+      "decimales": 2,
+      "grupo": "ext"
+    },
+    {
+      "codigo": "MXN",
+      "nombre": "Pesos mexicanos",
+      "prefijo": "MX$ ",
+      "sufijo": "",
+      "decimales": 2,
+      "grupo": "ext"
+    },
+    {
+      "codigo": "ARS",
+      "nombre": "Pesos argentinos",
+      "prefijo": "ARS ",
+      "sufijo": "",
+      "decimales": 0,
+      "grupo": "ext"
+    }
+  ],
+  "grupos": [
+    {
+      "grupo": "bs",
+      "titulo": "En bolívares"
+    },
+    {
+      "grupo": "usd",
+      "titulo": "En dólares y cripto"
+    },
+    {
+      "grupo": "ext",
+      "titulo": "Desde otros países"
+    }
+  ],
+  "bancosVenezuela": [
+    {
+      "codigo": "0102",
+      "nombre": "Banco de Venezuela"
+    },
+    {
+      "codigo": "0104",
+      "nombre": "Venezolano de Crédito"
+    },
+    {
+      "codigo": "0105",
+      "nombre": "Mercantil"
+    },
+    {
+      "codigo": "0108",
+      "nombre": "BBVA Provincial"
+    },
+    {
+      "codigo": "0114",
+      "nombre": "Bancaribe"
+    },
+    {
+      "codigo": "0115",
+      "nombre": "Banco Exterior"
+    },
+    {
+      "codigo": "0128",
+      "nombre": "Banco Caroní"
+    },
+    {
+      "codigo": "0134",
+      "nombre": "Banesco"
+    },
+    {
+      "codigo": "0137",
+      "nombre": "Sofitasa"
+    },
+    {
+      "codigo": "0138",
+      "nombre": "Banco Plaza"
+    },
+    {
+      "codigo": "0146",
+      "nombre": "Bangente"
+    },
+    {
+      "codigo": "0151",
+      "nombre": "BFC Banco Fondo Común"
+    },
+    {
+      "codigo": "0156",
+      "nombre": "100% Banco"
+    },
+    {
+      "codigo": "0157",
+      "nombre": "DelSur"
+    },
+    {
+      "codigo": "0163",
+      "nombre": "Banco del Tesoro"
+    },
+    {
+      "codigo": "0166",
+      "nombre": "Banco Agrícola de Venezuela"
+    },
+    {
+      "codigo": "0168",
+      "nombre": "Bancrecer"
+    },
+    {
+      "codigo": "0169",
+      "nombre": "R4 Banco Microfinanciero"
+    },
+    {
+      "codigo": "0171",
+      "nombre": "Banco Activo"
+    },
+    {
+      "codigo": "0172",
+      "nombre": "Bancamiga"
+    },
+    {
+      "codigo": "0174",
+      "nombre": "Banplus"
+    },
+    {
+      "codigo": "0175",
+      "nombre": "Banco Bicentenario"
+    },
+    {
+      "codigo": "0177",
+      "nombre": "Banfanb"
+    },
+    {
+      "codigo": "0178",
+      "nombre": "N58 Banco Digital"
+    },
+    {
+      "codigo": "0191",
+      "nombre": "BNC Nacional de Crédito"
+    }
+  ],
+  "ejemplos": [
+    {
+      "id": "pm-auto",
+      "icon": "pago-movil",
+      "name": "Pago Móvil",
+      "isOnline": true,
+      "accountInfo": [
+        [
+          "Banco",
+          "Banesco (0134)"
+        ],
+        [
+          "Teléfono",
+          "0412-555-0199"
+        ],
+        [
+          "RIF",
+          "J-50123456-7"
+        ]
+      ]
+    },
+    {
+      "id": "binance",
+      "icon": "binance",
+      "name": "Binance",
+      "note": "USDT con Binance Pay",
+      "accountInfo": [
+        [
+          "Pay ID",
+          "412 908 337"
+        ],
+        [
+          "Titular",
+          "Rifas La Bendición"
+        ]
+      ]
+    },
+    {
+      "id": "zelle",
+      "icon": "zelle",
+      "name": "Zelle",
+      "note": "Dólares desde EE. UU.",
+      "accountInfo": [
+        [
+          "Correo",
+          "pagos@rifero-ejemplo.com"
+        ],
+        [
+          "Titular",
+          "Rifas La Bendición"
+        ]
+      ]
+    },
+    {
+      "id": "pm-manual",
+      "icon": "comprobante",
+      "name": "Pago Móvil manual",
+      "note": "Con comprobante, lo revisa el rifero",
+      "accountInfo": [
+        [
+          "Banco",
+          "Banesco (0134)"
+        ],
+        [
+          "Teléfono",
+          "0412-555-0199"
+        ],
+        [
+          "RIF",
+          "J-50123456-7"
+        ]
+      ]
+    },
+    {
+      "id": "transferencia",
+      "icon": "transferencia",
+      "name": "Transferencia",
+      "note": "Banco de Venezuela",
+      "accountInfo": [
+        [
+          "Banco",
+          "Banco de Venezuela (0102)"
+        ],
+        [
+          "Cuenta",
+          "0102-0123-45-0001234567"
+        ],
+        [
+          "Titular",
+          "Rifas La Bendición"
+        ],
+        [
+          "RIF",
+          "J-50123456-7"
+        ]
+      ]
+    },
+    {
+      "id": "zinli",
+      "icon": "zinli",
+      "name": "Zinli",
+      "note": "Dólares en tu tarjeta Zinli",
+      "accountInfo": [
+        [
+          "Correo",
+          "pagos@rifero-ejemplo.com"
+        ],
+        [
+          "Titular",
+          "Rifas La Bendición"
+        ]
+      ]
+    },
+    {
+      "id": "paypal",
+      "icon": "paypal",
+      "name": "PayPal",
+      "note": "Con la comisión de PayPal",
+      "minTickets": 5,
+      "commissionRate": 5.4,
+      "accountInfo": [
+        [
+          "Correo",
+          "pagos@rifero-ejemplo.com"
+        ]
+      ],
+      "instructions": "El monto ya incluye la comisión de PayPal. Escribe tu cédula en la nota del pago."
+    },
+    {
+      "id": "nequi",
+      "icon": "nequi",
+      "name": "Nequi",
+      "note": "Pesos desde Colombia",
+      "accountInfo": [
+        [
+          "Número Nequi",
+          "300 555 0199"
+        ],
+        [
+          "Titular",
+          "Rifas La Bendición"
+        ]
+      ]
+    }
+  ]
+}

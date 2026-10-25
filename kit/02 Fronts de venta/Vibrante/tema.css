@@ -1,0 +1,130 @@
+/* LottoGE · plantilla Vibrante · su diseño, encima de comun/venta.css */
+/* ================= Plantilla VIBRANTE =================
+   The rifero's colour as whole fields, condensed shouting type, round chunky "game" buttons
+   that press down, stickers for urgency. Same structure and logic as the minimalist template. */
+:root, .force-light {
+  --bg: #fbfaf7;
+  --surface: #efece6;
+  --surface-2: #e0dcd3;
+  --ink: #141216;
+  --muted: #5a5560;
+  --hot: #ff2e55;
+  --hot-ink: #ffffff;
+  --shade: rgba(20, 18, 22, .28);
+  --font: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #100f13; --surface: #1d1b22; --surface-2: #2b2832; --ink: #fbf9fd; --muted: #aaa4b2;
+    --hot: #ff4d6d; --hot-ink: #ffffff; --shade: rgba(0, 0, 0, .55);
+  }
+}
+:root[data-theme="dark"], .force-dark {
+  --bg: #100f13; --surface: #1d1b22; --surface-2: #2b2832; --ink: #fbf9fd; --muted: #aaa4b2;
+  --hot: #ff4d6d; --hot-ink: #ffffff; --shade: rgba(0, 0, 0, .55);
+}
+.wide { font-stretch: 62%; font-weight: 900; letter-spacing: 0; line-height: .88; }
+
+/* buttons: pills that press down */
+.app .btn { border-radius: 999px; font-weight: 800; font-stretch: 100%; text-transform: uppercase; letter-spacing: .02em; }
+.app .btn--accent, .app .btn--ink { box-shadow: 0 5px 0 var(--shade); }
+.app .btn--accent:active, .app .btn--ink:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--shade); }
+.app .btn:disabled { box-shadow: none; }
+.app .btn--ghost { border-radius: 999px; }
+.chip, .flyerbtn, .gal__count, .gal__nav, .lightbox__bar button, .copy, .copyall, .series button, .rand button, .tag { border-radius: 999px; }
+.org__mark, .board__x, .st-icon { border-radius: 50%; }
+
+/* top: hot ticker, accent hero */
+.ticker { background: var(--hot); color: var(--hot-ink); }
+.ticker__label { background: var(--ink); color: var(--bg); border-radius: 0 999px 999px 0; }
+.hero { background: var(--accent); color: var(--accent-ink); padding: 14px 14px 0; border-radius: 0 0 34px 34px; }
+.hero__img { border-radius: 26px; overflow: hidden; }
+.hero__body { padding: 18px 6px 28px; }
+.hero__when { color: inherit; opacity: .8; font-weight: 600; }
+.hero__title { font-size: 58px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .88; letter-spacing: 0; }
+.hero__extra { justify-self: start; margin-top: 12px; background: var(--ink); color: var(--bg); padding: 6px 14px; border-radius: 999px; transform: rotate(-2deg); font-weight: 800; font-size: 18px; }
+.price { margin: 24px 0 20px; }
+.price__bs { font-size: 54px; font-weight: 900; font-stretch: 62%; letter-spacing: 0; }
+.price__usd, .price__usd b, .live, .live b { color: inherit; }
+.price__usd { opacity: .85; }
+.hero .btn--accent { background: var(--ink); color: var(--bg); }
+.live .dot { color: var(--hot); }
+
+/* countdown, sold, prizes */
+.clock { padding-top: 28px; }
+.clock p, .sold__n { font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+.cd { gap: 8px; }
+.cd div { background: var(--surface); color: var(--ink); border-radius: 20px; padding: 14px 0 12px; }
+.cd b { font-size: 44px; font-weight: 900; font-stretch: 62%; }
+.cd span { font-weight: 700; }
+.sold__pct { font-size: 52px; font-weight: 900; font-stretch: 62%; letter-spacing: 0; }
+.bar { height: 18px; border-radius: 999px; }
+.bar span { border-radius: 999px; background: var(--hot); }
+.sold__left b { color: var(--hot); }
+.h2, .buy__h { font-size: 38px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; letter-spacing: 0; line-height: .95; }
+.p1 { background: var(--accent); color: var(--accent-ink); border-radius: 26px; padding: 22px 20px 24px; }
+.p1 b { font-size: 40px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .92; letter-spacing: 0; }
+.p23row { gap: 8px; margin-top: 8px; }
+.p23 { border-radius: 22px; }
+.p23 b { font-size: 24px; font-weight: 900; font-stretch: 75%; }
+
+/* the purchase box */
+.buy { margin: 52px 12px 0; padding: 26px 18px 28px; border-radius: 30px; background: var(--surface); box-shadow: 0 0 0 4px var(--accent); }
+.seg, .seg button { border-radius: 999px; }
+.seg button { font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: .02em; }
+.quick { gap: 10px; margin-top: 18px; }
+.qbtn { border-radius: 22px; text-align: center; place-items: center; padding: 18px 6px 14px; }
+.qbtn b { font-size: 40px; font-weight: 900; font-stretch: 62%; }
+.qbtn em { top: -10px; right: -6px; border-radius: 999px; background: var(--hot); color: var(--hot-ink); transform: rotate(7deg); padding: 3px 10px; }
+.qbtn[aria-pressed="true"] { box-shadow: 0 5px 0 var(--shade); transform: translateY(-3px); }
+.stepper { gap: 8px; }
+.stepper button { border-radius: 50%; font-weight: 700; }
+.field { border-radius: 16px; }
+.stepper .field { border-radius: 999px; font-weight: 900; font-stretch: 75%; font-size: 26px; }
+.go { border-radius: 999px; min-height: 68px; padding: 0 26px; }
+.go b { font-size: 20px; }
+.chips li { border-radius: 999px; padding-left: 14px; background: var(--accent); color: var(--accent-ink); }
+.recap { border-radius: 18px; }
+.recap b { font-size: 22px; font-weight: 900; font-stretch: 75%; }
+.method { border-radius: 22px; }
+.method[aria-checked="true"] { box-shadow: 0 0 0 3px var(--accent); }
+.mico { border-radius: 14px; }
+.paybox { border-radius: 20px; }
+.copyall { min-height: 50px; box-shadow: 0 4px 0 var(--shade); }
+.upload { border-radius: 18px; }
+.back { font-weight: 700; }
+
+/* number board */
+.board { border-radius: 30px 30px 0 0; overflow: hidden; }
+.board__head h2 { font-size: 30px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
+.grid button { border-radius: 14px; font-weight: 800; }
+
+/* rest of the page */
+.orgcard { margin: 52px 12px 0; border-radius: 26px; }
+.seal { border-radius: 18px; }
+.rank li { border-radius: 20px; }
+.rank li:first-child { box-shadow: 0 5px 0 var(--shade); }
+.rank__pos { font-size: 30px; font-weight: 900; font-stretch: 62%; }
+.acc__item { border-radius: 20px; overflow: hidden; }
+.acc__item button { font-weight: 700; }
+.afoot { border-radius: 34px 34px 0 0; background: var(--accent); color: var(--accent-ink); }
+.afoot .lgmark { font-stretch: 62%; font-size: 26px; }
+.buybar { left: 10px; right: 10px; bottom: 26px; padding: 10px 10px 10px 22px; border-radius: 999px; transform: translateY(170%); box-shadow: 0 8px 0 var(--shade); }
+.buybar.is-on { transform: none; }
+
+/* results */
+.ok-head h1 { font-size: 92px; }
+.st-head h1 { font-size: 52px; }
+.tkt { border-radius: 26px; transform: rotate(-1.5deg); }
+.num { font-weight: 900; font-stretch: 62%; }
+.tkt__prize { font-size: 34px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
+.stubs li { border-radius: 16px; text-align: center; }
+.order { border-collapse: separate; border-spacing: 0; border-radius: 18px; overflow: hidden; }
+.steps3 li, .held li { border-radius: 18px; }
+.why, .support, .held-note, .ord { border-radius: 20px; }
+.held li b { font-weight: 900; font-stretch: 62%; font-size: 34px; }
+.verify h2 { font-size: 46px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .92; }
+.vbar, .vbar span { border-radius: 999px; }
+.mine-body h2 { font-size: 40px; font-weight: 900; font-stretch: 62%; text-transform: uppercase; }
+
+.num i { min-width: .5em; }

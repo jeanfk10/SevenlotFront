@@ -17,7 +17,17 @@ OUT = HERE / "front" / "index.html"
 src = SRC.read_text(encoding="utf-8")
 
 css = src[src.index("<style>") + len("<style>"):src.index("</style>")]
-script = src[src.index("<script>") + len("<script>"):src.index("</script>")]
+
+
+def block(tag):
+    a = src.index(tag) + len(tag)
+    return src[a:src.index("</script>", a)]
+
+
+# Three scripts: the shared payment-method catalog, this template's own touches, and the page itself.
+pagos = block('<script data-part="pagos">')
+tema = block('<script data-part="tema">')
+script = block("<script>")
 core = script[:script.index("  /* ---------- theme ---------- */")]
 # Each template brings its own Google Fonts link; reuse it as is.
 font_link = next(line for line in src.splitlines() if "fonts.googleapis.com/css2" in line)
@@ -50,20 +60,25 @@ TAIL = """
   const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
   function toggleTheme() { document.documentElement.dataset.theme = isDark() ? 'light' : 'dark'; }
 
-  /* ---------- color de la marca: un nombre de ACCENTS o un hex propio ---------- */
-  const [ac, aci] = ACCENTS[CFG.accent] || [CFG.accent, CFG.accentInk || '#ffffff'];
-  document.documentElement.style.setProperty('--accent', ac);
-  document.documentElement.style.setProperty('--accent-ink', aci);
-  document.title = `${CFG.prize} · ${CFG.rifero}`;
-
-  /* ---------- montar la página ---------- */
+  /* ---------- montar la página ----------
+     Si la plataforma necesita traer datos antes de mostrar la página (la rifa, la tasa, los métodos de pago),
+     define window.LOTTOGE_ANTES como una promesa: la página espera a que termine y vuelve a leer LOTTOGE_RIFA. */
   const host = document.getElementById('app');
-  new App(host, { view: 'home' }, host);
+  Promise.resolve(window.LOTTOGE_ANTES).catch(() => {}).then(() => {
+    CFG = Object.assign(JSON.parse(JSON.stringify(SAMPLE)), window.LOTTOGE_RIFA || {});
+    D = derive(CFG);
+    // color de la marca: un nombre de ACCENTS o un hex propio
+    const [ac, aci] = ACCENTS[CFG.accent] || [CFG.accent, CFG.accentInk || '#ffffff'];
+    document.documentElement.style.setProperty('--accent', ac);
+    document.documentElement.style.setProperty('--accent-ink', aci);
+    document.title = `${CFG.prize} · ${CFG.rifero}`;
+    new App(host, { view: 'home' }, host);
+  });
 })();
 """
 
 page = f"""<!doctype html>
-<html lang="es">
+<html lang="es-VE">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -78,6 +93,8 @@ page = f"""<!doctype html>
 <!-- Generado con build_front.py a partir de vista-previa/index.html. No editar a mano: cambia la vista previa y vuelve a generar. -->
 <div class="shell"><div class="screen screen--full" id="app"></div></div>
 <script src="config.js"></script>
+<script>{pagos}</script>
+<script>{tema}</script>
 <script>{core}{TAIL}</script>
 </body>
 </html>

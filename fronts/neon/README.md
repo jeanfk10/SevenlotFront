@@ -6,7 +6,7 @@ Una noche sobria en grafito, plata y blanco cálido; el único color es el del r
 - compra en el mismo recuadro (boletos, datos y pago);
 - modo al azar o manual con tablero de números;
 - autocompletado por cédula;
-- 4 métodos de pago con copiar todos los datos;
+- los métodos de pago del rifero, sin límite y con su icono, con copiar todos los datos;
 - resultados aprobado, reservado y rechazado;
 - entrega solo por correo;
 - "Mis boletos", carrusel de fotos y modo claro y oscuro.
@@ -37,7 +37,7 @@ neon/
 3. **Publicar:** `front/` es una carpeta estática y se sube tal cual.
 4. **Cambiar el diseño:** edita `vista-previa/index.html` y ejecuta `python3 build_front.py`.
    - La capa de diseño de esta plantilla está al final del `<style>`.
-   - Los adornos que se agregan a la página (cintas, figuras, auroras) están en la función `themeFx` del `<script>`.
+   - Los adornos que se agregan a la página (cintas, figuras, auroras) están en la función `fx` del bloque `<script data-part="tema">`.
 
 Las animaciones respetan `prefers-reduced-motion`. En la vista previa, los adornos en bucle se pausan cuando la pantalla no está a la vista.
 

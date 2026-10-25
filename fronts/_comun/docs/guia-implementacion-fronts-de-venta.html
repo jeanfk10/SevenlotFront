@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es-VE">
+<head>
+<meta charset="utf-8">
+<title>Guía de implementación - Fronts de venta</title>
+</head>
+<body>
+<h1>Guía de implementación: fronts de venta</h1>
+<p>Para el equipo de desarrollo de LottoGE. Explica cómo está armada la página de compra, cómo llevarla a la plataforma (React + Vite) sin que cambie el diseño, cómo guardar los métodos de pago con sus iconos y qué endpoints conectar. Va de la mano con el <b>Contrato de API</b> y el <b>Mapeo al API real de LottoGE</b>, en 04 Herramientas.</p>
+
+<h2>1. La regla principal</h2>
+<p>El diseño se entrega terminado y probado en teléfono y computadora. Para que quede igual:</p>
+<ul>
+<li>Los archivos CSS se usan tal cual, en el orden de la sección 2. No se pasan a Tailwind ni a CSS Modules, ni se cambian nombres de clases.</li>
+<li>venta.js no se edita. Todo lo que cambia de una plataforma a otra está fuera de él: los datos en config.js y la conexión en conexion.js.</li>
+<li>Si algo del diseño debe cambiar, se cambia en el repositorio (fronts/&lt;plantilla&gt;/vista-previa) y se regenera el kit con build_kit.py. Así las seis plantillas siguen iguales entre sí.</li>
+</ul>
+
+<h2>2. Cómo está armada</h2>
+<p>Cada plantilla es un index.html que carga estos archivos, en este orden:</p>
+<table>
+<tr><td><b>Orden</b></td><td><b>Archivo</b></td><td><b>Qué hace</b></td></tr>
+<tr><td>1</td><td>comun/venta.css</td><td>Estilos de la página de compra (teléfono). Común a todas.</td></tr>
+<tr><td>2</td><td>&lt;plantilla&gt;/tema.css</td><td>El diseño de la plantilla, encima del común. La Minimalista no lo tiene.</td></tr>
+<tr><td>3</td><td>comun/venta-computadora.css</td><td>La vista de computadora. Solo aplica cuando la página tiene la clase desk.</td></tr>
+<tr><td>4</td><td>&lt;plantilla&gt;/tema-computadora.css</td><td>Ajustes de la plantilla en computadora.</td></tr>
+<tr><td>5</td><td>comun/pagina.css</td><td>Pone la página a pantalla completa.</td></tr>
+<tr><td>6</td><td>&lt;plantilla&gt;/config.js</td><td>Define window.LOTTOGE_RIFA: los datos de la rifa.</td></tr>
+<tr><td>7</td><td>comun/metodos-pago.js</td><td>Define window.LOTTOGE_PAGOS: iconos, monedas, bancos y la conversión de los métodos del API.</td></tr>
+<tr><td>8</td><td>comun/conexion.js</td><td>Define window.LOTTOGE_ANTES y window.LOTTOGE_CONEXION: la conexión real. Sin este archivo, la página queda en modo demostración.</td></tr>
+<tr><td>9</td><td>&lt;plantilla&gt;/tema.js</td><td>Define window.LOTTOGE_TEMA: los adornos o la reorganización de la plantilla.</td></tr>
+<tr><td>10</td><td>comun/venta.js</td><td>La página de compra. Espera LOTTOGE_ANTES, lee LOTTOGE_RIFA y dibuja todo dentro de &lt;div id="app"&gt;.</td></tr>
+</table>
+<p>La página no usa librerías ni bundler: es JavaScript del navegador, sin dependencias, y solo carga la fuente de Google Fonts de cada plantilla. Pesa unos 180 KB sin las fotos.</p>
+
+<h2>3. Cómo llevarla a React + Vite</h2>
+<h3>Camino A, el recomendado: páginas aparte, servidas tal cual</h3>
+<p>La página de compra es lo que abre el comprador desde el enlace de la rifa. No necesita vivir dentro de la aplicación React: se sirve como archivos estáticos y el diseño queda exacto.</p>
+<ol>
+<li>Copia la carpeta 02 Fronts de venta dentro de <code>public/fronts/</code> del proyecto Vite. Vite sirve public/ sin procesarlo.</li>
+<li>Usa nombres de carpeta sin acentos ni espacios: minimalista, estandar, vibrante, neon, pop y experimental, con comun/ al lado. Las rutas internas son relativas (../comun/), así que nada se rompe.</li>
+<li>Copia comun/conexion.ejemplo.js como comun/conexion.js, revísalo con backend (sección 6) y, en el index.html de cada plantilla, quita el comentario de <code>&lt;script src="../comun/conexion.js"&gt;</code>.</li>
+<li>El enlace de cada rifa queda así: <code>https://lottoge.net/fronts/&lt;plantilla&gt;/?empresa=&lt;companyId&gt;&amp;rifa=&lt;raffleId&gt;</code>. La plantilla es la que eligió el rifero.</li>
+<li>Los datos que el API todavía no da (marca y color del rifero, fotos, CONALOT, Instagram, premios 2 y 3) se agregan al API y se asignan en LOTTOGE_ANTES. Otra opción: el servidor genera config.js por rifa.</li>
+</ol>
+<p>Si prefieren una dirección corta (lottoge.net/r/&lt;rifa&gt;), el servidor puede responder con el index.html de la plantilla y agregar <code>&lt;base href="/fronts/minimalista/"&gt;</code> en el head para que las rutas relativas sigan funcionando. En ese caso los ids van en config.js, que el servidor genera por rifa.</p>
+
+<h3>Camino B: dentro de la aplicación React</h3>
+<p>Si la compra tiene que verse dentro de una pantalla de la aplicación, se monta la página del camino A en un iframe a pantalla completa. Así sus estilos y su JavaScript no chocan con los de la aplicación, y la página decide sola si va en vista móvil o de computadora.</p>
+<pre>export default function FrontVenta({ plantilla = 'minimalista', companyId, raffleId }) {
+  const src = `/fronts/${plantilla}/?empresa=${encodeURIComponent(companyId)}&amp;rifa=${encodeURIComponent(raffleId)}`;
+  return &lt;iframe title="Compra de boletos" src={src} allow="clipboard-write"
+    style={{ border: 0, display: 'block', width: '100%', height: '100dvh' }} /&gt;;
+}</pre>
+<p>allow="clipboard-write" deja funcionar los botones "Copiar" de los datos de pago.</p>
+
+<h3>Camino C: reescribirla en componentes React</h3>
+<p>No lo recomendamos para la primera versión: es rehacer y volver a probar lo que ya funciona. Si se hace, estas son las condiciones para que quede igual:</p>
+<ul>
+<li>Importar los cinco CSS como estilos globales, en el orden de la sección 2.</li>
+<li>Copiar el HTML que genera venta.js con las mismas etiquetas, clases y atributos data-. Está en appHTML y en las funciones build*.</li>
+<li>Copiar la lógica de App.setupDesk (clases desk y mid) y el comportamiento de cada etapa: elegir, datos y pago.</li>
+<li>Comparar capturas contra el kit en 390 × 844 (teléfono) y 1440 × 900 (computadora), en cada plantilla, en modo claro y oscuro.</li>
+</ul>
+
+<h2>4. Datos de la rifa: de dónde sale cada campo</h2>
+<table>
+<tr><td><b>Campo de config.js</b></td><td><b>De dónde sale</b></td></tr>
+<tr><td>prize, total</td><td>GET /raffles/{id} (prize o name, totalNumbers) [observado]</td></tr>
+<tr><td>date, time</td><td>GET /raffles/{id} (drawDate). conexion.ejemplo.js ya la pasa a la hora de Venezuela.</td></tr>
+<tr><td>rate</td><td>GET /exchange-rate/current (rate) [observado]. El valor de config.js queda como respaldo.</td></tr>
+<tr><td>serviceFee</td><td>GET /companies/{companyId}/service-fee-public (serviceFeeRate) [observado]. La página la espera en %: si el API la da como fracción (0.05), multiplicar por 100.</td></tr>
+<tr><td>paymentMethods</td><td>GET /payment-methods/active?companyId= [observado], cada uno pasado por LOTTOGE_PAGOS.fromApi. Ver la sección 5.</td></tr>
+<tr><td>price</td><td>No viene en /raffles/{id}. Hay que agregarlo al API (precio del boleto en Bs).</td></tr>
+<tr><td>soldPct</td><td>% vendido. Hay que agregarlo al API o calcularlo con los números vendidos.</td></tr>
+<tr><td>rifero, handle, support, accent, accentInk</td><td>Perfil del rifero (empresa). Hay que agregarlo al API.</td></tr>
+<tr><td>prizeExtra, second, third, times2, lottery, conalot, images</td><td>Datos de la rifa que hoy no trae el API. Hay que agregarlos.</td></tr>
+<tr><td>fx</td><td>Tasas de monedas fuera del dólar (COP, PEN…). Solo si el rifero cobra en esas monedas.</td></tr>
+</table>
+<p>Lo que falte en LOTTOGE_RIFA se completa con los datos de ejemplo. Por eso, con conexion.js activo, la página no se muestra si falla la carga: avisa "No pudimos cargar la rifa" en vez de mostrar cuentas de ejemplo.</p>
+
+<h2>5. Métodos de pago e iconos en la base de datos</h2>
+<p>Hoy cada método del API trae id, name, accountInfo, requireReceipt, isOnline, minTickets, currencyId, commissionRate, countryFlag e instructions. La página usa todo eso tal cual. Solo hace falta agregar el icono y, si se quiere, el color.</p>
+<h3>Cambio en la tabla</h3>
+<pre>ALTER TABLE payment_methods
+  ADD COLUMN icon VARCHAR(40) NULL,      -- clave del catálogo: pago-movil, zelle, nequi…
+  ADD COLUMN color CHAR(7) NULL,         -- fondo de la ficha, por ejemplo '#c8102e'
+  ADD COLUMN color_ink CHAR(7) NULL;     -- color del dibujo encima</pre>
+<p>El API devuelve los tres campos en payment-methods/active como icon, color y colorInk. Los tres son opcionales: sin icon, la página lo adivina por el nombre; sin color, usa el del icono.</p>
+<h3>El catálogo</h3>
+<p>Está en 03 Recursos/iconos-pago:</p>
+<ul>
+<li><b>metodos-pago.json:</b> los 18 iconos con clave, nombre, color, moneda por defecto, lo que se pide como referencia y el SVG en dos estilos. También trae las monedas, los grupos, los 25 bancos de Venezuela con su código y ejemplos de métodos. Sirve para sembrar una tabla de iconos o para el selector del panel.</li>
+<li><b>iconos-pago.svg:</b> hoja de símbolos. En React: <code>&lt;svg width="24" height="24"&gt;&lt;use href="/iconos-pago.svg#zelle" /&gt;&lt;/svg&gt;</code>. El dibujo toma el color del texto (currentColor).</li>
+<li><b>iconos-pago.html:</b> los iconos en sus cuatro estilos y cómo se ven en la página. Ábrelo en el navegador.</li>
+</ul>
+<table>
+<tr><td><b>Clave</b></td><td><b>Para</b></td><td><b>Moneda</b></td></tr>
+<tr><td>pago-movil</td><td>Pago Móvil (uno por banco, si hace falta)</td><td>VES</td></tr>
+<tr><td>comprobante</td><td>Pago con comprobante (Pago Móvil manual)</td><td>VES</td></tr>
+<tr><td>transferencia</td><td>Transferencia bancaria</td><td>VES</td></tr>
+<tr><td>transferencia-inmediata</td><td>Transferencia inmediata</td><td>VES</td></tr>
+<tr><td>tarjeta</td><td>Tarjeta de débito o crédito</td><td>VES</td></tr>
+<tr><td>qr</td><td>Pago con QR</td><td>VES</td></tr>
+<tr><td>zelle</td><td>Zelle</td><td>USD</td></tr>
+<tr><td>binance</td><td>Binance Pay</td><td>USDT</td></tr>
+<tr><td>usdt</td><td>USDT a una billetera (TRC20, BEP20…)</td><td>USDT</td></tr>
+<tr><td>cripto</td><td>Otras criptomonedas</td><td>USDT</td></tr>
+<tr><td>paypal</td><td>PayPal</td><td>USD</td></tr>
+<tr><td>zinli</td><td>Zinli</td><td>USD</td></tr>
+<tr><td>wally</td><td>Wally</td><td>USD</td></tr>
+<tr><td>airtm</td><td>AirTM</td><td>USD</td></tr>
+<tr><td>billetera</td><td>Cualquier otra billetera digital (el icono por defecto)</td><td>USD</td></tr>
+<tr><td>nequi</td><td>Nequi (Colombia)</td><td>COP</td></tr>
+<tr><td>daviplata</td><td>DaviPlata (Colombia)</td><td>COP</td></tr>
+<tr><td>yape</td><td>Yape (Perú)</td><td>PEN</td></tr>
+</table>
+<p>Un mismo icono sirve para varios métodos. Un rifero con cinco Pago Móvil (Banesco, Venezuela, Mercantil, Provincial y BNC) guarda cinco métodos con icon = 'pago-movil', cada uno con su color si quiere distinguirlos. Son dibujos propios, no logos oficiales.</p>
+<h3>Cómo lee la página cada campo</h3>
+<table>
+<tr><td><b>Campo del API</b></td><td><b>En la página</b></td></tr>
+<tr><td>name</td><td>Nombre del método.</td></tr>
+<tr><td>isOnline</td><td>true: Pago Móvil al instante. Pide teléfono y banco del que paga, se verifica con la pasarela y entrega los números. Lleva la etiqueta "Al instante".</td></tr>
+<tr><td>requireReceipt</td><td>true: pide comprobante (obligatorio) y la compra queda como boletos reservados. Si no viene, es true para todo método que no sea isOnline.</td></tr>
+<tr><td>minTickets</td><td>Con menos boletos, el método sale desactivado con "Desde N boletos".</td></tr>
+<tr><td>commissionRate</td><td>% que se suma al monto de ese método. Sale como "Comisión X% incluida".</td></tr>
+<tr><td>currencyId</td><td>Moneda del monto. Si el API usa ids numéricos, se traducen en conexion.js: <code>Object.assign(LOTTOGE_PAGOS.CURRENCY_IDS, { 1: 'VES', 2: 'USD' })</code>.</td></tr>
+<tr><td>accountInfo</td><td>Datos para pagar, cada uno con su botón "Copiar". Acepta una lista de pares, una lista de { label, value }, un objeto o texto con una línea "Etiqueta: valor" por dato.</td></tr>
+<tr><td>instructions</td><td>Una indicación corta encima de los datos.</td></tr>
+<tr><td>icon, color, colorInk</td><td>La ficha del método (sección anterior).</td></tr>
+<tr><td>countryFlag</td><td>No se usa. Agrupar por moneda ya separa los métodos de otros países.</td></tr>
+</table>
+<p>No hay límite de métodos. Con más de 4, la página los agrupa en "En bolívares", "En dólares y cripto" y "Desde otros países". Montos fuera del dólar: Bs ÷ tasa BCV × fx de esa moneda. Sin fx, el método muestra el monto en $ con "(equivalente)".</p>
+<h3>En el panel del rifero</h3>
+<p>Al crear o editar un método, conviene un selector con las 18 fichas (de metodos-pago.json) y, opcional, un selector de color. Si el rifero no elige, se guarda NULL y la página adivina el icono por el nombre.</p>
+
+<h2>6. La conexión: conexion.js</h2>
+<p>venta.js trae una demostración de todo lo que habla con el servidor. conexion.js la reemplaza por la real sin tocar venta.js. Parte de conexion.ejemplo.js, que ya usa los endpoints observados y deja marcados los que hay que confirmar con backend.</p>
+<h3>Antes de mostrar la página: window.LOTTOGE_ANTES</h3>
+<p>Una promesa. venta.js la espera, vuelve a leer window.LOTTOGE_RIFA y recién ahí dibuja la página. El ejemplo toma companyId y raffleId de config.js o de la dirección (?empresa=…&amp;rifa=…, solo letras, números, - y _). Luego pide la rifa, la tasa, la comisión de servicio, los métodos de pago y los números vendidos. Si falta un id, la rifa no existe, falla una llamada o el rifero no tiene métodos activos, muestra un aviso y no dibuja la página.</p>
+<h3>Mientras el comprador compra: window.LOTTOGE_CONEXION</h3>
+<table>
+<tr><td><b>Función</b></td><td><b>Recibe</b></td><td><b>Devuelve</b></td><td><b>Endpoint</b></td></tr>
+<tr><td>buscarCliente</td><td>Cédula con su letra: 'V18456732'. Se llama una vez, cuando el comprador deja de escribir.</td><td>Promesa con { name, phone, email }, o null si no existe</td><td>GET /platform/client-lookup/{cedula} [observado]</td></tr>
+<tr><td>numeroVendido</td><td>Un número (0 a total - 1)</td><td>true o false, al instante. El ejemplo usa los vendidos que cargó LOTTOGE_ANTES.</td><td>GET /raffles/{id}/taken [por confirmar]</td></tr>
+<tr><td>enviarPago</td><td>La orden (tabla siguiente)</td><td>Promesa con { estado: 'aprobado' | 'reservado' | 'rechazado', orden: 'LG-…', numeros: ['0928', …] }</td><td>POST /orders, luego /orders/{id}/verify (al instante) o /orders/{id}/receipt (manual) [por confirmar]</td></tr>
+<tr><td>misBoletos</td><td>Cédula con su letra</td><td>Promesa con { nombre, boletos, ordenes: [{ id, metodo, monto, estado: 'pagado' | 'por-verificar', numeros, nota }] }</td><td>GET /orders?cedula=… [por confirmar]</td></tr>
+</table>
+<p>Si enviarPago falla, la página lo muestra como pago rechazado y el comprador puede intentar de nuevo. Si buscarCliente falla, le pide que escriba sus datos.</p>
+<h3>La orden que manda enviarPago</h3>
+<table>
+<tr><td><b>Campo</b></td><td><b>Qué es</b></td></tr>
+<tr><td>metodo</td><td>id del método de pago</td></tr>
+<tr><td>cantidad</td><td>Cantidad de boletos</td></tr>
+<tr><td>modo, numeros</td><td>'random' (al azar, sin números) o 'manual' (con los números elegidos: ['0004', '0005'])</td></tr>
+<tr><td>cedula, nombre, telefono, correo, estado</td><td>Datos del comprador. La cédula va con su letra.</td></tr>
+<tr><td>referencia</td><td>Referencia del pago</td></tr>
+<tr><td>telefonoPago, banco</td><td>Teléfono y banco desde el que pagó (Pago Móvil)</td></tr>
+<tr><td>comprobante</td><td>El archivo (File) del comprobante, o null. Imagen o PDF.</td></tr>
+<tr><td>moneda, monto, montoBs</td><td>Lo que la página calculó y le mostró al comprador. Solo como referencia: el servidor calcula el suyo.</td></tr>
+</table>
+<h3>CORS</h3>
+<p>Si la página se sirve desde lottoge.net y el API está en api.lottoge.net, el API debe responder con <code>Access-Control-Allow-Origin: https://lottoge.net</code> (no *) y <code>Access-Control-Allow-Credentials: true</code>. La otra opción es un proxy en el mismo dominio (/api → api.lottoge.net) y cambiar BASE en conexion.js a '/api/v1'.</p>
+
+<h2>7. Teléfono y computadora</h2>
+<ul>
+<li>En un teléfono (lo dice el navegador: Android, iPhone y similares), siempre sale la vista móvil, aunque esté de lado. Las tabletas siguen la regla del ancho.</li>
+<li>En una computadora con 900 px de ancho o más, la página agrega la clase desk y sale la vista de escritorio. Entre 600 y 899 px agrega mid.</li>
+<li>Lo decide App.setupDesk en venta.js y se recalcula al cambiar el tamaño de la ventana. No hace falta hacer nada; solo no forzar otro ancho al contenedor.</li>
+<li>Modo claro y oscuro: el comprador lo cambia con el botón de la barra. Por defecto sigue al sistema.</li>
+</ul>
+
+<h2>8. Seguridad (servidor)</h2>
+<ul>
+<li><b>El total se calcula en el servidor</b> con el precio de la rifa, la comisión de servicio y la del método. No se confía en monto ni en montoBs.</li>
+<li><b>Números:</b> al crear la orden, comprobar que los elegidos sigan libres y apartarlos con un tiempo límite.</li>
+<li><b>Comprobantes:</b> revisar tipo y tamaño real del archivo (imagen o PDF, máximo 10 MB, como pide la página) y guardarlos fuera de la carpeta pública.</li>
+<li><b>Búsqueda por cédula:</b> client-lookup devuelve nombre, teléfono y correo. Hay que limitarla por IP o pedir captcha para que no se pueda recorrer cédulas.</li>
+<li><b>Pagos al instante:</b> la aprobación la da la pasarela (Chinchin, AvilaPay o R4), nunca el navegador. Una referencia no se acepta dos veces.</li>
+</ul>
+
+<h2>9. Lista de verificación de los fronts</h2>
+<ul>
+<li>☐ Las seis plantillas abren en localhost en teléfono y en computadora.</li>
+<li>☐ companyId y raffleId correctos en cada enlace de rifa.</li>
+<li>☐ Tasa BCV traída del API, no escrita a mano.</li>
+<li>☐ Comisión de servicio reflejada en el total, igual a la que valida el servidor.</li>
+<li>☐ Métodos de pago leídos del API, con su icono. Probado un rifero con más de 4 métodos.</li>
+<li>☐ minTickets y commissionRate se ven en la página y el servidor los respeta.</li>
+<li>☐ Los métodos manuales no avanzan sin comprobante y quedan como boletos reservados.</li>
+<li>☐ Pago Móvil al instante aprobado por la pasarela entrega los números; uno rechazado deja intentar de nuevo.</li>
+<li>☐ Los correos al comprador salen (compra aprobada, reservada, aprobada por el rifero y rechazada).</li>
+<li>☐ "Mis boletos" muestra las órdenes reales de esa cédula.</li>
+<li>☐ No queda ningún dato de ejemplo: cuentas, compradores, ranking, tasa ni nº CONALOT.</li>
+<li>☐ La página se ve igual que el kit (comparar capturas).</li>
+</ul>
+
+<h2>10. Cómo se actualiza el kit</h2>
+<p>El kit se genera desde el repositorio https://github.com/jeanfk10/SevenlotFront con <code>python3 build_kit.py</code>. Antes de escribir nada, comprueba que la parte común sea idéntica en las seis plantillas. Al final, revisa que todos los .js se puedan leer. Cuando Sevenlot entregue una versión nueva, se reemplazan las carpetas y se conservan solo los archivos propios de la plataforma: conexion.js y los config.js que genere el servidor.</p>
+<p><i>Preparado por Sevenlot como parte del Kit de instalación LottoGE.</i></p>
+</body>
+</html>

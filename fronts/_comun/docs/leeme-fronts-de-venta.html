@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es-VE">
+<head>
+<meta charset="utf-8">
+<title>LÉEME - Fronts de venta</title>
+</head>
+<body>
+<h1>Fronts de venta</h1>
+<p>Aquí están las páginas de compra: la que ve el comprador cuando entra al enlace de una rifa. Elige sus boletos, escribe sus datos y paga, todo en una sola página. Hay seis plantillas. Todas tienen el mismo flujo, la misma configuración y la misma conexión con la plataforma; solo cambia el diseño.</p>
+<p>Cada plantilla se ve en teléfono y en computadora. En un teléfono (Android, iPhone o cualquier otro) sale la vista móvil. En una computadora con la ventana de 900 px o más sale la de escritorio.</p>
+
+<h2>Qué hay en esta carpeta</h2>
+<table>
+<tr><td><b>Carpeta</b></td><td><b>Qué trae</b></td></tr>
+<tr><td>comun/</td><td>Lo que comparten las seis plantillas. <b>venta.js</b> es la página de compra, en JavaScript sin dependencias. <b>venta.css</b> y <b>venta-computadora.css</b> son sus estilos para teléfono y computadora. <b>pagina.css</b> pone la página a pantalla completa. <b>metodos-pago.js</b> trae el catálogo de métodos de pago e iconos. <b>conexion.ejemplo.js</b> muestra cómo conectarla con el API de LottoGE. <b>img/</b> tiene las fotos de ejemplo.</td></tr>
+<tr><td>Minimalista, Estándar, Vibrante, Neón, Pop, Experimental</td><td>Una carpeta por plantilla. <b>index.html</b> es la página, que no se edita a mano. <b>config.js</b> trae los datos de la rifa. <b>tema.css</b>, <b>tema-computadora.css</b> y <b>tema.js</b> son su diseño. <b>LEEME.md</b> resume la plantilla.</td></tr>
+</table>
+<p>Los iconos de pago, para la base de datos y el panel del rifero, están en <b>03 Recursos/iconos-pago</b>.</p>
+
+<h2>Plantillas</h2>
+<table>
+<tr><td><b>Plantilla</b></td><td><b>Cómo se ve</b></td></tr>
+<tr><td>Minimalista</td><td>La base. Neutra, para que el flyer y el color del rifero sean lo que destaque.</td></tr>
+<tr><td>Estándar</td><td>Con la marca LottoGE: blanco, azul marino, coral, Plus Jakarta Sans. El color del rifero por defecto es el coral.</td></tr>
+<tr><td>Vibrante</td><td>El color del rifero ocupa bloques enteros, con letras condensadas y botones redondos.</td></tr>
+<tr><td>Neón</td><td>Noche en grafito y plata, con rayos detrás del premio. El único color es el del rifero.</td></tr>
+<tr><td>Pop</td><td>Estilo sticker en tonos arena y salvia, con bordes gruesos y cintas de precio.</td></tr>
+<tr><td>Experimental</td><td>Las fotos del premio a pantalla completa, como una historia de Instagram, con una hoja de pestañas debajo.</td></tr>
+</table>
+
+<h2>Probarlas en tu computadora</h2>
+<ol>
+<li>Descarga la carpeta <b>02 Fronts de venta</b> completa. Las plantillas necesitan la carpeta comun/ al lado.</li>
+<li>En una terminal, dentro de esa carpeta: <code>npx serve .</code> o <code>python3 -m http.server 8080</code>.</li>
+<li>Abre http://localhost:8080/Minimalista/ (o la plantilla que quieras). Para ver la vista móvil, abre la misma dirección desde un teléfono en tu red, o usa el modo de dispositivo del navegador.</li>
+<li>Todo funciona en modo demostración: los datos son de ejemplo, la búsqueda por cédula y el pago se simulan y nada se envía. Para probar la cédula usa cualquier número de 6 dígitos o más. Una referencia de Pago Móvil que termine en 0 simula un pago rechazado.</li>
+</ol>
+
+<h2>Campos de config.js</h2>
+<p>Es lo único que cambia de un rifero a otro. Lo que falte se toma del ejemplo.</p>
+<table>
+<tr><td><b>Campo</b></td><td><b>Qué es</b></td><td><b>Ejemplo</b></td></tr>
+<tr><td>rifero</td><td>Nombre de la marca del rifero</td><td>'Rifas La Bendición'</td></tr>
+<tr><td>handle</td><td>Instagram donde se transmite el sorteo</td><td>'@rifaslabendicion'</td></tr>
+<tr><td>support</td><td>Correo de soporte del rifero</td><td>'soporte@rifas-ejemplo.com'</td></tr>
+<tr><td>conalot</td><td>Nº de autorización CONALOT</td><td>'CNL-AUT-RF-2026-075423'</td></tr>
+<tr><td>prize, prizeExtra</td><td>1er premio y su extra</td><td>'Toyota Agya 2026', '+ 3.000 en la guantera'</td></tr>
+<tr><td>second, third</td><td>2do y 3er premio</td><td>'2.000 Bendiciones'</td></tr>
+<tr><td>price</td><td>Precio por boleto en Bs (entero)</td><td>4799</td></tr>
+<tr><td>rate</td><td>Tasa BCV (Bs por $). Con la conexión real se toma del API.</td><td>881.88</td></tr>
+<tr><td>serviceFee</td><td>Comisión de servicio de la plataforma, en %. Se suma al total y se muestra como "incluida". 0 = sin comisión.</td><td>0</td></tr>
+<tr><td>total</td><td>Cantidad de números: 100, 1000 o 10000</td><td>10000</td></tr>
+<tr><td>soldPct</td><td>% vendido</td><td>76</td></tr>
+<tr><td>date, time</td><td>Fecha y hora del 1er premio (Venezuela)</td><td>'2026-10-22', '22:00'</td></tr>
+<tr><td>times2</td><td>Horas del 2do y 3er premio</td><td>['4:00 PM', '1:00 PM']</td></tr>
+<tr><td>lottery</td><td>Lotería con la que juega</td><td>'Supergana'</td></tr>
+<tr><td>accent, accentInk</td><td>Color de la marca del rifero (coral, oro, rojo, verde, azul, naranja, turquesa o un hex) y color del texto encima</td><td>'oro', o '#d42a33' y '#ffffff'</td></tr>
+<tr><td>images</td><td>Fotos del premio, hasta 10; la primera es la portada. Rutas o direcciones completas.</td><td>['../comun/img/flyer.jpg']</td></tr>
+<tr><td>fx</td><td>Monedas fuera del dólar: cuántas unidades da 1 $. Sin este dato, el método muestra el equivalente en $.</td><td>{ COP: 4150, PEN: 3.75 }</td></tr>
+<tr><td>paymentMethods</td><td>Los métodos de pago del rifero, en el orden en que salen. Ver la sección siguiente.</td><td>[{ id, name, icon, … }]</td></tr>
+<tr><td>companyId, raffleId</td><td>UUID del rifero y id de la rifa en LottoGE. Los usa la conexión real.</td><td>''</td></tr>
+</table>
+
+<h2>Métodos de pago</h2>
+<ul>
+<li><b>Sin límite.</b> Un rifero puede tener 2 métodos o 12. Con más de 4, la página los agrupa: en bolívares, en dólares y cripto, y desde otros países.</li>
+<li><b>Tienen la forma del API de LottoGE</b> (payment-methods/active): id, name, accountInfo, requireReceipt, isOnline, minTickets, currencyId, commissionRate e instructions. A eso se le suman <b>icon</b> y, si se quiere, <b>color</b>.</li>
+<li><b>18 iconos:</b> pago-movil, comprobante, transferencia, transferencia-inmediata, tarjeta, qr, zelle, binance, usdt, cripto, paypal, zinli, wally, airtm, billetera, nequi, daviplata y yape. El mismo icono sirve para varios métodos: cinco Pago Móvil de bancos distintos usan pago-movil, cada uno con el color de su banco.</li>
+<li><b>Si un método no trae icono,</b> la página lo adivina por el nombre. Si no lo reconoce, usa billetera.</li>
+<li><b>minTickets</b> bloquea el método si el comprador lleva menos boletos ("Desde 5 boletos"). <b>commissionRate</b> suma su comisión al monto, por ejemplo la de PayPal.</li>
+<li><b>Monedas:</b> VES, USD, USDT, EUR, COP, PEN, CLP, BRL, MXN y ARS. El monto se calcula desde los Bs con la tasa BCV y, fuera del dólar, con fx.</li>
+</ul>
+<p>Los iconos en SVG, sus colores y los datos para importarlos a la base de datos están en <b>03 Recursos/iconos-pago</b>. Ábrelo en el navegador con iconos-pago.html.</p>
+
+<h2>Reglas del flujo de compra</h2>
+<ul>
+<li><b>Pago Móvil al instante</b> (isOnline): se verifica con la pasarela activa del rifero (Chinchin, AvilaPay o R4) y entrega los números de una vez.</li>
+<li><b>Métodos manuales</b> (Pago Móvil manual, transferencias, Binance, Zelle y los demás): piden referencia y <b>comprobante obligatorio</b>. Quedan como <b>boletos reservados</b> hasta que el rifero apruebe. Si el comprador compró al azar, no ve números hasta la aprobación.</li>
+<li><b>Datos del comprador:</b> cédula, nombre, teléfono, correo y estado. Todos son obligatorios. Con la cédula se llenan los demás si ya existe.</li>
+<li><b>Notificaciones:</b> al comprador le llegan <b>solo por correo</b>.</li>
+<li><b>Total:</b> se recalcula siempre en el servidor con el precio real. El servidor también comprueba que los números elegidos sigan libres.</li>
+<li><b>Datos de ejemplo:</b> las cuentas de pago, los compradores, el ranking, la tasa y el nº CONALOT que traen las plantillas son de ejemplo y se cambian por los reales.</li>
+</ul>
+
+<h2>Siguiente paso</h2>
+<p>Para conectarlas a la plataforma y llevarlas a React + Vite sin que cambie el diseño, lee la <b>Guía de implementación - Fronts de venta</b>, en esta misma carpeta.</p>
+<p>Código fuente: https://github.com/jeanfk10/SevenlotFront, carpeta fronts/. El kit se genera con build_kit.py; no se editan sus archivos a mano.</p>
+</body>
+</html>

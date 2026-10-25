@@ -24,7 +24,8 @@ minimalista/
 1. **Probarlo:** abre `front/index.html` en el navegador. Para ver todas las pantallas a la vez, abre `vista-previa/index.html`.
 2. **Configurar una rifa:** edita `front/config.js` (nombre del rifero, premios, precio, tasa BCV, cantidad de números, fecha y hora, lotería, color, fotos) y pon las fotos en `front/img/`.
 3. **Publicarlo:** la carpeta `front/` es estática. Se sube tal cual a cualquier hosting o CDN, o la plataforma la sirve por rifero (por ejemplo `lottoge.com/<rifero>/<rifa>`), escribiendo `config.js` con los datos del sorteo.
-4. **Cambiar el diseño:** edita `vista-previa/index.html` y luego ejecuta `python3 build_front.py` para regenerar `front/index.html`.
+4. **Cambiar el diseño:** edita `vista-previa/index.html` y luego ejecuta `python3 build_front.py` para regenerar `front/index.html`. La vista previa tiene tres bloques de script: `pagos` (el catálogo de métodos de pago, copia de `fronts/_comun/metodos-pago.js`), `tema` (lo propio de la plantilla) y el principal (la página, idéntica en las seis plantillas).
+5. **Kit para LottoGE:** `python3 build_kit.py`, en la raíz, arma `kit/` con lo común separado de cada tema. Es lo que va al Drive "Sevenlot fronts"; su LÉEME y su guía están en `fronts/_comun/docs/`.
 
 Solo usa archivos locales, más la fuente *TikTok Sans* de Google Fonts. Si no hay conexión, cae a Helvetica o Arial.
 
@@ -61,8 +62,12 @@ En `vista-previa/index.html`, el botón flotante **Ver en iPhone / Mac** muestra
 | `date`, `time` | Fecha y hora del 1er premio (Venezuela) | `'2026-10-22'`, `'22:00'` |
 | `times2` | Horas del 2do y 3er premio | `['4:00 PM', '1:00 PM']` |
 | `lottery` | Lotería con la que juega | `'Supergana'` |
-| `accent`, `accentInk` | Color de la marca (`oro`, `rojo`, `verde`, `azul`, `naranja`, `turquesa` o un hex) y color del texto encima | `'oro'` |
+| `serviceFee` | Comisión de servicio de la plataforma en %, incluida en el total (0 = sin comisión) | `0` |
+| `accent`, `accentInk` | Color de la marca (`coral`, `oro`, `rojo`, `verde`, `azul`, `naranja`, `turquesa` o un hex) y color del texto encima | `'oro'` |
 | `images` | Fotos del premio, hasta 10; la primera es la portada | `['img/flyer.jpg', …]` |
+| `fx` | Unidades de otras monedas por 1 $ (COP, PEN…) | `{ COP: 4150 }` |
+| `paymentMethods` | Métodos de pago del rifero, sin límite, con la forma del API de LottoGE más `icon` y `color`. Los campos están explicados en `config.js` | `[{ id, name, icon, … }]` |
+| `companyId`, `raffleId` | UUID del rifero y id de la rifa en LottoGE, para la conexión real | `''` |
 
 El precio en dólares, las cifras del número (2, 3 o 4), las series del tablero, la cuenta regresiva y los textos de las preguntas frecuentes salen de estos datos.
 
@@ -80,10 +85,10 @@ El precio en dólares, las cifras del número (2, 3 o 4), las series del tablero
    - Estado (obligatorio).
    - Correo (obligatorio: ahí llegan los números).
 4. **Continuar → Pago:**
-   - Pago Móvil al instante, Binance, Zelle y Pago Móvil manual, cada uno con su color.
+   - Los métodos de pago del rifero, cada uno con su icono y su color (18 iconos en `fronts/_comun/metodos-pago.js`). Con más de 4 se agrupan: en bolívares, en dólares y cripto, y desde otros países. Un método con `minTickets` sale bloqueado si no se llega al mínimo; uno con `commissionRate` suma su comisión al monto.
    - Datos para pagar, con botón de copiar en cada fila y uno para copiar todo.
    - Referencia del pago.
-   - Comprobante (foto, captura o PDF de hasta 10 MB), **obligatorio** en Binance, Zelle y Pago Móvil manual: sin él no se puede confirmar. Pago Móvil al instante no lo pide, porque se verifica con el banco.
+   - Comprobante (foto, captura o PDF de hasta 10 MB), **obligatorio** en todo método manual (`requireReceipt`): sin él no se puede confirmar. Pago Móvil al instante (`isOnline`) no lo pide, porque se verifica con el banco.
 5. **Resultado:**
    - **¡Listo!** — Pago Móvil al instante aprobado: los números se revelan y se envían al correo.
    - **Compra rechazada** — Pago Móvil al instante que el banco no encuentra. Muestra el motivo y lleva de vuelta a "Corregir datos del pago".
@@ -96,20 +101,18 @@ Además: modo claro y oscuro, foco visible, textos alternativos y respeto a `pre
 
 ## Qué está simulado y qué conectar a la API
 
-Todo está dentro de `vista-previa/index.html`, en la clase `App`.
+Todo lo que habla con el servidor pasa por `window.LOTTOGE_CONEXION` y `window.LOTTOGE_ANTES` (bloque "puntos de conexión con la plataforma" del script principal). Sin ellos, la página usa su demostración. `fronts/_comun/conexion.ejemplo.js` es la conexión real de ejemplo contra `api.lottoge.net`; la *Guía de implementación* (en `fronts/_comun/docs/`) explica cada punto.
 
-| En la demo | En producción | Dónde |
+| En la demo | En producción | Punto de conexión |
 | --- | --- | --- |
-| Búsqueda por cédula con personas de ejemplo (`PEOPLE`, `personFor`) | `GET` cliente por cédula | `onInput` → `fillPerson` |
-| Números vendidos calculados (`taken`) | Disponibilidad real de números | `taken`, `renderGrid`, `addPick` |
+| Datos de `config.js` | Rifa, tasa BCV, comisión de servicio y métodos de pago del API | `LOTTOGE_ANTES` |
+| Búsqueda por cédula con personas de ejemplo (`PEOPLE`, `personFor`) | `GET /platform/client-lookup/{cedula}` | `buscarCliente` |
+| Números vendidos calculados (`demoTaken`) | Números vendidos reales | `numeroVendido` |
+| Pago: referencia que termina en 0 = rechazada; los manuales quedan reservados | Crear la orden, verificar con la pasarela o subir el comprobante | `enviarPago` |
+| Mis boletos con órdenes de ejemplo | Órdenes por cédula | `misBoletos` |
 | % vendido, "en línea", "viendo" y compras en vivo que se mueven solos (`live`, `TICK`) | Datos reales o quitarlos | `paintLive`, `tickerHTML` |
 | Top compradores de ejemplo (`TOP`) | Ranking real | `appHTML` |
-| Cuentas de pago de ejemplo (`METHODS[...].rows`) | Cuentas del rifero | `METHODS` |
-| Verificación: referencia que termina en 0 = rechazada (`outcome`) | Pasarela R4 para Pago Móvil al instante | `confirm` → `verify` → `outcome` |
-| Comprobante: solo se lee el nombre del archivo | Subirlo a la orden | evento `change` de `data-in="file"` |
-| Números asignados al azar en el navegador (`pickNumbers`) | Los asigna el servidor al aprobar | `buildSuccess`, `buildHeld` |
 | "Te enviamos tus números a tu correo" | Envío real del correo | servidor |
-| Mis boletos con órdenes de ejemplo | `GET` órdenes por cédula | `search` |
 
 **Seguridad:**
 - El total **siempre** se recalcula en el servidor con el precio real del sorteo; nunca se confía en el monto que manda el navegador.

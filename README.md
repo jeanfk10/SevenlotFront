@@ -13,3 +13,5 @@ Fronts de compra de rifas para la plataforma LottoGE.
 | Prototipo Dubái | [`rifa-dubai/`](rifa-dubai/) | Primer prototipo, temático. Solo referencia. |
 
 Cada front se adapta solo: vista móvil en teléfonos y vista de escritorio en computadoras. Trae una `vista-previa/` con todas las pantallas en iPhone o en Mac y una carpeta `front/` lista para exportar. Ver el README de cada uno.
+
+Las seis plantillas comparten la misma página y el mismo catálogo de métodos de pago (`fronts/_comun/`). `python3 build_kit.py` arma `kit/`, el paquete para el equipo de LottoGE (lo común separado del tema de cada plantilla, los iconos de pago y su JSON), que va al Drive "Sevenlot fronts". Su LÉEME y su guía de implementación están en `fronts/_comun/docs/`.

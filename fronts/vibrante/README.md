@@ -6,7 +6,7 @@ La plantilla llamativa. El color del rifero ocupa bloques enteros: la portada, e
 - compra en el mismo recuadro (boletos, datos y pago);
 - modo al azar o manual con tablero de números;
 - autocompletado por cédula;
-- 4 métodos de pago con copiar todos los datos;
+- los métodos de pago del rifero, sin límite y con su icono, con copiar todos los datos;
 - resultados aprobado, reservado y rechazado;
 - entrega solo por correo;
 - "Mis boletos", carrusel de fotos y modo claro y oscuro.

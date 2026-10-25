@@ -1,0 +1,20 @@
+/* LottoGE · fronts de venta · página completa
+   Generado con build_kit.py desde fronts/<plantilla>/vista-previa/index.html (repositorio SevenlotFront). Contenedor de la página a pantalla completa. Va al final. */
+
+/* La pantalla donde se dibuja la página (en la vista previa es la del iPhone o la Mac). */
+.screen { position: relative; overflow: hidden; background: var(--bg); color: var(--ink); isolation: isolate; font-size: 16px; line-height: 1.45; }
+/* ---------- Página completa (sin marcos de iPhone ni de Mac) ----------
+   La misma página se adapta sola: en un teléfono, la vista móvil; en una computadora (ventana de 900px
+   o más que no sea un teléfono), la vista de escritorio. Lo decide App.setupDesk. */
+html, body { height: 100%; }
+body.standalone { margin: 0; overflow: hidden; background: var(--bg); }
+[hidden] { display: none !important; }
+.shell { position: relative; height: 100%; }
+.screen--full { width: 100%; height: 100%; border-radius: 0; }
+.standalone .island, .standalone .sbar, .standalone .homebar { display: none; }
+.standalone .scroller { inset: 0; padding-top: env(safe-area-inset-top, 0px); }
+.standalone .verify { inset: 0; }
+.standalone .lightbox { grid-template-rows: env(safe-area-inset-top, 0px) 56px minmax(0, 1fr); }
+.standalone .app:not(.desk) .buybar, .standalone .app:not(.desk) .board__foot { padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
+.standalone .app:not(.desk) .afoot { padding-bottom: 110px; }
+.standalone .app:not(.desk) .board { height: calc(100% - 40px); }
