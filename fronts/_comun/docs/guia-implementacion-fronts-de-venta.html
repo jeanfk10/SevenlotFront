@@ -48,7 +48,7 @@
 <h3>Camino B: dentro de la aplicación React</h3>
 <p>Si la compra tiene que verse dentro de una pantalla de la aplicación, se monta la página del camino A en un iframe a pantalla completa. Así sus estilos y su JavaScript no chocan con los de la aplicación, y la página decide sola si va en vista móvil o de computadora.</p>
 <pre>export default function FrontVenta({ plantilla = 'minimalista', companyId, raffleId }) {
-  const src = `/fronts/${plantilla}/?empresa=${encodeURIComponent(companyId)}&amp;rifa=${encodeURIComponent(raffleId)}`;
+  const src = '/fronts/' + plantilla + '/?empresa=' + encodeURIComponent(companyId) + '&amp;rifa=' + encodeURIComponent(raffleId);
   return &lt;iframe title="Compra de boletos" src={src} allow="clipboard-write"
     style={{ border: 0, display: 'block', width: '100%', height: '100dvh' }} /&gt;;
 }</pre>
@@ -76,7 +76,9 @@
 <tr><td>rifero, handle, support, accent, accentInk</td><td>Perfil del rifero (empresa). Hay que agregarlo al API.</td></tr>
 <tr><td>prizeExtra, second, third, times2, lottery, conalot, images</td><td>Datos de la rifa que hoy no trae el API. Hay que agregarlos.</td></tr>
 <tr><td>fx</td><td>Tasas de monedas fuera del dólar (COP, PEN…). Solo si el rifero cobra en esas monedas.</td></tr>
+<tr><td>ticker, top</td><td>Compras recientes y ranking reales, si la plataforma quiere mostrarlos. Sin ellos, esas secciones no salen.</td></tr>
 </table>
+<p><b>Modo demostración y modo real.</b> Sin conexion.js, la página es una demostración: muestra compras en vivo, ranking y personas "en línea" de ejemplo, y una nota de prototipo al pie. Con conexion.js nada de eso aparece; las compras en vivo y el ranking solo salen si llegan en ticker y top con datos reales. Así no se publican cifras inventadas.</p>
 <p>Lo que falte en LOTTOGE_RIFA se completa con los datos de ejemplo. Por eso, con conexion.js activo, la página no se muestra si falla la carga: avisa "No pudimos cargar la rifa" en vez de mostrar cuentas de ejemplo.</p>
 
 <h2>5. Métodos de pago e iconos en la base de datos</h2>

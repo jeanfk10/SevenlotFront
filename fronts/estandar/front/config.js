@@ -76,6 +76,11 @@ window.LOTTOGE_RIFA = {
       accountInfo: [['Número Nequi', '300 555 0199'], ['Titular', 'Rifas La Bendición']] }
   ],
 
+  // Compras recientes y ranking (opcionales). En la demostración se ven unos de ejemplo; con la conexión real
+  // solo aparecen si vienen aquí, con datos reales: [nombre, ciudad, boletos].
+  //   ticker: [['Robert R.', 'Maracay', 5], …],
+  //   top: [['Darwin G.', 'Valencia', 214], …],
+
   // Conexión con la plataforma: la usa comun/conexion.js (ver conexion.ejemplo.js). En modo demostración no hace falta.
   companyId: '',                           // UUID del rifero en LottoGE
   raffleId: ''                             // id de la rifa

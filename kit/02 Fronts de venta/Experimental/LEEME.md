@@ -2,6 +2,12 @@
 
 La misma rifa, ordenada de otra forma. Al entrar, las fotos del premio ocupan toda la pantalla como una historia de Instagram: avanzan solas, con barras arriba que marcan cuál se ve, y se cambian tocando los lados de la foto. Encima van el premio, la fecha, el precio y el botón de compra. Debajo sube una hoja con tres partes:
 
+- **Cifras a la vista:** el porcentaje vendido y, debajo, la cuenta regresiva, completos y sin deslizar nada.
+- **Pestañas fijas:** Comprar, Premios e Info, que se quedan arriba al bajar.
+- **Comprar:** la cantidad es la protagonista, con un número grande y botones − y +. Las cantidades rápidas son una fila de píldoras.
+- **Premios:** cada premio es un escalón que sale de lado. El 1.º va completo y en el color del rifero; el 2.º y el 3.º son más cortos. Debajo va el top de compradores.
+- **Info:** el organizador con su permiso CONALOT, cómo participar y las preguntas frecuentes.
+
 ## Archivos
 
 - index.html  la página de compra (no se edita a mano)

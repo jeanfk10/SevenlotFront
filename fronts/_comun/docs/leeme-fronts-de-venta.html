@@ -58,6 +58,7 @@
 <tr><td>images</td><td>Fotos del premio, hasta 10; la primera es la portada. Rutas o direcciones completas.</td><td>['../comun/img/flyer.jpg']</td></tr>
 <tr><td>fx</td><td>Monedas fuera del dólar: cuántas unidades da 1 $. Sin este dato, el método muestra el equivalente en $.</td><td>{ COP: 4150, PEN: 3.75 }</td></tr>
 <tr><td>paymentMethods</td><td>Los métodos de pago del rifero, en el orden en que salen. Ver la sección siguiente.</td><td>[{ id, name, icon, … }]</td></tr>
+<tr><td>ticker, top</td><td>Compras recientes y ranking de compradores, reales: [nombre, ciudad, boletos]. Opcionales. Con la conexión real, si no vienen, esas secciones no se muestran.</td><td>[['Darwin G.', 'Valencia', 214]]</td></tr>
 <tr><td>companyId, raffleId</td><td>UUID del rifero y id de la rifa en LottoGE. Los usa la conexión real.</td><td>''</td></tr>
 </table>
 
@@ -79,7 +80,7 @@
 <li><b>Datos del comprador:</b> cédula, nombre, teléfono, correo y estado. Todos son obligatorios. Con la cédula se llenan los demás si ya existe.</li>
 <li><b>Notificaciones:</b> al comprador le llegan <b>solo por correo</b>.</li>
 <li><b>Total:</b> se recalcula siempre en el servidor con el precio real. El servidor también comprueba que los números elegidos sigan libres.</li>
-<li><b>Datos de ejemplo:</b> las cuentas de pago, los compradores, el ranking, la tasa y el nº CONALOT que traen las plantillas son de ejemplo y se cambian por los reales.</li>
+<li><b>Datos de ejemplo:</b> las cuentas de pago, los compradores, el ranking, la tasa y el nº CONALOT que traen las plantillas son de ejemplo y se cambian por los reales. Con la conexión real, la página ya no muestra las compras en vivo, el ranking, las personas "en línea" ni la nota de demostración, salvo que la plataforma mande datos reales.</li>
 </ul>
 
 <h2>Siguiente paso</h2>

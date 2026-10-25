@@ -8,7 +8,7 @@ La plantilla llamativa. El color del rifero ocupa bloques enteros: la portada, e
 - config.js   los datos de la rifa y sus métodos de pago: lo único que cambia de un rifero a otro
 - tema.css    el diseño de esta plantilla
 - tema-computadora.css  sus ajustes para computadora
-- tema.js     lo propio de la plantilla en JavaScript (adornos o reorganización)
+- tema.js     lo propio de la plantilla en JavaScript (aquí, nada)
 
 Lo común a todas las plantillas está en `../comun/`. Las fotos de ejemplo están en `../comun/img/`.
 

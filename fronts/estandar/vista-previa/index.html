@@ -1222,6 +1222,9 @@ window.LOTTOGE_TEMA = {
   // Lo propio de cada plantilla (window.LOTTOGE_TEMA) y el catálogo de métodos de pago (window.LOTTOGE_PAGOS).
   const TEMA = window.LOTTOGE_TEMA || {};
   const PAGOS = window.LOTTOGE_PAGOS;
+  // Without a platform connection the page is a demo: it shows sample buyers, live figures and a demo note.
+  // Connected, it only shows the ticker and the ranking if the platform sends them (config ticker / top).
+  const DEMO = !window.LOTTOGE_CONEXION;
   // Phones always get the mobile layout, even turned sideways; tablets and computers go by the window width.
   const PHONE = /Android.+Mobile|iPhone|iPod|Windows Phone|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent) || !!(navigator.userAgentData && navigator.userAgentData.mobile);
 
@@ -1336,12 +1339,14 @@ window.LOTTOGE_TEMA = {
     live.viewing = Math.max(31, Math.min(78, live.viewing + Math.round(Math.random() * 6 - 3)));
     paintLive();
   }, 3200);
-  setInterval(() => { if (soldNow() < CFG.total * .985) { live.bump += 1 + Math.floor(Math.random() * 4); paintLive(); } }, 7000);
+  setInterval(() => { if (DEMO && soldNow() < CFG.total * .985) { live.bump += 1 + Math.floor(Math.random() * 4); paintLive(); } }, 7000);
 
   const TICK = [['Robert R.', 'Maracay', 5], ['Gabriela M.', 'Caracas', 10], ['Richard N.', 'Barinas', 2], ['Marbella H.', 'Mérida', 20],
     ['Yerimar R.', 'Barquisimeto', 1], ['Keila T.', 'Cumaná', 10], ['Darwin G.', 'Valencia', 50], ['Nohely V.', 'Puerto La Cruz', 5]];
+  const tickList = () => CFG.ticker || (DEMO ? TICK : []);
+  const topList = () => CFG.top || (DEMO ? TOP : []);
   const tickerHTML = () => {
-    const one = TICK.map(([n, c, q]) => `<span><b>${n}</b> de ${c} compró ${boletos(q)}</span>`).join('');
+    const one = tickList().map(([n, c, q]) => `<span><b>${esc(n)}</b> de ${esc(c)} compró ${boletos(+q || 0)}</span>`).join('');
     return one + one.replace(/<span>/g, '<span aria-hidden="true">');
   };
   const TOP = [['Darwin G.', 'Valencia', 214], ['Keila T.', 'Cumaná', 168], ['Luis C.', 'Caracas', 141]];
@@ -1415,16 +1420,19 @@ window.LOTTOGE_TEMA = {
     const prize = esc(c.prize), org = esc(c.rifero), mark = esc(initials(c.rifero)), imgs = c.images.length ? c.images : SAMPLE.images;
     const acc = (items, cls) => items.map(([q, a], i) =>
       `<div class="acc__item"><button type="button" aria-expanded="false" aria-controls="${p}-${cls}${i}"><span>${q}</span>${PLUS}</button><div class="acc__body" id="${p}-${cls}${i}" hidden><p>${a}</p></div></div>`).join('');
+    const instant = D.pays.find(m => m.isOnline), manual = D.pays.some(m => !m.isOnline);
     const HOW = [
       ['Elige tus boletos', 'Toca una cantidad o elige tus números en el tablero, y luego “Participar”.'],
       ['Escribe tu cédula', 'Llenamos tu nombre, teléfono y correo. Solo revisas y eliges tu estado.'],
-      ['Paga como prefieras', 'Pago Móvil se verifica solo, al instante. También Binance, Zelle o Pago Móvil con comprobante.'],
+      ['Paga como prefieras', instant
+        ? `${esc(instant.name)} se verifica solo, al instante.${manual ? ' Con los demás métodos subes el comprobante y el rifero lo revisa.' : ''}`
+        : 'Pagas, subes el comprobante y el rifero lo revisa.'],
       ['Recibe tus números', 'Te llegan a tu correo apenas se confirma el pago.']
     ];
     const FAQ = [
       ['¿Cómo se escoge al ganador?', `Con el resultado de ${esc(c.lottery)} de ${D.digits} cifras del ${D.long}. El 1er premio juega a las ${D.hour}; el 2do y el 3er, a las ${c.times2[0]} y a la ${c.times2[1]} del mismo día.`],
       ['¿Esta rifa es legal?', `Sí. Está autorizada por CONALOT con el nº ${esc(c.conalot)}, y funciona sobre LottoGE, la plataforma autorizada para rifas en Venezuela.`],
-      ['¿Cuándo recibo mis números?', 'Con Pago Móvil al instante, en el momento. Con los otros métodos tus boletos quedan reservados hasta que el rifero apruebe el comprobante, normalmente en menos de 2 horas.'],
+      ['¿Cuándo recibo mis números?', (instant ? `Con ${esc(instant.name)}, en el momento. ` : '') + (manual ? `Con ${instant ? 'los otros métodos' : 'tu pago'} tus boletos quedan reservados hasta que el rifero apruebe el comprobante, normalmente en menos de 2 horas.` : '')],
       ['¿Cómo cobro si gano?', `${org} te escribe a tu correo. La entrega se hace en persona y se transmite en vivo por ${esc(c.handle)}.`]
     ];
     const ids = ['V', 'E', 'J'].map(t => `<button type="button" role="radio" data-action="idtype" data-t="${t}" aria-checked="${t === 'V'}">${t}</button>`).join('');
@@ -1447,7 +1455,7 @@ window.LOTTOGE_TEMA = {
         <button class="iconbtn" type="button" data-action="theme" aria-label="Cambiar entre modo claro y oscuro">${THEME_ICON}</button>
         <button class="btn btn--accent nav__buy" type="button" data-action="to-buy">Comprar boletos</button>
       </nav>
-      <div class="ticker" aria-label="Compras recientes, datos de ejemplo">
+      <div class="ticker" aria-label="Compras recientes${CFG.ticker ? '' : ', datos de ejemplo'}"${tickList().length ? '' : ' hidden'}>
         <span class="ticker__label"><span class="dot" aria-hidden="true"></span>En vivo</span>
         <div class="ticker__viewport"><div class="ticker__track">${tickerHTML()}</div></div>
       </div>
@@ -1469,7 +1477,7 @@ window.LOTTOGE_TEMA = {
           ${c.prizeExtra ? `<p class="hero__extra">${esc(c.prizeExtra)}</p>` : ''}
           <div class="price"><p class="price__bs">Bs ${num(c.price)}</p><p class="price__usd">por boleto<br><b>${usd(D.unitUsd)}</b> a tasa BCV</p></div>
           <button class="btn btn--accent btn--block" type="button" data-action="to-buy" data-hero-buy>Comprar boletos</button>
-          <p class="live"><span class="dot" aria-hidden="true"></span><span><b data-live="online"></b> en línea · <b data-live="viewing"></b> viendo esta rifa</span></p>
+          <p class="live"${DEMO ? '' : ' hidden'}><span class="dot" aria-hidden="true"></span><span><b data-live="online"></b> en línea · <b data-live="viewing"></b> viendo esta rifa</span></p>
         </div>
       </header>
 
@@ -1555,10 +1563,10 @@ window.LOTTOGE_TEMA = {
         <div class="seal"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="var(--ink)"/><path d="M12 20.5l5.5 5.5L29 14.5" fill="none" stroke="var(--bg)" stroke-width="3.4"/></svg>
           <span><b>Autorizada por CONALOT</b>Evento nº ${esc(c.conalot)}</span></div>
       </section>
-      <section class="rank" data-sec="rank" data-reveal aria-labelledby="${p}-rk">
+      <section class="rank" data-sec="rank" data-reveal aria-labelledby="${p}-rk"${topList().length ? '' : ' hidden'}>
         <h2 class="h2" id="${p}-rk">Top compradores</h2>
-        <p class="note">Quienes más boletos llevan en esta rifa. Datos de ejemplo.</p>
-        <ol>${TOP.map(([n, city, q], i) => `<li><span class="rank__pos">${i + 1}</span><span class="rank__who"><b>${n}</b><span>${city}</span></span><span class="rank__n">${q}<span>boletos</span></span></li>`).join('')}</ol>
+        <p class="note">Quienes más boletos llevan en esta rifa.${CFG.top ? '' : ' Datos de ejemplo.'}</p>
+        <ol>${topList().map(([n, city, q], i) => `<li><span class="rank__pos">${i + 1}</span><span class="rank__who"><b>${esc(n)}</b><span>${esc(city)}</span></span><span class="rank__n">${num(+q || 0)}<span>boletos</span></span></li>`).join('')}</ol>
       </section>
       <section class="acc-sec" data-sec="how" data-reveal aria-labelledby="${p}-how">
         <h2 class="h2" id="${p}-how">Cómo participar</h2>
@@ -1573,7 +1581,7 @@ window.LOTTOGE_TEMA = {
         <p class="afoot__pow">Rifa de <b>${org}</b>, montada sobre</p>
         <span class="lgmark"><i aria-hidden="true"></i>Lotto<b>GE</b></span>
         <p>LottoGE es la plataforma autorizada que procesa la venta y asigna los números. Cada rifero responde por sus premios.</p>
-        <p>Prototipo de demostración: no procesa pagos ni guarda datos. Rifero, compradores, montos y cuentas son de ejemplo.</p>
+        ${DEMO ? '<p>Prototipo de demostración: no procesa pagos ni guarda datos. Rifero, compradores, montos y cuentas son de ejemplo.</p>' : ''}
       </footer>
     </div>
 
@@ -2180,7 +2188,7 @@ window.LOTTOGE_TEMA = {
       this.$('[data-stubs]').innerHTML = nums.slice(1).map(n => `<li><span class="num" aria-label="Número ${n}">${digits(n)}</span></li>`).join('');
       this.$('[data-barcode]').innerHTML = barcode(nums[0]);
       const m = methodOf(s.method), tot = q * CFG.price;
-      const order = [['Orden', r.orden || 'LG-' + (48000 + q * 7)], ['Método', m.name], ['Referencia', s.ref || '004821'], ['Total', bs(tot)], ['En dólares', usd(tot / CFG.rate)]];
+      const order = [['Orden', r.orden || 'LG-' + (48000 + q * 7)], ['Método', m.name], ['Referencia', s.ref || '004821'], ['Total', bs(withFee(tot))], ['En dólares', usd(withFee(tot) / CFG.rate)]];
       this.$('[data-order]').innerHTML = order.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('');
       this.okPlayed = false;
       if (playNow) this.celebrate(); else this.whenVisible(() => this.celebrate());

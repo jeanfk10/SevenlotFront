@@ -2,6 +2,14 @@
 
 La plantilla con la marca de LottoGE. Usa los mismos colores, letra y formas que la página principal de lottoge.net (`landing/sencilla`):
 
+- **Colores:**
+  - fondo blanco con grises cálidos (`#f6f5f2`, `#ecebe6`);
+  - letras azul marino (`#1d2340`);
+  - coral (`#ff5a36`) para los botones;
+  - de apoyo, amarillo (`#ffc23c`), verde agua (`#12a594`) y azul (`#4f7cff`).
+- **Letra:** Plus Jakarta Sans.
+- **Formas:** tarjetas redondeadas y botones tipo píldora que se elevan un poco al pasar el mouse.
+
 ## Archivos
 
 - index.html  la página de compra (no se edita a mano)

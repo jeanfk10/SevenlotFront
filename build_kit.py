@@ -153,11 +153,14 @@ for slug, nombre in PLANTILLAS:
 </html>
 ''')
     readme = read(FRONTS / slug / 'README.md')
-    desc = readme.split('\n\n')[1].strip()
+    paras = readme.split('\n\n')
+    desc = paras[1].strip()
+    if desc.endswith(':'):  # the intro goes on in a list
+        desc += '\n\n' + paras[2].strip()
     files = ['index.html  la página de compra (no se edita a mano)', 'config.js   los datos de la rifa y sus métodos de pago: lo único que cambia de un rifero a otro']
     if p['tema_css']: files.append('tema.css    el diseño de esta plantilla')
     if p['tema_desk']: files.append('tema-computadora.css  sus ajustes para computadora')
-    files.append('tema.js     lo propio de la plantilla en JavaScript' + (' (adornos o reorganización)' if 'fx(app' in p['tema'] else ' (aquí, nada)'))
+    files.append('tema.js     lo propio de la plantilla en JavaScript' + (' (adornos o reorganización)' if 'fx(app, {' in p['tema'] else ' (aquí, nada)'))
     write(D / 'LEEME.md', f'''# Plantilla {nombre}
 
 {desc}

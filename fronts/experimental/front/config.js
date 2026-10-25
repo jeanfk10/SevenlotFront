@@ -30,7 +30,7 @@ window.LOTTOGE_RIFA = {
   lottery: 'Supergana',                    // lotería con la que juega
 
   // Marca e imágenes
-  accent: 'oro',                           // oro, rojo, verde, azul, naranja, turquesa, o un hex como '#d42a33'
+  accent: 'oro',                           // coral, oro, rojo, verde, azul, naranja, turquesa, o un hex como '#d42a33'
   accentInk: '#ffffff',                    // color del texto sobre el acento (solo si accent es un hex)
   images: ['img/flyer.jpg', 'img/burj-al-arab.jpg', 'img/sala.jpg'],  // la primera es la portada; hasta 10
 
@@ -75,6 +75,11 @@ window.LOTTOGE_RIFA = {
     { id: 'nequi', icon: 'nequi', name: 'Nequi', note: 'Pesos desde Colombia',
       accountInfo: [['Número Nequi', '300 555 0199'], ['Titular', 'Rifas La Bendición']] }
   ],
+
+  // Compras recientes y ranking (opcionales). En la demostración se ven unos de ejemplo; con la conexión real
+  // solo aparecen si vienen aquí, con datos reales: [nombre, ciudad, boletos].
+  //   ticker: [['Robert R.', 'Maracay', 5], …],
+  //   top: [['Darwin G.', 'Valencia', 214], …],
 
   // Conexión con la plataforma: la usa comun/conexion.js (ver conexion.ejemplo.js). En modo demostración no hace falta.
   companyId: '',                           // UUID del rifero en LottoGE

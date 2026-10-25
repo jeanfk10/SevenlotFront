@@ -6,7 +6,7 @@ Front de compra de boletos para riferos sobre la plataforma LottoGE. Es una sola
 
 - index.html  la página de compra (no se edita a mano)
 - config.js   los datos de la rifa y sus métodos de pago: lo único que cambia de un rifero a otro
-- tema.js     lo propio de la plantilla en JavaScript (adornos o reorganización)
+- tema.js     lo propio de la plantilla en JavaScript (aquí, nada)
 
 Lo común a todas las plantillas está en `../comun/`. Las fotos de ejemplo están en `../comun/img/`.
 
