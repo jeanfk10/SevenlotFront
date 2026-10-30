@@ -838,7 +838,10 @@ input[type="file"]:focus-visible + .upload { outline: 3px solid var(--ink); outl
      Lo demás (color, qué se le pide al comprador, moneda) sale del icono si no se indica.
    - Un mismo icono sirve para varios métodos: por ejemplo, cinco Pago Móvil de bancos distintos,
      cada uno con su color.
-   - Sin límite de métodos. Con más de 4, la página los agrupa por moneda. */
+   - Sin límite de métodos. Con más de 4, la página los agrupa por moneda.
+   - Cada tipo trae su lógica: qué datos llena el rifero (CUENTA, cada uno sale como casilla para copiar) y qué
+     datos se le piden al comprador (PIDE): referencia, banco y teléfono de origen, titular que envía, cuenta
+     de quien envía (correo, ID o usuario) y comprobante. El panel de LottoGE usa esta misma tabla. */
 window.LOTTOGE_PAGOS = (() => {
   const S = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
   const F = 'fill="currentColor"';
@@ -882,7 +885,13 @@ window.LOTTOGE_PAGOS = (() => {
     'daviplata': { name: 'DaviPlata', color: '#e1251b', ink: '#ffffff', kind: 'exterior',
       glyph: `<path fill-rule="evenodd" d="M6 4h5.5a8 8 0 0 1 0 16H6zm3 3v10h2.5a5 5 0 0 0 0-10z" ${F}/>` },
     'yape': { name: 'Yape', color: '#742284', ink: '#ffffff', kind: 'exterior',
-      glyph: `<path d="M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z" ${F}/>` }
+      glyph: `<path d="M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z" ${F}/>` },
+    'cashapp': { name: 'Cash App', color: '#00c244', ink: '#ffffff', kind: 'usd',
+      glyph: `<path d="M15.6 8c-.8-1-2.1-1.6-3.6-1.6-2 0-3.5 1-3.5 2.6 0 3.6 7 2 7 5.6 0 1.6-1.6 2.8-3.6 2.8-1.6 0-3-.6-3.9-1.7M12 3.5v3M12 17.4v3" ${S}/>` },
+    'venmo': { name: 'Venmo', color: '#008cff', ink: '#ffffff', kind: 'usd',
+      glyph: `<path d="M5 5.5h3.5l2 9.6c1.9-2.9 3.7-6.6 4-9.6H18c-.5 4.6-3.9 10.2-6.6 13h-3.1z" ${F}/>` },
+    'efectivo': { name: 'Efectivo', color: '#2f7d4f', ink: '#ffffff', kind: 'efectivo',
+      glyph: `<rect x="2.5" y="6" width="19" height="12" rx="2" ${S}/><circle cx="12" cy="12" r="2.7" ${S}/><path d="M6 9.5v5M18 9.5v5" ${S}/>` }
   };
 
   /* Qué se le pide al comprador según el tipo de icono. Un método puede cambiar cualquiera de estos datos. */
@@ -894,18 +903,66 @@ window.LOTTOGE_PAGOS = (() => {
     paypal: { label: 'ID de la transacción', placeholder: 'Ej. 7XK21934LM881', error: 'el ID de la transacción', numeric: false },
     operacion: { label: 'Número de operación', placeholder: 'Ej. 48211904', error: 'el número de operación', numeric: false },
     comprobante: { label: 'Número de comprobante', placeholder: 'Ej. M1234567', error: 'el número de comprobante', numeric: false },
-    autorizacion: { label: 'Número de autorización', placeholder: 'Ej. 004821', error: 'el número de autorización', numeric: true }
+    autorizacion: { label: 'Número de autorización', placeholder: 'Ej. 004821', error: 'el número de autorización', numeric: true },
+    zelleOpcional: { label: 'Código de confirmación (opcional)', placeholder: 'Si tu banco te lo dio', error: 'el código de confirmación', numeric: false, optional: true },
+    opcional: { label: 'Número de operación (opcional)', placeholder: 'Si la app te lo dio', error: 'el número de operación', numeric: false, optional: true },
+    ninguna: { label: '', placeholder: '', error: '', numeric: false, none: true }
   };
   const DEFAULTS = {
     'pago-movil': { currency: 'VES', ref: REF.banco }, 'comprobante': { currency: 'VES', ref: REF.banco },
     'transferencia': { currency: 'VES', ref: REF.banco }, 'transferencia-inmediata': { currency: 'VES', ref: REF.banco },
     'tarjeta': { currency: 'VES', ref: REF.autorizacion }, 'qr': { currency: 'VES', ref: REF.autorizacion },
-    'zelle': { currency: 'USD', ref: REF.zelle }, 'binance': { currency: 'USDT', ref: REF.binance },
+    'zelle': { currency: 'USD', ref: REF.zelleOpcional }, 'binance': { currency: 'USDT', ref: REF.binance },
     'usdt': { currency: 'USDT', ref: REF.hash }, 'cripto': { currency: 'USDT', ref: REF.hash },
     'paypal': { currency: 'USD', ref: REF.paypal }, 'zinli': { currency: 'USD', ref: REF.operacion },
     'wally': { currency: 'USD', ref: REF.operacion }, 'airtm': { currency: 'USD', ref: REF.operacion },
     'billetera': { currency: 'USD', ref: REF.operacion }, 'nequi': { currency: 'COP', ref: REF.comprobante },
-    'daviplata': { currency: 'COP', ref: REF.comprobante }, 'yape': { currency: 'PEN', ref: REF.operacion }
+    'daviplata': { currency: 'COP', ref: REF.comprobante }, 'yape': { currency: 'PEN', ref: REF.operacion },
+    'cashapp': { currency: 'USD', ref: REF.opcional }, 'venmo': { currency: 'USD', ref: REF.opcional },
+    'efectivo': { currency: 'USD', ref: REF.ninguna }
+  };
+
+  /* CUENTA: los datos que llena el rifero para cada tipo, en orden. Cada uno sale como casilla para copiar.
+     [etiqueta, tipo, ejemplo]. tipo: banco (lista de bancos de Venezuela), telefono, cedula, cuenta (20 dígitos),
+     correo o texto. El rifero puede cambiar las etiquetas o agregar datos. */
+  const T = (l, p) => [l, 'texto', p];
+  const PM = [['Banco', 'banco', ''], ['Teléfono', 'telefono', '0412-555-0199'], ['Cédula o RIF', 'cedula', 'J-50123456-7']];
+  const TR = [['Banco', 'banco', ''], ['Cuenta', 'cuenta', '0102-0000-00-0000000000'], T('Titular', 'Nombre o razón social'), ['Cédula o RIF', 'cedula', 'J-50123456-7']];
+  const CUENTA = {
+    'pago-movil': PM, 'comprobante': PM, 'transferencia': TR, 'transferencia-inmediata': TR,
+    'zelle': [T('Correo o teléfono', 'pagos@tuempresa.com'), T('Titular', 'Nombre como sale en el banco')],
+    'binance': [T('Pay ID o correo', '412 908 337'), T('Usuario', 'Nombre en Binance')],
+    'usdt': [T('Red', 'TRC20 (Tron)'), T('Dirección', 'T…')], 'cripto': [T('Moneda y red', 'BTC · Bitcoin'), T('Dirección', 'bc1…')],
+    'paypal': [['Correo', 'correo', 'pagos@tuempresa.com']],
+    'zinli': [['Correo', 'correo', 'pagos@tuempresa.com'], T('Titular', '')], 'wally': [T('Teléfono o correo', ''), T('Titular', '')],
+    'airtm': [T('Correo o usuario', ''), T('Titular', '')], 'billetera': [T('Cuenta', ''), T('Titular', '')],
+    'cashapp': [T('$Cashtag', '$TuEmpresa'), T('Titular', '')], 'venmo': [T('Usuario', '@TuEmpresa'), T('Titular', '')],
+    'nequi': [T('Número Nequi', '300 555 0199'), T('Titular', '')], 'daviplata': [T('Número DaviPlata', ''), T('Titular', '')],
+    'yape': [T('Número Yape', ''), T('Titular', '')],
+    'tarjeta': [], 'qr': [], 'efectivo': [T('Dónde pagar', 'Taquilla principal')]
+  };
+
+  /* PIDE: lo que se le pide al comprador al pagar con cada tipo. payer: teléfono desde el que paga; bank: su banco;
+     holder: nombre del titular de la cuenta que envía; account: su correo, ID o usuario; receipt: comprobante.
+     La referencia sale de DEFAULTS (ref). Con pasarela ("al instante") no se pide comprobante. */
+  const PIDE = {
+    'pago-movil': i => ({ payer: true, bank: true, receipt: !i }),
+    'comprobante': () => ({ payer: true, bank: true, receipt: true }),
+    'transferencia': () => ({ bank: true, holder: 'Titular de la cuenta que envía', receipt: true }),
+    'transferencia-inmediata': () => ({ bank: true, holder: 'Titular de la cuenta que envía', receipt: true }),
+    'zelle': () => ({ holder: 'Titular de la cuenta Zelle que envía' }),
+    'binance': () => ({ account: 'Correo o Binance ID de quien envía' }),
+    'usdt': () => ({}), 'cripto': () => ({}),
+    'paypal': () => ({ account: 'Correo de PayPal de quien envía' }),
+    'zinli': () => ({ account: 'Correo de Zinli de quien envía', receipt: true }),
+    'wally': () => ({ account: 'Teléfono o correo de quien envía', receipt: true }),
+    'airtm': () => ({ account: 'Usuario de AirTM de quien envía', receipt: true }),
+    'billetera': () => ({ account: 'Cuenta de quien envía', receipt: true }),
+    'cashapp': () => ({ account: '$Cashtag de quien envía', holder: 'Nombre de quien envía' }),
+    'venmo': () => ({ account: 'Usuario de Venmo de quien envía', holder: 'Nombre de quien envía' }),
+    'nequi': () => ({ holder: 'Titular que envía', receipt: true }), 'daviplata': () => ({ holder: 'Titular que envía', receipt: true }),
+    'yape': () => ({ holder: 'Titular que envía', receipt: true }),
+    'tarjeta': () => ({}), 'qr': () => ({}), 'efectivo': () => ({})
   };
 
   /* Monedas. El monto en Bs es la base; los demás salen de la tasa BCV (Bs por $) y, fuera del dólar,
@@ -939,7 +996,8 @@ window.LOTTOGE_PAGOS = (() => {
     [/pago\s*m[oó]vil/i, 'pago-movil'], [/zelle/i, 'zelle'], [/binance/i, 'binance'], [/usdt|tether/i, 'usdt'],
     [/bitcoin|btc|cripto|eth/i, 'cripto'], [/paypal/i, 'paypal'], [/zinli/i, 'zinli'], [/wally/i, 'wally'], [/airtm/i, 'airtm'],
     [/nequi/i, 'nequi'], [/davi\s*plata/i, 'daviplata'], [/yape/i, 'yape'], [/transfer/i, 'transferencia'],
-    [/tarjeta|d[eé]bito|cr[eé]dito|punto/i, 'tarjeta'], [/\bqr\b/i, 'qr']
+    [/tarjeta|d[eé]bito|cr[eé]dito|punto/i, 'tarjeta'], [/\bqr\b/i, 'qr'], [/cash\s*app/i, 'cashapp'], [/venmo/i, 'venmo'],
+    [/efectivo|cash\b/i, 'efectivo']
   ];
   const guessIcon = name => (GUESS.find(([re]) => re.test(name || '')) || [, 'billetera'])[1];
 
@@ -956,7 +1014,7 @@ window.LOTTOGE_PAGOS = (() => {
   function normalize(raw, i = 0) {
     const icon = ICONS[raw.icon] ? raw.icon : guessIcon(raw.name);
     const base = ICONS[icon], def = DEFAULTS[icon];
-    const isOnline = !!raw.isOnline, bankVE = base.kind === 'banco-ve';
+    const isOnline = !!raw.isOnline, bankVE = base.kind === 'banco-ve', pide = PIDE[icon](isOnline);
     const cur = String(raw.currency || def.currency).toUpperCase();
     return {
       id: String(raw.id ?? `metodo-${i + 1}`),
@@ -965,27 +1023,34 @@ window.LOTTOGE_PAGOS = (() => {
       badge: raw.badge ?? (isOnline ? 'Al instante' : ''),
       color: raw.color || base.color, ink: raw.colorInk || raw.ink || base.ink,
       currency: CURRENCIES[cur] ? cur : 'USD',
-      isOnline, requireReceipt: raw.requireReceipt ?? !isOnline,
+      isOnline, requireReceipt: isOnline ? false : raw.requireReceipt ?? !!pide.receipt,
       minTickets: Math.max(1, parseInt(raw.minTickets, 10) || 1),
       commissionRate: Math.max(0, +raw.commissionRate || 0),
       accountInfo: rowsOf(raw.accountInfo),
       instructions: raw.instructions || '',
-      askPayer: raw.askPayer ?? (isOnline && bankVE),
-      askBank: raw.askBank ?? bankVE,
+      askPayer: raw.askPayer ?? !!pide.payer,
+      askBank: raw.askBank ?? (!!pide.bank && bankVE),
+      askHolder: raw.askHolder ?? pide.holder ?? '',
+      askAccount: raw.askAccount ?? pide.account ?? '',
       ref: Object.assign({}, def.ref, raw.ref)
     };
   }
 
   /* Un método tal como lo devuelve el API real de LottoGE (payment-methods/active):
-     { id, name, accountInfo, requireReceipt, isOnline, minTickets, currencyId, commissionRate, countryFlag, instructions }.
-     icon y color son opcionales: conviene guardarlos en la base de datos junto a cada método.
-     currencyId: si el API usa ids propios en vez de códigos (VES, USD…), se traducen en CURRENCY_IDS. */
+     { id, name, accountInfo, requireReceipt, isOnline, posEnabled, gateway, icon, color, note, minTickets, currency,
+       currencyId, commissionRate, instructions }.
+     Ojo: en el API, isOnline quiere decir "sale en la página de venta"; aquí isOnline quiere decir "se verifica
+     al instante". Al instante = el método tiene una pasarela (gateway r4conecta, chinchin o avilapay).
+     currency llega como objeto { code, … }; currencyId, si el API usa ids propios, se traduce en CURRENCY_IDS. */
   const CURRENCY_IDS = {};
+  const INSTANT = ['r4conecta', 'chinchin', 'avilapay'];
   function fromApi(a, i) {
-    const cur = a.currency || CURRENCY_IDS[a.currencyId] || (typeof a.currencyId === 'string' && /^[A-Za-z]{3,4}$/.test(a.currencyId) ? a.currencyId : undefined);
+    const cur = (a.currency && a.currency.code) || (typeof a.currency === 'string' ? a.currency : undefined) || CURRENCY_IDS[a.currencyId]
+      || (typeof a.currencyId === 'string' && /^[A-Za-z]{3,4}$/.test(a.currencyId) ? a.currencyId : undefined);
+    const instant = a.instant ?? (a.gateway !== undefined ? INSTANT.includes(a.gateway) || a.id === 'chinchin-auto' : a.isOnline);
     return normalize({
       id: a.id, name: a.name, icon: a.icon, color: a.color, colorInk: a.colorInk, note: a.note, badge: a.badge,
-      isOnline: a.isOnline, requireReceipt: a.requireReceipt, minTickets: a.minTickets, commissionRate: a.commissionRate,
+      isOnline: instant, requireReceipt: a.requireReceipt, minTickets: a.minTickets, commissionRate: a.commissionRate,
       currency: cur, accountInfo: a.accountInfo, instructions: a.instructions
     }, i);
   }
@@ -1002,7 +1067,7 @@ window.LOTTOGE_PAGOS = (() => {
   }
 
   const groupOf = code => (CURRENCIES[code] || CURRENCIES.USD).group;
-  return { ICONS, DEFAULTS, REF, CURRENCIES, GROUPS, BANCOS_VE, CURRENCY_IDS, normalize, fromApi, guessIcon, rowsOf, svg, groupOf };
+  return { ICONS, DEFAULTS, REF, CUENTA, PIDE, CURRENCIES, GROUPS, BANCOS_VE, CURRENCY_IDS, normalize, fromApi, guessIcon, rowsOf, svg, groupOf };
 })();
 </script>
 <script data-part="tema">
@@ -1343,8 +1408,10 @@ window.LOTTOGE_TEMA = {};
           <div class="paybox" data-paybox></div>
           <div data-f="payer"><label class="lbl" for="${p}-payer">Teléfono desde el que pagas</label><input class="field" id="${p}-payer" type="tel" inputmode="tel" placeholder="0414-555-0000" data-in="payer"></div>
           <div data-f="bank"><label class="lbl" for="${p}-bank">Tu banco</label><select class="field" id="${p}-bank" data-in="bank">${PAGOS.BANCOS_VE.map(b => `<option value="${b.name}">${b.name} (${b.code})</option>`).join('')}</select></div>
-          <label class="lbl" for="${p}-ref" data-ref-label>Número de referencia</label>
-          <input class="field" id="${p}-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos">
+          <div data-f="holder"><label class="lbl" for="${p}-holder" data-holder-label>Titular de la cuenta que envía</label><input class="field" id="${p}-holder" type="text" autocomplete="name" placeholder="Nombre y apellido" data-in="holder"></div>
+          <div data-f="account"><label class="lbl" for="${p}-account" data-account-label>Cuenta de quien envía</label><input class="field" id="${p}-account" type="text" autocomplete="off" placeholder="Correo, ID o usuario" data-in="account"></div>
+          <div data-f="ref"><label class="lbl" for="${p}-ref" data-ref-label>Número de referencia</label>
+          <input class="field" id="${p}-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos"></div>
           <div data-f="file"><input class="sr-only" id="${p}-file" type="file" accept="image/*,.pdf" data-in="file" aria-required="true"><label class="upload" for="${p}-file" data-upload><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg><span class="upcheck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z" fill="currentColor"/></svg></span><span><span data-file-name>Subir comprobante</span><small data-file-sub>Obligatorio. Foto, captura o PDF del pago.</small></span></label></div>
           <p class="err" data-err="pay" hidden></p>
           <button class="btn btn--accent btn--block go" type="button" data-action="confirm"><span>Confirmar pago</span><b data-go-bs></b></button>
@@ -1501,7 +1568,7 @@ window.LOTTOGE_TEMA = {};
     constructor(screen, init, device) {
       this.device = device; this.init = init;
       this.s = Object.assign({ view: 'home', stage: 'pick', qty: 2, mode: 'random', picks: [], idType: 'V', cedula: '', name: '', phone: '', email: '', estado: '',
-        method: 'pm-auto', ref: '', payer: '', bank: 'Banesco', file: '', series: 0, search: '' }, JSON.parse(JSON.stringify(init)));
+        method: 'pm-auto', ref: '', payer: '', bank: 'Banesco', holder: '', account: '', file: '', series: 0, search: '' }, JSON.parse(JSON.stringify(init)));
       const seeds = { first: 7, second: 2026, third: 4821 };
       this.s.picks = this.s.picks.reduce((out, x) => { const k = seeds[x] != null ? freeFrom(seeds[x] % CFG.total, 1, out)[0] : x; if (k) out.push(k); return out; }, []);
       if (!D.pays.some(m => m.id === this.s.method)) this.s.method = D.pays[0].id;
@@ -1653,7 +1720,9 @@ window.LOTTOGE_TEMA = {};
       const s = this.s, err = this.$('[data-err="pay"]'), m = methodOf(s.method);
       let msg = '', field = '';
       if (m.askPayer && s.payer.replace(/\D/g, '').length !== 11) { msg = 'Escribe el teléfono desde el que hiciste el Pago Móvil (11 dígitos).'; field = 'payer'; }
-      else if (s.ref.trim().length < 4) { msg = `Escribe ${m.ref.error} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
+      else if (m.askHolder && s.holder.trim().split(/\s+/).length < 2) { msg = `Escribe el ${m.askHolder.charAt(0).toLowerCase() + m.askHolder.slice(1)}: nombre y apellido, como sale en su cuenta.`; field = 'holder'; }
+      else if (m.askAccount && s.account.trim().length < 3) { msg = `Escribe el ${m.askAccount.charAt(0).toLowerCase() + m.askAccount.slice(1)}.`; field = 'account'; }
+      else if (!m.ref.none && !(m.ref.optional && !s.ref.trim()) && s.ref.trim().length < 4) { msg = `Escribe ${m.ref.error} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
       else if (m.requireReceipt && !s.file) { msg = 'Sube el comprobante de tu pago: una foto, una captura o un PDF. Sin él, el rifero no puede revisar tu pago.'; field = 'file'; }
       if (msg) {
         err.textContent = msg; err.hidden = false;
@@ -1760,7 +1829,7 @@ window.LOTTOGE_TEMA = {};
             if (p) this.fillPerson(p, true); else { lk.className = 'lookup'; lk.textContent = 'No encontramos esa cédula. Escribe tus datos.'; }
           }, () => { if (!stale()) { lk.className = 'lookup'; lk.textContent = 'No pudimos buscar tus datos. Escríbelos tú.'; } }), 400);
         } else { lk.className = 'lookup'; lk.textContent = 'Con tu cédula llenamos el resto.'; }
-      } else if (['name', 'phone', 'email', 'ref', 'payer'].includes(k)) {
+      } else if (['name', 'phone', 'email', 'ref', 'payer', 'holder', 'account'].includes(k)) {
         s[k] = t.value; t.classList.remove('is-bad');
       }
     }
@@ -1782,6 +1851,8 @@ window.LOTTOGE_TEMA = {};
       this.$('[data-in="ref"]').value = s.ref;
       this.$('[data-in="payer"]').value = s.payer;
       this.$('[data-in="bank"]').value = s.bank;
+      this.$('[data-in="holder"]').value = s.holder;
+      this.$('[data-in="account"]').value = s.account;
       this.syncQty(); this.renderPick(); this.renderMethod(); this.renderFile();
     }
 
@@ -1796,6 +1867,12 @@ window.LOTTOGE_TEMA = {};
       this.$('[data-f="payer"]').hidden = !m.askPayer;
       this.$('[data-f="bank"]').hidden = !m.askBank;
       this.$('[data-f="file"]').hidden = !m.requireReceipt;
+      // cada tipo pide lo suyo: Zelle, el titular que envía; Binance o PayPal, la cuenta de quien envía
+      this.$('[data-f="holder"]').hidden = !m.askHolder;
+      if (m.askHolder) this.$('[data-holder-label]').textContent = m.askHolder;
+      this.$('[data-f="account"]').hidden = !m.askAccount;
+      if (m.askAccount) this.$('[data-account-label]').textContent = m.askAccount;
+      this.$('[data-f="ref"]').hidden = !!m.ref.none;
       this.$('[data-ref-label]').textContent = m.ref.label;
       const r = this.$('[data-in="ref"]'); r.placeholder = m.ref.placeholder; r.inputMode = m.ref.numeric ? 'numeric' : 'text';
       this.renderPaybox();
@@ -1861,7 +1938,8 @@ window.LOTTOGE_TEMA = {};
       return {
         metodo: m.id, cantidad: q, modo: s.mode, numeros: s.mode === 'manual' ? [...s.picks] : [],
         cedula: s.idType + s.cedula, nombre: s.name.trim(), telefono: s.phone, correo: s.email.trim(), estado: s.estado,
-        referencia: s.ref.trim(), telefonoPago: m.askPayer ? s.payer : '', banco: m.askBank ? s.bank : '',
+        referencia: m.ref.none ? '' : s.ref.trim(), telefonoPago: m.askPayer ? s.payer : '', banco: m.askBank ? s.bank : '',
+        titularPago: m.askHolder ? s.holder.trim() : '', cuentaPago: m.askAccount ? s.account.trim() : '',
         comprobante: m.requireReceipt ? this.fileObj || null : null,
         moneda: m.currency, monto: this.amount(m, q * CFG.price), montoBs: q * CFG.price
       };

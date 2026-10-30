@@ -335,8 +335,10 @@
           <div class="paybox" data-paybox></div>
           <div data-f="payer"><label class="lbl" for="${p}-payer">Teléfono desde el que pagas</label><input class="field" id="${p}-payer" type="tel" inputmode="tel" placeholder="0414-555-0000" data-in="payer"></div>
           <div data-f="bank"><label class="lbl" for="${p}-bank">Tu banco</label><select class="field" id="${p}-bank" data-in="bank">${PAGOS.BANCOS_VE.map(b => `<option value="${b.name}">${b.name} (${b.code})</option>`).join('')}</select></div>
-          <label class="lbl" for="${p}-ref" data-ref-label>Número de referencia</label>
-          <input class="field" id="${p}-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos">
+          <div data-f="holder"><label class="lbl" for="${p}-holder" data-holder-label>Titular de la cuenta que envía</label><input class="field" id="${p}-holder" type="text" autocomplete="name" placeholder="Nombre y apellido" data-in="holder"></div>
+          <div data-f="account"><label class="lbl" for="${p}-account" data-account-label>Cuenta de quien envía</label><input class="field" id="${p}-account" type="text" autocomplete="off" placeholder="Correo, ID o usuario" data-in="account"></div>
+          <div data-f="ref"><label class="lbl" for="${p}-ref" data-ref-label>Número de referencia</label>
+          <input class="field" id="${p}-ref" type="text" autocomplete="off" data-in="ref" placeholder="Últimos 6 dígitos"></div>
           <div data-f="file"><input class="sr-only" id="${p}-file" type="file" accept="image/*,.pdf" data-in="file" aria-required="true"><label class="upload" for="${p}-file" data-upload><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V6.8L7.4 10.4 6 9l6-6 6 6-1.4 1.4L13 6.8V16zM4 19h16v2H4z" fill="currentColor"/></svg><span class="upcheck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z" fill="currentColor"/></svg></span><span><span data-file-name>Subir comprobante</span><small data-file-sub>Obligatorio. Foto, captura o PDF del pago.</small></span></label></div>
           <p class="err" data-err="pay" hidden></p>
           <button class="btn btn--accent btn--block go" type="button" data-action="confirm"><span>Confirmar pago</span><b data-go-bs></b></button>
@@ -493,7 +495,7 @@
     constructor(screen, init, device) {
       this.device = device; this.init = init;
       this.s = Object.assign({ view: 'home', stage: 'pick', qty: 2, mode: 'random', picks: [], idType: 'V', cedula: '', name: '', phone: '', email: '', estado: '',
-        method: 'pm-auto', ref: '', payer: '', bank: 'Banesco', file: '', series: 0, search: '' }, JSON.parse(JSON.stringify(init)));
+        method: 'pm-auto', ref: '', payer: '', bank: 'Banesco', holder: '', account: '', file: '', series: 0, search: '' }, JSON.parse(JSON.stringify(init)));
       const seeds = { first: 7, second: 2026, third: 4821 };
       this.s.picks = this.s.picks.reduce((out, x) => { const k = seeds[x] != null ? freeFrom(seeds[x] % CFG.total, 1, out)[0] : x; if (k) out.push(k); return out; }, []);
       if (!D.pays.some(m => m.id === this.s.method)) this.s.method = D.pays[0].id;
@@ -645,7 +647,9 @@
       const s = this.s, err = this.$('[data-err="pay"]'), m = methodOf(s.method);
       let msg = '', field = '';
       if (m.askPayer && s.payer.replace(/\D/g, '').length !== 11) { msg = 'Escribe el teléfono desde el que hiciste el Pago Móvil (11 dígitos).'; field = 'payer'; }
-      else if (s.ref.trim().length < 4) { msg = `Escribe ${m.ref.error} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
+      else if (m.askHolder && s.holder.trim().split(/\s+/).length < 2) { msg = `Escribe el ${m.askHolder.charAt(0).toLowerCase() + m.askHolder.slice(1)}: nombre y apellido, como sale en su cuenta.`; field = 'holder'; }
+      else if (m.askAccount && s.account.trim().length < 3) { msg = `Escribe el ${m.askAccount.charAt(0).toLowerCase() + m.askAccount.slice(1)}.`; field = 'account'; }
+      else if (!m.ref.none && !(m.ref.optional && !s.ref.trim()) && s.ref.trim().length < 4) { msg = `Escribe ${m.ref.error} de tu pago (al menos 4 caracteres).`; field = 'ref'; }
       else if (m.requireReceipt && !s.file) { msg = 'Sube el comprobante de tu pago: una foto, una captura o un PDF. Sin él, el rifero no puede revisar tu pago.'; field = 'file'; }
       if (msg) {
         err.textContent = msg; err.hidden = false;
@@ -752,7 +756,7 @@
             if (p) this.fillPerson(p, true); else { lk.className = 'lookup'; lk.textContent = 'No encontramos esa cédula. Escribe tus datos.'; }
           }, () => { if (!stale()) { lk.className = 'lookup'; lk.textContent = 'No pudimos buscar tus datos. Escríbelos tú.'; } }), 400);
         } else { lk.className = 'lookup'; lk.textContent = 'Con tu cédula llenamos el resto.'; }
-      } else if (['name', 'phone', 'email', 'ref', 'payer'].includes(k)) {
+      } else if (['name', 'phone', 'email', 'ref', 'payer', 'holder', 'account'].includes(k)) {
         s[k] = t.value; t.classList.remove('is-bad');
       }
     }
@@ -774,6 +778,8 @@
       this.$('[data-in="ref"]').value = s.ref;
       this.$('[data-in="payer"]').value = s.payer;
       this.$('[data-in="bank"]').value = s.bank;
+      this.$('[data-in="holder"]').value = s.holder;
+      this.$('[data-in="account"]').value = s.account;
       this.syncQty(); this.renderPick(); this.renderMethod(); this.renderFile();
     }
 
@@ -788,6 +794,12 @@
       this.$('[data-f="payer"]').hidden = !m.askPayer;
       this.$('[data-f="bank"]').hidden = !m.askBank;
       this.$('[data-f="file"]').hidden = !m.requireReceipt;
+      // cada tipo pide lo suyo: Zelle, el titular que envía; Binance o PayPal, la cuenta de quien envía
+      this.$('[data-f="holder"]').hidden = !m.askHolder;
+      if (m.askHolder) this.$('[data-holder-label]').textContent = m.askHolder;
+      this.$('[data-f="account"]').hidden = !m.askAccount;
+      if (m.askAccount) this.$('[data-account-label]').textContent = m.askAccount;
+      this.$('[data-f="ref"]').hidden = !!m.ref.none;
       this.$('[data-ref-label]').textContent = m.ref.label;
       const r = this.$('[data-in="ref"]'); r.placeholder = m.ref.placeholder; r.inputMode = m.ref.numeric ? 'numeric' : 'text';
       this.renderPaybox();
@@ -853,7 +865,8 @@
       return {
         metodo: m.id, cantidad: q, modo: s.mode, numeros: s.mode === 'manual' ? [...s.picks] : [],
         cedula: s.idType + s.cedula, nombre: s.name.trim(), telefono: s.phone, correo: s.email.trim(), estado: s.estado,
-        referencia: s.ref.trim(), telefonoPago: m.askPayer ? s.payer : '', banco: m.askBank ? s.bank : '',
+        referencia: m.ref.none ? '' : s.ref.trim(), telefonoPago: m.askPayer ? s.payer : '', banco: m.askBank ? s.bank : '',
+        titularPago: m.askHolder ? s.holder.trim() : '', cuentaPago: m.askAccount ? s.account.trim() : '',
         comprobante: m.requireReceipt ? this.fileObj || null : null,
         moneda: m.currency, monto: this.amount(m, q * CFG.price), montoBs: q * CFG.price
       };

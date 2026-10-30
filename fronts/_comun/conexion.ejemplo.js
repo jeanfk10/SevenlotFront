@@ -84,7 +84,8 @@
     numeroVendido: n => vendidos.has(n),
 
     // La compra. orden trae: metodo, cantidad, modo ('random' | 'manual'), numeros, cedula, nombre, telefono,
-    // correo, estado, referencia, telefonoPago, banco, comprobante (File o null), moneda, monto, montoBs.
+    // correo, estado, referencia, telefonoPago, banco, titularPago (Zelle, transferencias…), cuentaPago (correo o ID de
+    // Binance, PayPal…), comprobante (File o null), moneda, monto, montoBs. Lo que pide cada tipo está en metodos-pago.js (PIDE).
     // Debe responder { estado: 'aprobado' | 'reservado' | 'rechazado', orden: 'LG-…', numeros: ['0928', …] }.
     // El servidor recalcula el total con el precio real y comprueba que los números elegidos sigan libres.
     enviarPago: async orden => {
@@ -93,7 +94,9 @@
         raffleId: RIFA.raffleId, companyId: RIFA.companyId, paymentMethodId: orden.metodo,
         ticketCount: orden.cantidad, numbers: orden.numeros, customer: {
           idNumber: orden.cedula, name: orden.nombre, phone: orden.telefono, email: orden.correo, state: orden.estado
-        }
+        },
+        // Datos de quien paga, para que el rifero los compare al verificar (LottoGE los guarda en payerInfo).
+        payerInfo: { holder: orden.titularPago, account: orden.cuentaPago, phone: orden.telefonoPago, bank: orden.banco }
       });
       if (metodo.isOnline) {
         // Pago Móvil al instante: la pasarela activa del rifero (Chinchin, AvilaPay o R4) verifica el pago.

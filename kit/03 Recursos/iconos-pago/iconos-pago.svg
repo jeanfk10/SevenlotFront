@@ -18,4 +18,7 @@
   <symbol id="nequi" viewBox="0 0 24 24"><title>Nequi</title><path d="M6 19V5h2.6l6.8 9.2V5H18v14h-2.6L8.6 9.8V19z" fill="currentColor"/></symbol>
   <symbol id="daviplata" viewBox="0 0 24 24"><title>DaviPlata</title><path fill-rule="evenodd" d="M6 4h5.5a8 8 0 0 1 0 16H6zm3 3v10h2.5a5 5 0 0 0 0-10z" fill="currentColor"/></symbol>
   <symbol id="yape" viewBox="0 0 24 24"><title>Yape</title><path d="M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z" fill="currentColor"/></symbol>
+  <symbol id="cashapp" viewBox="0 0 24 24"><title>Cash App</title><path d="M15.6 8c-.8-1-2.1-1.6-3.6-1.6-2 0-3.5 1-3.5 2.6 0 3.6 7 2 7 5.6 0 1.6-1.6 2.8-3.6 2.8-1.6 0-3-.6-3.9-1.7M12 3.5v3M12 17.4v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="venmo" viewBox="0 0 24 24"><title>Venmo</title><path d="M5 5.5h3.5l2 9.6c1.9-2.9 3.7-6.6 4-9.6H18c-.5 4.6-3.9 10.2-6.6 13h-3.1z" fill="currentColor"/></symbol>
+  <symbol id="efectivo" viewBox="0 0 24 24"><title>Efectivo</title><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5v5M18 9.5v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>

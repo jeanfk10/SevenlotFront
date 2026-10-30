@@ -129,10 +129,11 @@
       "tipo": "usd",
       "monedaPorDefecto": "USD",
       "referencia": {
-        "label": "Código de confirmación",
-        "placeholder": "Ej. ZL7Q2K",
+        "label": "Código de confirmación (opcional)",
+        "placeholder": "Si tu banco te lo dio",
         "error": "el código de confirmación",
-        "numeric": false
+        "numeric": false,
+        "optional": true
       },
       "dibujo": "<path d=\"M6 5h12v2.9L9.9 16.4H18V19H6v-2.9l8.1-8.5H6z\" fill=\"currentColor\"/><path d=\"M11 2h2v3h-2zM11 19h2v3h-2z\" fill=\"currentColor\"/>",
       "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M6 5h12v2.9L9.9 16.4H18V19H6v-2.9l8.1-8.5H6z\" fill=\"currentColor\"/><path d=\"M11 2h2v3h-2zM11 19h2v3h-2z\" fill=\"currentColor\"/></svg>",
@@ -324,6 +325,60 @@
       "dibujo": "<path d=\"M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z\" fill=\"currentColor\"/>",
       "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z\" fill=\"currentColor\"/></svg>",
       "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#742284\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M5 4h3.3L12 10.4 15.7 4H19l-5.5 9v7h-3v-7z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "cashapp",
+      "nombre": "Cash App",
+      "color": "#00c244",
+      "colorTexto": "#ffffff",
+      "tipo": "usd",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "Número de operación (opcional)",
+        "placeholder": "Si la app te lo dio",
+        "error": "el número de operación",
+        "numeric": false,
+        "optional": true
+      },
+      "dibujo": "<path d=\"M15.6 8c-.8-1-2.1-1.6-3.6-1.6-2 0-3.5 1-3.5 2.6 0 3.6 7 2 7 5.6 0 1.6-1.6 2.8-3.6 2.8-1.6 0-3-.6-3.9-1.7M12 3.5v3M12 17.4v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M15.6 8c-.8-1-2.1-1.6-3.6-1.6-2 0-3.5 1-3.5 2.6 0 3.6 7 2 7 5.6 0 1.6-1.6 2.8-3.6 2.8-1.6 0-3-.6-3.9-1.7M12 3.5v3M12 17.4v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#00c244\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M15.6 8c-.8-1-2.1-1.6-3.6-1.6-2 0-3.5 1-3.5 2.6 0 3.6 7 2 7 5.6 0 1.6-1.6 2.8-3.6 2.8-1.6 0-3-.6-3.9-1.7M12 3.5v3M12 17.4v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"
+    },
+    {
+      "clave": "venmo",
+      "nombre": "Venmo",
+      "color": "#008cff",
+      "colorTexto": "#ffffff",
+      "tipo": "usd",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "Número de operación (opcional)",
+        "placeholder": "Si la app te lo dio",
+        "error": "el número de operación",
+        "numeric": false,
+        "optional": true
+      },
+      "dibujo": "<path d=\"M5 5.5h3.5l2 9.6c1.9-2.9 3.7-6.6 4-9.6H18c-.5 4.6-3.9 10.2-6.6 13h-3.1z\" fill=\"currentColor\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><path d=\"M5 5.5h3.5l2 9.6c1.9-2.9 3.7-6.6 4-9.6H18c-.5 4.6-3.9 10.2-6.6 13h-3.1z\" fill=\"currentColor\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#008cff\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><path d=\"M5 5.5h3.5l2 9.6c1.9-2.9 3.7-6.6 4-9.6H18c-.5 4.6-3.9 10.2-6.6 13h-3.1z\" fill=\"currentColor\"/></g></svg>"
+    },
+    {
+      "clave": "efectivo",
+      "nombre": "Efectivo",
+      "color": "#2f7d4f",
+      "colorTexto": "#ffffff",
+      "tipo": "efectivo",
+      "monedaPorDefecto": "USD",
+      "referencia": {
+        "label": "",
+        "placeholder": "",
+        "error": "",
+        "numeric": false,
+        "none": true
+      },
+      "dibujo": "<rect x=\"2.5\" y=\"6\" width=\"19\" height=\"12\" rx=\"2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"12\" cy=\"12\" r=\"2.7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M6 9.5v5M18 9.5v5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><rect x=\"2.5\" y=\"6\" width=\"19\" height=\"12\" rx=\"2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"12\" cy=\"12\" r=\"2.7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M6 9.5v5M18 9.5v5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+      "svgFicha": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect width=\"48\" height=\"48\" rx=\"14\" fill=\"#2f7d4f\"/><g transform=\"translate(12 12)\" color=\"#ffffff\"><rect x=\"2.5\" y=\"6\" width=\"19\" height=\"12\" rx=\"2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"12\" cy=\"12\" r=\"2.7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M6 9.5v5M18 9.5v5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"
     }
   ],
   "monedas": [
