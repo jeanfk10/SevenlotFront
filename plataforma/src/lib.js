@@ -129,3 +129,36 @@ export function pendingTasks(db) {
   if (draft.length) tasks.push({ id: 'rechazadas', icon: 'alert', tone: 'err', title: `${plural(draft.length, 'rifa rechazada por CONALOT', 'rifas rechazadas por CONALOT')}`, sub: draft[0].rejectReason, action: 'Corregir', to: `/rifas/${draft[0].id}/editar` });
   return tasks;
 }
+
+/* ---------- movimiento (el mismo lenguaje de la página principal) ---------- */
+export const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CONF = ['#ff5a36', '#ffc23c', '#12a594', '#4f7cff'];
+/* Confeti que sale desde un elemento (o desde el centro de arriba), como al entrar en el login. */
+export function confetti(from) {
+  if (reduceMotion()) return;
+  const c = document.createElement('canvas'); c.className = 'confetti'; document.body.appendChild(c);
+  const g = c.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 2);
+  c.width = innerWidth * dpr; c.height = innerHeight * dpr; g.scale(dpr, dpr);
+  const r = from && from.getBoundingClientRect ? from.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 3, width: 0, height: 0 };
+  const ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+  const ps = Array.from({ length: 90 }, () => ({ x: ox, y: oy, vx: (Math.random() - .5) * 560, vy: -Math.random() * 520 - 160, s: 5 + Math.random() * 7, c: CONF[Math.floor(Math.random() * 4)], a: Math.random() * 6, va: (Math.random() - .5) * 12 }));
+  let last = performance.now(), life = 0;
+  const step = now => {
+    const dt = Math.min(.04, (now - last) / 1000); last = now; life += dt;
+    g.clearRect(0, 0, innerWidth, innerHeight);
+    for (const p of ps) { p.vy += 900 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.a += p.va * dt; g.save(); g.translate(p.x, p.y); g.rotate(p.a); g.globalAlpha = Math.max(0, 1 - life / 1.6); g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); }
+    if (life < 1.6) requestAnimationFrame(step); else c.remove();
+  };
+  requestAnimationFrame(step);
+}
+/* Un número que sube hasta su valor la primera vez que se muestra. */
+export function useCountUp(value, ms = 900) {
+  const [v, setV] = useState(() => reduceMotion() ? value : 0);
+  useEffect(() => {
+    if (reduceMotion()) { setV(value); return; }
+    let raf, start; const from = 0;
+    const tick = t => { start = start || t; const k = Math.min(1, (t - start) / ms), e = 1 - Math.pow(1 - k, 3); setV(from + (value - from) * e); if (k < 1) raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick); return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return v;
+}

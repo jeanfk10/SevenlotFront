@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Search, Check, X, AlertTriangle, Image, Shuffle, ChevronRight, Printer, MessageCircle, Plus, Download, Store, Calendar, UserCheck, ExternalLink, FlaskConical } from 'lucide-react';
-import { API, PAGOS, useDB, go, setQuery, usd, bs, money, num, dec, plural, date, dateTime, ago, cedFmt, cedKey, methodName, ORDER_STATUS, REJECT_REASONS, raffleState, attempt, toast, downloadCSV, readImage, STATES, firstName } from '../lib.js';
+import { API, PAGOS, useDB, go, setQuery, usd, bs, money, num, dec, plural, date, dateTime, ago, cedFmt, cedKey, methodName, ORDER_STATUS, REJECT_REASONS, raffleState, attempt, toast, downloadCSV, readImage, STATES, firstName, confetti } from '../lib.js';
 import { PageHead, Card, Seg, Button, LinkButton, Badge, Note, Drawer, Modal, Field, Input, Select, Textarea, Steps, Empty, Pager, Stat, MethodIcon, Thumb, Avatar, Check2, Bar, FileDrop, Confirm } from '../ui.jsx';
 
 /* ---------- comprobante: la imagen subida o una captura de ejemplo ---------- */
@@ -45,7 +45,7 @@ export function Pagos({ query }) {
             <td className="r num"><b>{usd(o.amountUSD)}</b><small>{bs(o.amountBs)}</small>{o.status === 'abono' && <small className="warn-text">Saldo {usd(o.amountUSD - o.paidUSD)}</small>}</td>
             <td>{o.method ? methodName(o.method) : <span className="subtle">Sin método</span>}<small className="mono">{o.reference ? 'Ref. ' + o.reference : o.proof ? 'Con comprobante' : 'Sin referencia'}</small></td>
             <td>{tab === 'pendiente' ? <>{ago(o.createdAt)}{raffleState(r) !== 'venta' && <small className="warn-text">Rifa cerrada</small>}</> : <><Badge tone={ORDER_STATUS[o.status][1]}>{ORDER_STATUS[o.status][0]}</Badge>{o.rejectReason && <small>{o.rejectReason}</small>}</>}</td>
-            <td className="r">{tab === 'pendiente' ? <div className="row" style={{ justifyContent: 'flex-end', flexWrap: 'nowrap' }}>{ev ? <Button size="sm" variant="success" onClick={() => attempt(() => API.approveOrder(o.id), `Pago de ${firstName(o.name)} aprobado`)}>Aprobar</Button> : <Button size="sm" onClick={() => setQuery({ orden: o.id })}>Revisar</Button>}</div> : <Button size="sm" onClick={() => setQuery({ orden: o.id })}>Ver</Button>}</td>
+            <td className="r">{tab === 'pendiente' ? <div className="row" style={{ justifyContent: 'flex-end', flexWrap: 'nowrap' }}>{ev ? <Button size="sm" variant="success" onClick={e => { const b = e.currentTarget; attempt(() => API.approveOrder(o.id), `Pago de ${firstName(o.name)} aprobado`) && confetti(b); }}>Aprobar</Button> : <Button size="sm" onClick={() => setQuery({ orden: o.id })}>Revisar</Button>}</div> : <Button size="sm" onClick={() => setQuery({ orden: o.id })}>Ver</Button>}</td>
           </tr>; })}</tbody></table></div>}
       <Pager page={page} pages={pages} onChange={setPage} shown={shown.length} total={list.length} noun="pagos" />
     </Card>
@@ -58,7 +58,7 @@ function PaymentDrawer({ o, onClose }) {
   const db = useDB(), r = API.raffle(o.raffleId), c = API.client(o.cedula) || {}, m = API.method(o.method);
   const [reject, setReject] = useState(false), [force, setForce] = useState(false), [pay, setPay] = useState({ amount: '', method: 'ef-usd', ref: '' });
   const ev = hasEvidence(o), due = o.amountUSD - o.paidUSD;
-  const approve = () => { if (!ev) return setForce(true); if (attempt(() => API.approveOrder(o.id), `Pago aprobado · números ${API.db.orders.find(x => x.id === o.id).numbers.join(', ') || ''}`)) onClose(); };
+  const approve = e => { if (!ev) return setForce(true); const btn = e && e.currentTarget; if (attempt(() => API.approveOrder(o.id), `Pago aprobado · números ${API.db.orders.find(x => x.id === o.id).numbers.join(', ') || ''}`)) { confetti(btn); onClose(); } };
   const footer = o.status === 'pendiente' ? <><Button variant="danger" onClick={() => setReject(true)}>Rechazar…</Button><Button variant="success" icon={Check} onClick={approve}>{ev ? 'Aprobar pago' : 'Aprobar sin comprobante…'}</Button></>
     : o.status === 'abono' ? <><Button variant="danger" onClick={() => setReject(true)}>Anular abono…</Button><LinkButton href={`#/ventas/verificador?ced=${o.cedula}`}>Ver cliente</LinkButton></>
     : <><span /><LinkButton href={`#/ventas/verificador?ced=${o.cedula}`}>Ver en el Verificador</LinkButton></>;
@@ -128,7 +128,7 @@ export function Taquilla({ query }) {
   const sell = () => {
     const m = API.method(pay.method);
     const o = attempt(() => API.sellCounter({ raffleId: r.id, method: pay.method, qty: picks.length, numbers: picks, cajaId, sellerId: 'u-1', influencer: cust.influencer, reference: pay.ref, proof: pay.proof, partialUSD: pay.partial ? pay.partialUSD : 0, customer: { cedula: cust.idType + cust.ced, name: cust.name, phone: cust.phone, email: cust.email, state: cust.state, municipality: cust.municipality } }));
-    if (o) { setDone(o); toast(o.status === 'abono' ? 'Abono registrado: números reservados' : '¡Venta exitosa!'); }
+    if (o) { setDone(o); confetti(); toast(o.status === 'abono' ? 'Abono registrado: números reservados' : '¡Venta exitosa!'); }
     void m;
   };
   return <>
@@ -229,6 +229,7 @@ function Receipt({ o, onNew }) {
   const text = `¡Hola ${firstName(o.name)}! Tu compra en ${r.title} (${db.company.name}): ${o.numbers.length === 1 ? 'boleto' : 'boletos'} ${o.numbers.join(', ')}. ${o.status === 'abono' ? `Abonaste ${usd(o.paidUSD)}; saldo ${usd(o.amountUSD - o.paidUSD)}.` : `Total ${usd(o.amountUSD)}.`} Sorteo: ${dateTime(r.drawAt)} con ${r.lottery}. Orden ${o.id}.`;
   const wa = 'https://wa.me/58' + (c.phone || '').replace(/\D/g, '').replace(/^0/, '') + '?text=' + encodeURIComponent(text);
   return <>
+    <svg className="tick" viewBox="0 0 72 72" aria-hidden="true" style={{ marginBottom: 6 }}><circle cx="36" cy="36" r="36" /><path d="m22 37 9 9 19-20" /></svg>
     <PageHead title={o.status === 'abono' ? 'Abono registrado' : '¡Venta exitosa!'} sub={`Orden ${o.id} · ${dateTime(o.createdAt)}`} actions={<><Button icon={Printer} onClick={() => print()}>Imprimir</Button>{c.phone && <a className="btn" href={wa} target="_blank" rel="noopener"><MessageCircle size={15} />Enviar por WhatsApp</a>}<Button variant="primary" icon={Plus} onClick={onNew}>Nueva venta</Button></>} />
     <div className="ticket printable" style={{ maxWidth: 460 }}>
       <div className="row row--between"><b>{db.company.name}</b><span className="subtle">RIF {db.company.rif}</span></div>

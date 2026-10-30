@@ -1,9 +1,9 @@
 // Estructura del panel: barra superior con 6 secciones, subnavegación, buscador Ctrl K, tasa vigente,
 // ayuda, notificaciones, cuenta; en el teléfono, barra inferior con las cinco tareas del día.
 import { Component, useMemo, useState, useRef, useEffect } from 'react';
-import { Search, HelpCircle, Bell, Home, Store, CreditCard, MessageSquare, Menu, FlaskConical, ExternalLink, RotateCcw, Trophy, Plug, Users, AlertTriangle, ChevronRight, Ticket, User, FileText, LogOut, Sun, Moon } from 'lucide-react';
+import { Search, HelpCircle, Bell, Home, Store, CreditCard, MessageSquare, Menu, FlaskConical, ExternalLink, RotateCcw, Trophy, Plug, Users, AlertTriangle, ChevronRight, Ticket, User, FileText, LogOut, Sun, Moon, Building2, Flag } from 'lucide-react';
 import { API, useDB, useRoute, go, dec, num, time, cedFmt, pendingTasks, useHotkey, useToasts, toast, attempt, raffleState, date, ago, initials } from './lib.js';
-import { Modal, Button, Drawer, Note, Badge, Confirm } from './ui.jsx';
+import { Modal, Button, Drawer, Note, Badge, Confirm, LogoMark } from './ui.jsx';
 
 export const SECTIONS = [
   { key: 'inicio', label: 'Inicio', base: '/', pages: [['/', 'Resumen'], ['/actividad', 'Actividad']] },
@@ -13,6 +13,24 @@ export const SECTIONS = [
   { key: 'mensajeria', label: 'Mensajería', base: '/mensajeria', badge: 'bandeja', pages: [['/mensajeria/bandeja', 'Bandeja', 'bandeja'], ['/mensajeria/resumen', 'Resumen'], ['/mensajeria/campanas', 'Campañas'], ['/mensajeria/automatizaciones', 'Automatizaciones'], ['/mensajeria/historial', 'Historial'], ['/mensajeria/contactos', 'Contactos'], ['/mensajeria/agentes', 'Agentes'], ['/mensajeria/bot', 'Bot'], ['/mensajeria/conexion', 'Conexión']] },
   { key: 'ajustes', label: 'Ajustes', base: '/ajustes', pages: [['/ajustes/empresa', 'Empresa'], ['/ajustes/usuarios', 'Usuarios'], ['/ajustes/cajas', 'Cajas'], ['/ajustes/metodos', 'Métodos de pago'], ['/ajustes/monedas', 'Monedas y tasas'], ['/ajustes/pasarelas', 'Pasarelas'], ['/ajustes/sitio', 'Sitio web'], ['/ajustes/dominios', 'Dominios'], ['/ajustes/seguridad', 'Seguridad']] }
 ];
+export const ADMIN_SECTIONS = [
+  { key: 'a-inicio', label: 'Inicio', base: '/admin', pages: [['/admin', 'Resumen'], ['/admin/sala', 'Sala situacional'], ['/admin/actividad', 'Actividad']] },
+  { key: 'a-empresas', label: 'Empresas', base: '/admin/empresas', badge: 'empresas', pages: [['/admin/empresas', 'Empresas', 'empresas']] },
+  { key: 'a-rifas', label: 'Rifas', base: '/admin/rifas', badge: 'rifas', pages: [['/admin/rifas', 'Supervisor de rifas', 'rifas'], ['/admin/rifas/extensiones', 'Extensiones de fecha', 'ext']] },
+  { key: 'a-denuncias', label: 'Denuncias', base: '/admin/denuncias', badge: 'denuncias', pages: [['/admin/denuncias', 'Denuncias', 'denuncias']] },
+  { key: 'a-fact', label: 'Facturación', base: '/admin/facturacion', pages: [['/admin/facturacion', 'Cobros'], ['/admin/facturacion/planes', 'Planes']] },
+  { key: 'a-ajustes', label: 'Ajustes', base: '/admin/ajustes', pages: [['/admin/ajustes', 'Plataforma'], ['/admin/ajustes/loterias', 'Loterías'], ['/admin/ajustes/usuarios', 'Usuarios'], ['/admin/ajustes/notas', 'Notas de versión'], ['/admin/ajustes/seguridad', 'Seguridad']] }
+];
+const adminSectionOf = path => ['/admin', '/admin/sala', '/admin/actividad'].includes(path) ? ADMIN_SECTIONS[0] : ADMIN_SECTIONS.slice(1).find(s => path === s.base || path.startsWith(s.base + '/')) || ADMIN_SECTIONS[0];
+const adminCounts = db => ({
+  empresas: db.companies.filter(c => c.status === 'pendiente').length,
+  rifas: API.allRaffles().filter(r => r.status === 'revision').length,
+  ext: db.extensions.filter(e => e.status === 'pendiente').length,
+  denuncias: db.reports.filter(r => r.status === 'nueva').length
+});
+// La página activa de la subnavegación: la ruta más larga que coincide.
+const activeHref = (pages, path) => pages.map(p => p[0]).filter(h => path === h || path.startsWith(h + '/') || (h === '/rifas' && /^\/rifas\/R-/.test(path))).sort((a, b) => b.length - a.length)[0];
+export const logout = () => { API.logout(); location.href = './pagina-principal/#login'; };
 export const sectionOf = path => path === '/' || path === '/actividad' ? SECTIONS[0] : SECTIONS.find(s => s.key !== 'inicio' && path.startsWith(s.base)) || SECTIONS[0];
 const counts = db => ({
   pagos: db.orders.filter(o => o.status === 'pendiente').length,
@@ -22,44 +40,54 @@ const counts = db => ({
 const isOn = (href, path) => href === path || (href !== '/' && href !== '/rifas' && href !== '/clientes' && path.startsWith(href + '/')) || (href === '/rifas' && /^\/rifas\/R-/.test(path));
 export const publicUrl = (db, q = '') => `./fronts/${db.sitePublished.template}/?rifa=${db.sitePublished.raffleId}${q}`;
 
-export function Shell({ children }) {
-  const db = useDB(), { path } = useRoute(), sec = sectionOf(path), c = counts(db);
+export function Shell({ children, admin, session }) {
+  const db = useDB(), { path } = useRoute(), SECS = admin ? ADMIN_SECTIONS : SECTIONS, sec = admin ? adminSectionOf(path) : sectionOf(path), c = admin ? adminCounts(db) : counts(db);
+  const cur = activeHref(sec.pages, path), home = admin ? '/admin' : '/';
+  useEffect(() => { const h = () => document.querySelector('.top')?.classList.toggle('is-scrolled', scrollY > 6); addEventListener('scroll', h, { passive: true }); return () => removeEventListener('scroll', h); }, []);
+  const viewing = !admin && session && session.role === 'superadmin';
   const [palette, setPalette] = useState(false), [help, setHelp] = useState(false), [tools, setTools] = useState(false), [more, setMore] = useState(false);
   useHotkey('k', () => setPalette(true));
   useEffect(() => { document.getElementById('main')?.focus({ preventScroll: true }); scrollTo(0, 0); setMore(false); }, [path]);
   const ves = db.currencies.find(x => x.code === 'VES');
   return <>
     <a className="skip" href="#main" onClick={e => { e.preventDefault(); document.getElementById('main').focus(); }}>Saltar al contenido</a>
+    {viewing && <div className="viewas" role="note"><Building2 size={15} aria-hidden="true" />Estás viendo el panel de {db.company.name} como superadministrador<button type="button" onClick={() => { API.viewAs(null); location.hash = '/admin/empresas'; location.reload(); }}>Volver al superadministrador</button></div>}
     <div className="sandbar" role="note"><FlaskConical size={14} aria-hidden="true" />Entorno de pruebas<span className="sandbar__text"> · datos de ejemplo guardados en este navegador</span>
       <button type="button" onClick={() => setTools(true)}>Herramientas de prueba</button>
-      <a href={publicUrl(db)} target="_blank" rel="noopener">Abrir página pública</a></div>
+      <a href="./pagina-principal/">Página principal</a>{!admin && <a href={publicUrl(db)} target="_blank" rel="noopener">Mi página de venta</a>}</div>
     <header className="top">
       <div className="top__row">
-        <a className="brand" href="#/"><span className="brand__mark">LX</span><b>LottoX</b><span>· {db.company.name}</span></a>
-        <nav className="nav" aria-label="Secciones">{SECTIONS.map(s => <a key={s.key} href={'#' + (s.key === 'inicio' ? '/' : s.pages[0][0])} aria-current={sec.key === s.key ? 'page' : undefined}>{s.label}{s.badge && c[s.badge] > 0 && <span className="count" aria-label={`${c[s.badge]} pendientes`}>{c[s.badge]}</span>}</a>)}</nav>
+        <a className="brand" href={'#' + home}><LogoMark /><b>Lotto<em>GE</em></b><span>· {admin ? 'Superadministrador' : db.company.name}</span></a>
+        <nav className="nav" aria-label="Secciones">{SECS.map(s => <a key={s.key} href={'#' + s.pages[0][0]} aria-current={sec.key === s.key ? 'page' : undefined}>{s.label}{s.badge && c[s.badge] > 0 && <span className="count" aria-label={`${c[s.badge]} pendientes`}>{c[s.badge]}</span>}</a>)}</nav>
         <div className="top__tools">
-          <button type="button" className="search-btn" onClick={() => setPalette(true)} aria-label="Buscar cliente, boleto o rifa (Ctrl K)"><Search size={15} aria-hidden="true" /><span>Buscar cliente, boleto o rifa</span><kbd>Ctrl K</kbd></button>
-          <a className="rate-pill" href="#/ajustes/monedas" title={`Tasa vigente · ${ves.source} · actualizada ${ago(ves.updatedAt)}`}><span className="dot" aria-hidden="true" /><span className="rate-label">Bs/US$</span><b>{dec(ves.rate)}</b><span className="hide-mobile">· {time(ves.updatedAt)}</span></a>
+          <button type="button" className="search-btn" onClick={() => setPalette(true)} aria-label={admin ? 'Buscar empresa, rifa o denuncia (Ctrl K)' : 'Buscar cliente, boleto o rifa (Ctrl K)'}><Search size={15} aria-hidden="true" /><span>{admin ? 'Buscar empresa, rifa o denuncia' : 'Buscar cliente, boleto o rifa'}</span><kbd>Ctrl K</kbd></button>
+          <a className="rate-pill" href={admin ? '#/admin/ajustes' : '#/ajustes/monedas'} title={`Tasa vigente · ${ves.source} · actualizada ${ago(ves.updatedAt)}`}><span className="dot" aria-hidden="true" /><span className="rate-label">Bs/US$</span><b>{dec(ves.rate)}</b><span className="hide-mobile">· {time(ves.updatedAt)}</span></a>
           <button type="button" className="icon-btn hide-m" onClick={() => setHelp(true)} aria-label="Ayuda"><HelpCircle size={18} /></button>
-          <Notifications db={db} />
-          <Account db={db} />
+          {admin ? <AdminNotifications db={db} c={c} /> : <Notifications db={db} />}
+          <Account db={db} admin={admin} session={session} />
         </div>
       </div>
-      <nav className="subnav" aria-label={sec.label}>{sec.pages.map(([href, label, badge]) => <a key={href} href={'#' + href} aria-current={isOn(href, path) ? 'page' : undefined}>{label}{badge && c[badge] > 0 && <span className={'count' + (badge === 'ganadores' ? ' count--soft' : '')}>{c[badge]}</span>}</a>)}</nav>
+      <nav className="subnav" aria-label={sec.label}>{sec.pages.map(([href, label, badge]) => <a key={href} href={'#' + href} aria-current={cur === href ? 'page' : undefined}>{label}{badge && c[badge] > 0 && <span className={'count' + (badge === 'ganadores' ? ' count--soft' : '')}>{c[badge]}</span>}</a>)}</nav>
     </header>
     <main id="main" className="main" tabIndex={-1} style={{ outline: 'none' }}><ErrorBoundary key={path}>{children}</ErrorBoundary></main>
-    <nav className="mbar" aria-label="Tareas del día">
+    {admin ? <nav className="mbar" aria-label="Tareas del día">
+      <a href="#/admin" aria-current={path === '/admin' ? 'page' : undefined}><Home size={20} aria-hidden="true" />Inicio</a>
+      <a href="#/admin/empresas" aria-current={path.startsWith('/admin/empresas') ? 'page' : undefined}><Building2 size={20} aria-hidden="true" />Empresas{c.empresas > 0 && <span className="count">{c.empresas}</span>}</a>
+      <a href="#/admin/rifas" aria-current={path.startsWith('/admin/rifas') ? 'page' : undefined}><Ticket size={20} aria-hidden="true" />Rifas{c.rifas > 0 && <span className="count">{c.rifas}</span>}</a>
+      <a href="#/admin/denuncias" aria-current={path.startsWith('/admin/denuncias') ? 'page' : undefined}><Flag size={20} aria-hidden="true" />Denuncias{c.denuncias > 0 && <span className="count">{c.denuncias}</span>}</a>
+      <button type="button" onClick={() => setMore(true)} aria-haspopup="dialog"><Menu size={20} aria-hidden="true" />Más</button>
+    </nav> : <nav className="mbar" aria-label="Tareas del día">
       <a href="#/" aria-current={path === '/' ? 'page' : undefined}><Home size={20} aria-hidden="true" />Inicio</a>
       <a href="#/ventas/taquilla" aria-current={path === '/ventas/taquilla' ? 'page' : undefined}><Store size={20} aria-hidden="true" />Vender</a>
       <a href="#/ventas/pagos" aria-current={path === '/ventas/pagos' ? 'page' : undefined}><CreditCard size={20} aria-hidden="true" />Pagos{c.pagos > 0 && <span className="count">{c.pagos}</span>}</a>
       <a href="#/mensajeria/bandeja" aria-current={path === '/mensajeria/bandeja' ? 'page' : undefined}><MessageSquare size={20} aria-hidden="true" />Mensajes{c.bandeja > 0 && <span className="count">{c.bandeja}</span>}</a>
       <button type="button" onClick={() => setMore(true)} aria-haspopup="dialog"><Menu size={20} aria-hidden="true" />Más</button>
-    </nav>
+    </nav>}
     {more && <><div className="scrim" onClick={() => setMore(false)} /><div className="sheet" role="dialog" aria-label="Todas las secciones">
-      {SECTIONS.map(s => <div key={s.key}><h3>{s.label}</h3>{s.pages.map(([h, l]) => <a key={h} href={'#' + h}>{l}</a>)}</div>)}
+      {SECS.map(s => <div key={s.key}><h3>{s.label}</h3>{s.pages.map(([h, l]) => <a key={h} href={'#' + h}>{l}</a>)}</div>)}
       <h3>Más</h3><a href="#/" onClick={e => { e.preventDefault(); setMore(false); setHelp(true); }}>Ayuda</a><a href="#/" onClick={e => { e.preventDefault(); setMore(false); setTools(true); }}>Herramientas de prueba</a>
     </div></>}
-    {palette && <Palette db={db} onClose={() => setPalette(false)} />}
+    {palette && <Palette db={db} admin={admin} onClose={() => setPalette(false)} />}
     {help && <Help onClose={() => setHelp(false)} />}
     {tools && <Tools db={db} onClose={() => setTools(false)} />}
     <Toasts />
@@ -85,28 +113,52 @@ function Notifications({ db }) {
     </div>}
   </div>;
 }
-function Account({ db }) {
+function AdminNotifications({ db, c }) {
+  const [open, setOpen] = useState(false), ref = useOutside(open, setOpen);
+  const items = [
+    c.empresas && { id: 'e', icon: Building2, title: `${c.empresas} ${c.empresas === 1 ? 'empresa espera' : 'empresas esperan'} aprobación`, to: '/admin/empresas' },
+    c.rifas && { id: 'r', icon: Ticket, title: `${c.rifas} ${c.rifas === 1 ? 'rifa espera' : 'rifas esperan'} revisión`, to: '/admin/rifas' },
+    c.ext && { id: 'x', icon: Trophy, title: `${c.ext} ${c.ext === 1 ? 'solicitud' : 'solicitudes'} de extensión`, to: '/admin/rifas/extensiones' },
+    c.denuncias && { id: 'd', icon: Flag, title: `${c.denuncias} ${c.denuncias === 1 ? 'denuncia nueva' : 'denuncias nuevas'}`, to: '/admin/denuncias' }
+  ].filter(Boolean);
+  return <div style={{ position: 'relative' }} ref={ref}>
+    <button type="button" className="icon-btn" aria-label={`Notificaciones${items.length ? `, ${items.length} pendientes` : ''}`} aria-expanded={open} onClick={() => setOpen(!open)}><Bell size={18} />{items.length > 0 && <span className="pip" />}</button>
+    {open && <div className="menu" style={{ width: 320 }}><div className="menu__head">Pendiente de ti</div>
+      {items.length ? items.map(i => <a key={i.id} href={'#' + i.to} onClick={() => setOpen(false)}><i.icon size={16} aria-hidden="true" style={{ marginTop: 2, flex: 'none' }} /><b style={{ fontWeight: 600 }}>{i.title}</b></a>) : <p className="subtle" style={{ padding: 16 }}>Estás al día.</p>}</div>}
+  </div>;
+}
+function Account({ db, admin, session }) {
   const [open, setOpen] = useState(false), ref = useOutside(open, setOpen);
   const [theme, setTheme] = useState(() => { try { return localStorage.getItem('lottox-theme') || ''; } catch (e) { return ''; } });
   const setT = t => { setTheme(t); if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; try { localStorage.setItem('lottox-theme', t); } catch (e) {} };
   useEffect(() => { if (theme) document.documentElement.dataset.theme = theme; }, []);
   return <div style={{ position: 'relative' }} ref={ref}>
-    <button type="button" className="avatar" aria-label="Cuenta" aria-expanded={open} onClick={() => setOpen(!open)}>{initials(db.me.short)}</button>
+    <button type="button" className="avatar" aria-label="Cuenta" aria-expanded={open} onClick={() => setOpen(!open)}>{admin ? 'SA' : initials(db.me.short)}</button>
     {open && <div className="menu">
-      <div className="menu__head"><span>{db.me.name}<br /><small className="subtle" style={{ fontWeight: 400 }}>{db.me.email} · Administrador</small></span></div>
-      <a href={publicUrl(db)} target="_blank" rel="noopener"><ExternalLink size={16} aria-hidden="true" />Ver mi página pública</a>
-      <a href="#/ajustes/seguridad" onClick={() => setOpen(false)}><User size={16} aria-hidden="true" />Seguridad y sesiones</a>
+      <div className="menu__head"><span>{admin ? 'Superadministrador' : db.me.name}<br /><small className="subtle" style={{ fontWeight: 400 }}>{session ? session.email : db.me.email} · {admin ? 'Plataforma LottoGE' : 'Operador · ' + db.company.name}</small></span></div>
+      <a href="./pagina-principal/" ><Home size={16} aria-hidden="true" />Página principal de LottoGE</a>
+      {!admin && <a href={publicUrl(db)} target="_blank" rel="noopener"><ExternalLink size={16} aria-hidden="true" />Ver mi página de venta</a>}
+      <a href={admin ? '#/admin/ajustes/seguridad' : '#/ajustes/seguridad'} onClick={() => setOpen(false)}><User size={16} aria-hidden="true" />Seguridad{admin ? '' : ' y sesiones'}</a>
       <button type="button" className="menu__item" onClick={() => setT(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}{theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}</button>
-      <button type="button" className="menu__item" onClick={() => { setOpen(false); toast('En el entorno de pruebas la sesión no se cierra.'); }}><LogOut size={16} aria-hidden="true" />Cerrar sesión</button>
+      <button type="button" className="menu__item" onClick={logout}><LogOut size={16} aria-hidden="true" />Cerrar sesión</button>
     </div>}
   </div>;
 }
 
 /* Buscador global: pantallas, clientes (nombre o cédula), boletos, órdenes y rifas. */
-function Palette({ db, onClose }) {
+function Palette({ db, onClose, admin }) {
   const [q, setQ] = useState(''), [sel, setSel] = useState(0);
   const results = useMemo(() => {
     const s = q.trim().toLowerCase(), digits = s.replace(/\D/g, ''), out = [];
+    if (admin) {
+      const pages = ADMIN_SECTIONS.flatMap(sec => sec.pages.map(([h, l]) => ({ group: 'Pantallas', icon: ChevronRight, label: l, meta: sec.label, to: h })));
+      if (!s) return pages;
+      pages.filter(p => p.label.toLowerCase().includes(s)).forEach(p => out.push(p));
+      db.companies.filter(c => (c.name + c.rif + c.runlot).toLowerCase().includes(s)).slice(0, 6).forEach(c => out.push({ group: 'Empresas', icon: Building2, label: c.name, meta: c.rif, to: '/admin/empresas', query: { e: c.id } }));
+      API.allRaffles().filter(r => r.title.toLowerCase().includes(s)).slice(0, 6).forEach(r => out.push({ group: 'Rifas', icon: Ticket, label: r.title, meta: (db.companies.find(c => c.id === r.companyId) || {}).name, to: '/admin/rifas', query: { r: r.id, tab: 'todas' } }));
+      db.reports.filter(r => (r.ref + r.target).toLowerCase().includes(s)).slice(0, 4).forEach(r => out.push({ group: 'Denuncias', icon: Flag, label: r.ref, meta: r.target, to: '/admin/denuncias', query: { d: r.ref } }));
+      return out;
+    }
     const pages = SECTIONS.flatMap(sec => sec.pages.map(([h, l]) => ({ group: 'Pantallas', icon: ChevronRight, label: l, meta: sec.label, to: h })));
     if (!s) return pages.slice(0, 8).concat(db.raffles.filter(r => raffleState(r) === 'venta').map(r => ({ group: 'Rifas en venta', icon: Ticket, label: r.title, meta: r.id, to: '/rifas/' + r.id })));
     pages.filter(p => p.label.toLowerCase().includes(s)).slice(0, 5).forEach(p => out.push(p));
@@ -117,13 +169,13 @@ function Palette({ db, onClose }) {
       .forEach(o => { const r = API.raffle(o.raffleId); out.push({ group: 'Boletos', icon: Ticket, label: `Boleto ${digits.padStart(API.digits(r), '0')} · ${r.title}`, meta: o.name, to: '/ventas/verificador', query: { ced: o.cedula } }); });
     db.raffles.filter(r => r.title.toLowerCase().includes(s) || r.prize.toLowerCase().includes(s)).slice(0, 5).forEach(r => out.push({ group: 'Rifas', icon: Ticket, label: r.title, meta: API.util.STATE_LABEL[raffleState(r)], to: '/rifas/' + r.id }));
     return out;
-  }, [q, db]);
+  }, [q, db, admin]);
   const pick = r => { onClose(); go(r.to, r.query); };
   const key = e => { if (e.key === 'ArrowDown') { e.preventDefault(); setSel(i => Math.min(results.length - 1, i + 1)); } if (e.key === 'ArrowUp') { e.preventDefault(); setSel(i => Math.max(0, i - 1)); } if (e.key === 'Enter' && results[sel]) pick(results[sel]); if (e.key === 'Escape') onClose(); };
   let last = '';
   return <><div className="scrim" onClick={onClose} /><div className="palette" role="dialog" aria-modal="true" aria-label="Buscar">
     <div style={{ position: 'relative' }}><Search size={18} style={{ position: 'absolute', left: 16, top: 17, color: 'var(--ink-3)' }} aria-hidden="true" />
-      <input autoFocus value={q} onChange={e => { setQ(e.target.value); setSel(0); }} onKeyDown={key} placeholder="Nombre, cédula, número de boleto, orden (LG-…) o pantalla" aria-label="Buscar" role="combobox" aria-expanded="true" aria-controls="pal-list" aria-activedescendant={results[sel] ? 'pal-' + sel : undefined} /></div>
+      <input autoFocus value={q} onChange={e => { setQ(e.target.value); setSel(0); }} onKeyDown={key} placeholder={admin ? 'Empresa, RIF, rifa, denuncia o pantalla' : 'Nombre, cédula, número de boleto, orden (LG-…) o pantalla'} aria-label="Buscar" role="combobox" aria-expanded="true" aria-controls="pal-list" aria-activedescendant={results[sel] ? 'pal-' + sel : undefined} /></div>
     <div className="palette__list" id="pal-list" role="listbox">
       {results.length ? results.map((r, i) => { const head = r.group !== last; last = r.group; return <div key={i}>{head && <div className="palette__group">{r.group}</div>}<button id={'pal-' + i} type="button" role="option" aria-selected={i === sel} className="palette__item" onMouseEnter={() => setSel(i)} onClick={() => pick(r)}><r.icon size={15} aria-hidden="true" />{r.label}<small>{r.meta}</small></button></div>; })
         : <p className="subtle" style={{ padding: 16 }}>Sin resultados para «{q}».</p>}

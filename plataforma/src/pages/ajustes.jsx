@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Upload, Globe, Copy, Check, Plus, Pencil, Trash2, RefreshCw, History, Shield, Zap, BarChart3, ExternalLink, Eye, Smartphone, Monitor, AlertTriangle, Clock, Info, Lock, LogOut, MapPin, KeyRound, Store } from 'lucide-react';
-import { API, PAGOS, useDB, go, setQuery, usd, bs, dec, num, plural, date, dateTime, time, ago, cedFmt, STATES, ROLES, attempt, toast, readImage, initials } from '../lib.js';
+import { API, PAGOS, useDB, go, setQuery, usd, bs, dec, num, plural, date, dateTime, time, ago, cedFmt, STATES, ROLES, attempt, toast, readImage, initials, confetti } from '../lib.js';
 import { PageHead, Card, Seg, Button, LinkButton, Badge, Note, Modal, Field, Input, Select, Textarea, Empty, Toggle, MethodIcon, Tabs, Avatar, Confirm, Check2, Thumb } from '../ui.jsx';
 
 const copy = (t, what = 'Copiado') => { try { navigator.clipboard.writeText(t); } catch (e) { } toast(what); };
@@ -183,7 +183,7 @@ export function Pasarelas({ query }) {
   const [form, setForm] = useState(null);
   const tone = st.key === 'activa' ? 'ok' : st.key === 'pausada' ? undefined : 'warn';
   const stepSub = (s, i) => s.done ? (s.key === 'credenciales' ? 'Cargadas · ' + Object.values(g.credentials).filter(Boolean).join(' · ') : s.key === 'prueba' ? 'Cobro de prueba aprobado' : `Listo el ${date(s.doneAt)}`) : i === st.step ? ({ credenciales: tab === 'avilapay' ? 'Falta la clave del comercio' : 'Faltan la clave API, la llave secreta y el ID de comercio', prueba: 'Se hará un cobro de Bs 1,00' }[s.key] || 'Pendiente') : 'Después del paso anterior';
-  const doStep = s => { if (s.key === 'credenciales') return setForm(tab === 'avilapay' ? { merchantKey: '' } : { apiKey: '', secret: '', merchantId: '' }); const r = attempt(() => API.gatewayStep(tab, s.key)); if (r) toast(r.key === 'activa' ? `${g.name} activa: los pagos móviles se aprueban solos` : `${s.title}: listo`); };
+  const doStep = s => { if (s.key === 'credenciales') return setForm(tab === 'avilapay' ? { merchantKey: '' } : { apiKey: '', secret: '', merchantId: '' }); const r = attempt(() => API.gatewayStep(tab, s.key)); if (r) { toast(r.key === 'activa' ? `${g.name} activa: los pagos móviles se aprueban solos` : `${s.title}: listo`); if (r.key === 'activa') confetti(); } };
   return <>
     <PageHead title="Pasarelas de pago" sub="Confirma pagos automáticamente, sin revisar capturas" />
     <div className="tabs" role="tablist" aria-label="Pasarelas">{Object.entries(db.gateways).map(([k, x]) => <button key={k} role="tab" type="button" aria-selected={tab === k} onClick={() => setQuery({ p: k })}>{x.name} <Badge tone={API.gatewayState(x).key === 'activa' ? 'ok' : 'warn'} plain>{API.gatewayState(x).key === 'activa' ? 'Activa' : 'Incompleta'}</Badge></button>)}</div>

@@ -306,8 +306,67 @@
     log(at(1, 19, 36), 'Taquilla principal', 'Venta en taquilla', 'Gran Rifa Toyota Agya · 1 boleto');
     log(at(1, 18, 0), 'Jean Franco', 'Borrador guardado', 'Combo de electrodomésticos');
 
+
+    // ---------- Plataforma (lo que ve el superadministrador) ----------
+    const plans = [
+      { key: 'Free', price: 0, priceLabel: '$0', monthly: 50, digits: 3, features: ['Rifas de hasta 3 cifras', 'Página pública estándar', 'Avisos de venta por correo'] },
+      { key: 'Basic', price: 799, priceLabel: 'REF 799 + IVA', monthly: 50, digits: 4, features: ['Rifas de hasta 4 cifras', 'Tu marca y dominio propio', 'WhatsApp automatizado', 'Panel de cajas'] },
+      { key: 'Pro', price: 1199, priceLabel: 'REF 1.199 + IVA', monthly: 50, digits: 6, features: ['Rifas de hasta 6 cifras', 'Pago Móvil verificado al instante', 'Chatbot de WhatsApp', 'CRM sin límite'] }
+    ];
+    const CO = [
+      ['Rifas El Llano', 'activa', 'Basic', 'pagado', 'Barinas', 3, 1840], ['Gana con Tito', 'activa', 'Pro', 'pendiente', 'Carabobo', 4, 5210],
+      ['Rifas Oriente Premium', 'activa', 'Free', 'pagado', 'Anzoátegui', 1, 420], ['La Suerte Andina', 'activa', 'Basic', 'vencido', 'Táchira', 2, 960],
+      ['Rifas Zulia Gana', 'activa', 'Pro', 'pagado', 'Zulia', 5, 7330], ['Rifas Caribe', 'suspendida', 'Basic', 'vencido', 'Falcón', 0, 0, 'Dos meses de mantenimiento sin pagar'],
+      ['Rifas Táchira 2.0', 'suspendida', 'Pro', 'pagado', 'Táchira', 0, 0, 'Denuncia confirmada: premio no entregado'], ['Sorteos del Centro', 'pendiente', 'Pro', '', 'Aragua', 0, 0],
+      ['Rifas Margarita', 'pendiente', 'Basic', '', 'Nueva Esparta', 0, 0], ['Rifas Express Lara', 'pendiente', 'Free', '', 'Lara', 0, 0],
+      ['Mi Rifa Segura', 'rechazada', 'Free', '', 'Miranda', 0, 0, 'El RIF no coincide con el acta constitutiva']
+    ];
+    const companies = [{ id: company.id, name: company.name, rif: company.rif, runlot: company.runlot, state: company.state, email: company.email, phone: company.phone, plan: 'Pro', status: 'activa', billing: 'pagado', createdAt: past(200, 10, 0), approvedAt: past(196, 10, 0), docs: { acta: true, rif: true, socios: true }, reason: '', live: true }];
+    CO.forEach(([name, status, plan, billing, state, act, sales, reason], i) => companies.push({
+      id: 'c-' + (i + 2), name, rif: `J-${40000000 + i * 1234567}-${i % 9}`, runlot: status === 'pendiente' || status === 'rechazada' ? '' : `CNL-ORF-2026-000${600 + i * 11}`,
+      state, email: name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '') + '@ejemplo.com', phone: `04${['12', '14', '24', '16'][i % 4]}-555-0${100 + i * 7}`,
+      plan, status, billing, rafflesActive: act, monthSalesUSD: sales, createdAt: past(status === 'pendiente' ? 1 + i % 4 : 40 + i * 9, 10, 0), approvedAt: status === 'activa' || status === 'suspendida' ? past(35 + i * 9, 10, 0) : null,
+      docs: { acta: status !== 'rechazada' && i !== 9, rif: true, socios: i % 3 === 0 }, reason: reason || ''
+    }));
+    const ext = (id, ci, title, prize, st, days, price, total, sold, lottery) => ({ id, companyId: 'c-' + ci, title, prize, status: st, drawAt: days > 0 ? future(days, 19, 0) : past(-days, 19, 0), priceUSD: price, total, soldPct: sold, lottery, createdAt: past(st === 'revision' ? 1 : 30, 11, 0), solvencyDoc: st === 'revision' && ci === 3 ? '' : 'solvencia.pdf', rules: ['Sorteo en vivo por Instagram.'], rejectReason: '' });
+    const extRaffles = [
+      ext('X-201', 2, 'Gran Rifa Moto Empire', 'Moto Empire Keeway 2026', 'venta', 25, 3, 1000, 64, 'Triple Táchira A'),
+      ext('X-202', 3, 'Rifa del Millón', 'US$ 5.000 en efectivo', 'venta', 12, 10, 10000, 22, 'Super Gana'),
+      ext('X-203', 6, 'Camioneta Zulia', 'Toyota Hilux 2025', 'venta', 40, 20, 10000, 41, 'Triple Zulia'),
+      ext('X-204', 5, 'Rifa Andina', 'Smart TV 55"', 'venta', 8, 2, 100, 78, 'Chance Táchira'),
+      ext('X-205', 2, 'iPhone para el Llano', 'iPhone 17', 'revision', 30, 2, 1000, 0, 'Triple Táchira B'),
+      ext('X-206', 3, 'Rifa Navideña Tito', 'Cesta navideña y US$ 300', 'revision', 50, 1, 1000, 0, 'Lotería Activa')
+    ];
+    const extensions = [
+      { id: 'EX-1', raffleId: 'X-204', companyId: 'c-5', originalDate: extRaffles[3].drawAt, currentDate: extRaffles[3].drawAt, requestedDate: future(13, 19, 0), reason: 'Faltan 22 boletos por vender y los compradores pidieron más tiempo.', by: 'Admin de La Suerte Andina', status: 'pendiente', createdAt: past(0, 9, 30), decidedAt: null, note: '' },
+      { id: 'EX-0', raffleId: 'X-201', companyId: 'c-2', originalDate: past(-20, 19, 0), currentDate: extRaffles[0].drawAt, requestedDate: extRaffles[0].drawAt, reason: 'Cambio de lotería por cierre de Triple Caracas.', by: 'Admin de Rifas El Llano', status: 'aprobada', createdAt: past(9, 9, 0), decidedAt: past(8, 15, 0), note: 'Aprobada.' }
+    ];
+    const reports = [
+      { ref: 'DN-2026-00412', reason: 'Rifa sin autorización de CONALOT', target: 'Rifas Express Caracas', link: '@rifasexpressccs', description: 'Venden boletos por Instagram diciendo que están autorizados, pero no aparecen en la lista de CONALOT.', anonymous: false, email: 'denunciante1@ejemplo.com', fileName: 'captura-instagram.jpg', status: 'nueva', createdAt: past(0, 8, 12), notes: [] },
+      { ref: 'DN-2026-00398', reason: 'No entregaron el premio', target: 'Rifas Táchira 2.0', link: '', description: 'Gané la rifa del 15 de septiembre con el número 0821 y después de un mes no me han entregado la moto.', anonymous: false, email: 'denunciante2@ejemplo.com', fileName: 'boleto-0821.jpg', status: 'resuelta', createdAt: past(32, 10, 0), notes: [{ at: past(30, 15, 0), text: 'Se confirmó con el operador. Empresa suspendida hasta entregar el premio.', by: 'Superadministrador' }] },
+      { ref: 'DN-2026-00405', reason: 'Pago no reconocido', target: 'Gana con Tito', link: '', description: 'Pagué por Pago Móvil dos boletos y la página nunca me confirmó. Tengo la referencia 004512.', anonymous: true, email: '', fileName: '', status: 'revision', createdAt: past(6, 18, 40), notes: [{ at: past(5, 9, 0), text: 'Se le pidió al operador revisar la referencia.', by: 'Soporte LottoGE' }] }
+    ];
+    const invoices = [];
+    companies.filter(c => c.status === 'activa' || c.status === 'suspendida').forEach((c, i) => {
+      for (let m = 2; m >= 0; m--) {
+        const d = new Date(now); d.setDate(1); d.setMonth(d.getMonth() - m);
+        const paid = m > 0 ? c.billing !== 'vencido' || m > 1 : c.billing === 'pagado';
+        invoices.push({ id: `F-${2026}${String(d.getMonth() + 1).padStart(2, '0')}-${String(i + 1).padStart(3, '0')}`, companyId: c.id, concept: `Mantenimiento ${d.toLocaleDateString('es-VE', { month: 'long', year: 'numeric' })}`, amountUSD: 50, dueAt: iso(new Date(d.getFullYear(), d.getMonth(), 10)), status: paid ? 'pagada' : 'pendiente', paidAt: paid ? iso(new Date(d.getFullYear(), d.getMonth(), 6)) : null, method: paid ? (i % 2 ? 'Transferencia' : 'Zelle') : '', reference: paid ? String(300000 + i * 917 + m) : '' });
+      }
+    });
+    const platform = { name: 'LottoGE', whatsapp: '0412-166-5356', supportEmail: 'soporte@lottoge.ejemplo', maxExtensionDays: 15, autoCloseMinutes: 10, maxTicketsPerOrder: 100, reportsEmail: '' };
+    const lotteries = LOTTERIES.map(([name, time], i) => ({ name, time, active: i !== 7 }));
+    const releaseNotes = [
+      { id: 'rn-2', title: 'Nueva página principal y denuncias', body: 'La página principal ahora recibe denuncias y las envía al superadministrador.', at: past(2, 10, 0) },
+      { id: 'rn-1', title: 'Una sola tasa para todo el sistema', body: 'La tasa del bolívar se actualiza en un solo lugar y cada venta guarda la suya.', at: past(12, 10, 0) }
+    ];
+    const staff = [
+      { id: 'sa-1', name: 'Superadministrador', email: 'admin@lottoge.net', role: 'superadmin', password: 'Admin2026!', status: 'activo', lastAt: past(0, 8, 0) },
+      { id: 'sa-2', name: 'Soporte LottoGE', email: 'soporte@lottoge.ejemplo', role: 'soporte', password: '', status: 'activo', lastAt: past(1, 17, 0) },
+      { id: 'sa-3', name: 'Auditoría', email: 'auditoria@lottoge.ejemplo', role: 'auditor', password: '', status: 'invitado', lastAt: null }
+    ];
     return {
-      v: 1, createdAt: iso(now), company, me, currencies, rateHistory: rateHistory.reverse(), paymentMethods, raffles, clients, orders, cajas, users, influencers,
+      v: 2, createdAt: iso(now), company, me, currencies, rateHistory: rateHistory.reverse(), paymentMethods, raffles, clients, orders, cajas, users, influencers,
       automations, messages, campaigns, conversations, agents, bot, whatsapp: { connected: true, number: '+58 412-555-0199', displayName: 'Rifas Mérida', quality: 'Alta', tier: '1.000 conversaciones al día', planMonthly: 2000, connectedAt: past(120, 10, 0) },
       gateways, site, sitePublished: clone(site), sitePublishedAt: past(15, 10, 0), domains: [],
       security: { password: 'Prueba2026!', changedAt: past(90, 10, 0), sessions: [
@@ -315,7 +374,8 @@
         { id: 's-2', device: 'Safari · iPhone', place: 'Mérida, Venezuela', current: false, lastAt: past(1, 21, 10) },
         { id: 's-3', device: 'Chrome · Android', place: 'Caracas, Venezuela', current: false, lastAt: past(6, 8, 45) }
       ] },
-      audit, readNotifications: [], seq: code
+      audit, readNotifications: [], seq: code,
+      plans, companies, extRaffles, extensions, reports, invoices, platform, lotteries, releaseNotes, staff
     };
   }
 
@@ -329,7 +389,7 @@
   function load() {
     const raw = store.get();
     try { db = raw ? JSON.parse(raw) : null; } catch (e) { db = null; }
-    if (!db || db.v !== 1) { db = seed(); store.set(JSON.stringify(db)); }
+    if (!db || db.v !== 2) { db = seed(); store.set(JSON.stringify(db)); }
   }
   function commit() {
     version++;
@@ -831,6 +891,121 @@
     closeSession(id) { db.security.sessions = db.security.sessions.filter(s => s.id !== id || s.current); audit('Sesión cerrada', ''); commit(); },
     closeOtherSessions() { const n = db.security.sessions.filter(s => !s.current).length; db.security.sessions = db.security.sessions.filter(s => s.current); audit('Sesiones cerradas', `${n} dispositivos`); commit(); },
     markNotifications(ids) { db.readNotifications = [...new Set([...db.readNotifications, ...ids])]; commit(); },
+
+
+    /* ---------- Sesión: los dos usuarios de prueba ---------- */
+    login(email, password) {
+      const mail = String(email || '').trim().toLowerCase();
+      const sa = db.staff.find(u => u.email === mail && u.role === 'superadmin');
+      let sess = null;
+      if (sa && password === sa.password) { sa.lastAt = iso(now()); sess = { id: sa.id, role: 'superadmin', name: sa.name, email: sa.email }; }
+      const op = db.users.find(u => u.email.toLowerCase() === mail && u.id === 'u-1');
+      if (!sess && op && password === db.security.password) { op.lastAt = iso(now()); sess = { id: op.id, role: 'operador', name: db.me.short, email: op.email, companyId: db.company.id }; }
+      if (!sess) throw err(401, 'Correo o contraseña incorrectos');
+      try { localStorage.setItem('lottox-session', JSON.stringify(sess)); } catch (e) { window.__lottoxSession = sess; }
+      audit('Inicio de sesión', `${sess.name} (${sess.role === 'superadmin' ? 'superadministrador' : 'operador'})`, sess.name); commit();
+      return sess;
+    },
+    session() { try { const s = JSON.parse(localStorage.getItem('lottox-session') || 'null'); if (s) return s; } catch (e) { } return window.__lottoxSession || null; },
+    logout() { try { localStorage.removeItem('lottox-session'); sessionStorage.removeItem('lottoge-session'); } catch (e) { } window.__lottoxSession = null; },
+    viewAs(companyId) { const s = A.session(); if (!s || s.role !== 'superadmin') throw err(403, 'Solo el superadministrador'); s.viewAs = companyId || null; try { localStorage.setItem('lottox-session', JSON.stringify(s)); } catch (e) { window.__lottoxSession = s; } if (companyId) audit('Entró al panel de un operador', (db.companies.find(c => c.id === companyId) || {}).name, 'Superadministrador'); commit(); },
+
+    /* ---------- Superadministrador ---------- */
+    companyStats(c) {
+      if (!c.live) return { rafflesActive: c.rafflesActive || 0, monthSalesUSD: c.monthSalesUSD || 0, users: 1 + (c.id.length % 3) };
+      const ms = new Date(); ms.setDate(1); ms.setHours(0, 0, 0, 0);
+      return { rafflesActive: db.raffles.filter(r => raffleState(r) === 'venta').length, monthSalesUSD: db.orders.filter(o => o.status === 'aprobada' && Date.parse(o.createdAt) >= ms.getTime()).reduce((a, o) => a + o.amountUSD, 0), users: db.users.length };
+    },
+    companyAction(id, action, { reason, plan } = {}) {
+      const c = db.companies.find(x => x.id === id); if (!c) throw err(404, 'No existe');
+      const need = ['rechazar', 'suspender'].includes(action);
+      if (need && !String(reason || '').trim()) throw err(400, 'Escribe el motivo: le llega a la empresa');
+      const ok = { aprobar: ['pendiente'], rechazar: ['pendiente'], suspender: ['activa'], reactivar: ['suspendida', 'rechazada'], plan: ['activa', 'pendiente', 'suspendida'] }[action];
+      if (!ok || !ok.includes(c.status)) throw err(409, 'Esa acción no aplica en el estado actual');
+      if (action === 'aprobar') { if (!c.docs.acta) throw err(409, 'Falta el acta constitutiva: no se puede aprobar'); c.status = 'activa'; c.approvedAt = iso(now()); c.runlot = c.runlot || `CNL-ORF-2026-000${700 + db.companies.indexOf(c)}`; c.billing = 'pendiente'; c.reason = ''; db.invoices.push({ id: 'F-' + Date.now().toString().slice(-7), companyId: c.id, concept: `Licencia plan ${c.plan}`, amountUSD: (db.plans.find(p => p.key === c.plan) || {}).price || 0, dueAt: iso(now() + 7 * DAY), status: 'pendiente', paidAt: null, method: '', reference: '' }); }
+      if (action === 'rechazar') { c.status = 'rechazada'; c.reason = reason; }
+      if (action === 'suspender') { c.status = 'suspendida'; c.reason = reason; }
+      if (action === 'reactivar') { c.status = c.status === 'rechazada' ? 'pendiente' : 'activa'; c.reason = ''; }
+      if (action === 'plan') { if (!db.plans.some(p => p.key === plan)) throw err(400, 'Elige un plan'); c.plan = plan; if (c.live) db.company.plan = plan; }
+      audit({ aprobar: 'Empresa aprobada', rechazar: 'Empresa rechazada', suspender: 'Empresa suspendida', reactivar: 'Empresa reactivada', plan: 'Plan cambiado' }[action], c.name + (reason ? ' · ' + reason : '') + (plan ? ' · ' + plan : ''), 'Superadministrador'); commit();
+    },
+    allRaffles() {
+      const mine = db.raffles.filter(r => r.status !== 'borrador').map(r => ({ id: r.id, companyId: db.company.id, title: r.title, prize: r.prize, status: raffleState(r), drawAt: r.drawAt, priceUSD: r.priceUSD, total: r.total, soldPct: Math.round(raffleStats(r.id).sold / r.total * 100), lottery: r.lottery, createdAt: r.createdAt, solvencyDoc: r.solvencyDoc, rules: r.rules, rejectReason: r.rejectReason, images: r.images, live: true }));
+      return mine.concat(db.extRaffles.map(r => ({ ...r, status: r.status === 'venta' && Date.parse(r.drawAt) <= now() ? 'falta-ganador' : r.status })));
+    },
+    superRaffleDecide(id, ok, reason) {
+      if (raffle(id)) { const r = raffle(id); if (r.status !== 'revision') throw err(409, 'La rifa no está en revisión'); if (!ok && !reason) throw err(400, 'Escribe el motivo'); if (ok) { r.status = 'venta'; r.approvedAt = iso(now()); r.rejectReason = ''; } else { r.status = 'rechazada'; r.rejectReason = reason; } audit(ok ? 'Rifa aprobada' : 'Rifa rechazada', r.title + (ok ? '' : ' · ' + reason), 'Superadministrador'); commit(); return; }
+      const x = db.extRaffles.find(r => r.id === id); if (!x || x.status !== 'revision') throw err(409, 'La rifa no está en revisión');
+      if (!ok && !String(reason || '').trim()) throw err(400, 'Escribe el motivo');
+      if (ok && !x.solvencyDoc) throw err(409, 'Falta el documento de solvencia: no se puede aprobar');
+      x.status = ok ? 'venta' : 'rechazada'; x.rejectReason = ok ? '' : reason;
+      audit(ok ? 'Rifa aprobada' : 'Rifa rechazada', x.title + (ok ? '' : ' · ' + reason), 'Superadministrador'); commit();
+    },
+    requestExtension(raffleId, requestedDate, reason) {
+      const r = raffle(raffleId); if (!r || raffleState(r) !== 'venta') throw err(409, 'Solo se extienden rifas en venta');
+      if (db.extensions.some(e => e.raffleId === raffleId && e.status === 'pendiente')) throw err(409, 'Ya hay una solicitud pendiente para esta rifa');
+      const d = Date.parse(requestedDate); if (!(d > Date.parse(r.drawAt))) throw err(400, 'La nueva fecha debe ser después de la actual');
+      const days = Math.ceil((d - Date.parse(r.drawAt)) / DAY); if (days > db.platform.maxExtensionDays) throw err(400, `Se puede extender hasta ${db.platform.maxExtensionDays} días`);
+      if (String(reason || '').trim().length < 10) throw err(400, 'Explica el motivo (mínimo 10 caracteres)');
+      const e = { id: uid('EX'), raffleId, companyId: db.company.id, originalDate: r.originalDrawAt || r.drawAt, currentDate: r.drawAt, requestedDate: iso(d), reason: reason.trim(), by: db.me.short, status: 'pendiente', createdAt: iso(now()), decidedAt: null, note: '' };
+      db.extensions.unshift(e); audit('Extensión solicitada', `${r.title} · +${days} días`); commit(); return e;
+    },
+    decideExtension(id, ok, note) {
+      const e = db.extensions.find(x => x.id === id); if (!e || e.status !== 'pendiente') throw err(409, 'Esta solicitud ya se respondió');
+      if (!ok && !String(note || '').trim()) throw err(400, 'Escribe el motivo del rechazo');
+      e.status = ok ? 'aprobada' : 'rechazada'; e.decidedAt = iso(now()); e.note = note || (ok ? 'Aprobada.' : '');
+      if (ok) { const r = raffle(e.raffleId) || db.extRaffles.find(x => x.id === e.raffleId); if (r) { r.originalDrawAt = r.originalDrawAt || e.originalDate; r.drawAt = e.requestedDate; } }
+      const t = (raffle(e.raffleId) || db.extRaffles.find(x => x.id === e.raffleId) || {}).title;
+      audit(ok ? 'Extensión aprobada' : 'Extensión rechazada', `${t}${note ? ' · ' + note : ''}`, 'Superadministrador'); commit();
+    },
+    createReport(d) {
+      if (!d.reason) throw err(400, 'Elige el motivo');
+      if (String(d.target || '').trim().length < 2) throw err(400, 'Escribe la rifa u operador');
+      if (String(d.description || '').trim().length < 20) throw err(400, 'Cuenta qué pasó (mínimo 20 caracteres)');
+      const ref = `DN-2026-${String(400 + db.reports.length * 7 + Math.floor(Math.random() * 6)).padStart(5, '0')}`;
+      db.reports.unshift({ ref, reason: d.reason, target: d.target.trim(), link: d.link || '', description: d.description.trim(), anonymous: !!d.anonymous, email: d.anonymous ? '' : (d.email || ''), fileName: d.fileName || '', status: 'nueva', createdAt: iso(now()), notes: [] });
+      audit('Denuncia recibida', `${ref} · ${d.reason}`, 'Página principal'); commit(); return ref;
+    },
+    reportAction(ref, status, note) {
+      const r = db.reports.find(x => x.ref === ref); if (!r) throw err(404, 'No existe');
+      if (['resuelta', 'descartada'].includes(status) && !String(note || '').trim()) throw err(400, 'Escribe cómo se resolvió');
+      r.status = status; if (note) r.notes.push({ at: iso(now()), text: note.trim(), by: 'Superadministrador' });
+      audit('Denuncia actualizada', `${ref} · ${status}`, 'Superadministrador'); commit();
+    },
+    payInvoice(id, method, reference) {
+      const f = db.invoices.find(x => x.id === id); if (!f || f.status === 'pagada') throw err(409, 'Esta factura ya está pagada');
+      if (!method) throw err(400, 'Elige el método'); if (!String(reference || '').trim()) throw err(400, 'Escribe la referencia');
+      Object.assign(f, { status: 'pagada', paidAt: iso(now()), method, reference: reference.trim() });
+      const c = db.companies.find(x => x.id === f.companyId); if (c && !db.invoices.some(x => x.companyId === c.id && x.status === 'pendiente')) c.billing = 'pagado';
+      audit('Pago registrado', `${f.id} · ${c ? c.name : ''} · US$ ${f.amountUSD}`, 'Superadministrador'); commit();
+    },
+    toggleLottery(name) { const l = db.lotteries.find(x => x.name === name); l.active = !l.active; audit(l.active ? 'Lotería activada' : 'Lotería desactivada', name, 'Superadministrador'); commit(); },
+    savePlatform(p) {
+      if (!/^0(4(12|14|16|22|24|26))-?\d{3}-?\d{4}$/.test(String(p.whatsapp || '').replace(/\s/g, ''))) throw err(400, 'El WhatsApp va así: 0412-166-5356');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.supportEmail || '')) throw err(400, 'El correo de soporte no es válido');
+      if (p.reportsEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.reportsEmail)) throw err(400, 'El correo de denuncias no es válido');
+      if (!(+p.maxExtensionDays >= 1 && +p.maxExtensionDays <= 60)) throw err(400, 'Los días de extensión van de 1 a 60');
+      Object.assign(db.platform, p, { maxExtensionDays: +p.maxExtensionDays, autoCloseMinutes: +p.autoCloseMinutes, maxTicketsPerOrder: +p.maxTicketsPerOrder });
+      audit('Configuración de la plataforma guardada', '', 'Superadministrador'); commit();
+    },
+    addReleaseNote(title, body) { if (!String(title || '').trim() || !String(body || '').trim()) throw err(400, 'Escribe el título y el texto'); db.releaseNotes.unshift({ id: uid('rn'), title: title.trim(), body: body.trim(), at: iso(now()) }); audit('Nota de versión publicada', title, 'Superadministrador'); commit(); },
+    inviteStaff(name, email, role) {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email || '')) throw err(400, 'Escribe un correo válido');
+      if (db.staff.some(u => u.email === email.toLowerCase())) throw err(409, 'Ya existe ese usuario');
+      db.staff.push({ id: uid('sa'), name: name || '', email: email.toLowerCase(), role, password: '', status: 'invitado', lastAt: null }); audit('Invitación enviada', email, 'Superadministrador'); commit();
+    },
+    changeAdminPassword(current, next) {
+      const sa = db.staff.find(u => u.id === 'sa-1');
+      if (current !== sa.password) throw Object.assign(err(400, 'La contraseña actual no es correcta'), { fields: { current: 'La contraseña actual no es correcta.' } });
+      if (next.length < 8 || !/[A-Z]/.test(next) || !/\d/.test(next) || !/[^A-Za-z0-9]/.test(next)) throw err(400, 'La nueva contraseña no cumple los requisitos');
+      sa.password = next; audit('Contraseña cambiada', 'Superadministrador', 'Superadministrador'); commit();
+    },
+    publicRaffles() {
+      const tpl = db.sitePublished.template;
+      const name = id => (db.companies.find(c => c.id === id) || {}).name || '';
+      return A.allRaffles().filter(r => r.status === 'venta' && (db.companies.find(c => c.id === r.companyId) || {}).status === 'activa')
+        .map(r => ({ title: r.title, operator: { name: name(r.companyId) }, digits: String(r.total - 1).length, soldPct: r.soldPct, drawAt: r.drawAt, url: r.live ? `../fronts/${tpl}/?rifa=${r.id}` : '' }));
+    },
 
     /* ---------- API con las rutas del servidor real (la usan los fronts de venta) ----------
        http('GET', '/raffles/R-101') → Promise<{ status, data }>. Simula la latencia de la red. */

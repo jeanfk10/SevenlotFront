@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Plus, List, LayoutGrid, Search, Download, Trophy, Check, Clock, AlertTriangle, Store, ExternalLink, Pencil, Trash2, FlaskConical, Info } from 'lucide-react';
-import { API, useDB, go, usd, bs, num, plural, date, dateTime, raffleState, STATE_LABEL, RAFFLE_TONE, LOTTERIES, attempt, toast, readImage, downloadCSV, toLocalInput, fromLocalInput, cedFmt, ORDER_STATUS, daysLeft, methodName } from '../lib.js';
+import { API, useDB, go, usd, bs, num, plural, date, dateTime, raffleState, STATE_LABEL, RAFFLE_TONE, LOTTERIES, attempt, toast, readImage, downloadCSV, toLocalInput, fromLocalInput, cedFmt, ORDER_STATUS, daysLeft, methodName, confetti } from '../lib.js';
 import { PageHead, Card, Seg, Button, LinkButton, Badge, Bar, Thumb, Empty, Field, Input, Select, Textarea, Steps, Note, FileDrop, Check2, Tabs, Modal, Pager, Stat, Confirm } from '../ui.jsx';
 import { publicUrl } from '../shell.jsx';
 
@@ -59,7 +59,7 @@ export function NuevaRifa({ id }) {
     if (Object.keys(e).length) { setTimeout(() => { const el = document.querySelector('[aria-invalid="true"]'); el && el.focus(); }, 0); top.current?.scrollIntoView({ block: 'start' }); return; }
     setTried(false); setStep(step + 1); scrollTo(0, 0);
   };
-  const save = submit => { try { const out = API.saveRaffle({ ...r, prize: r.prizes[0] || r.prize, id: existing ? existing.id : undefined }, submit); toast(submit ? 'Rifa enviada a CONALOT: queda En revisión' : 'Borrador guardado'); go('/rifas/' + out.id); } catch (e) { if (e.fields) { setErrors(e.fields); toast('Faltan datos: ' + Object.keys(e.fields).map(k => FIELD_NAMES[k] || k).join(', '), 'err'); } else toast(e.message, 'err'); } };
+  const save = submit => { try { const out = API.saveRaffle({ ...r, prize: r.prizes[0] || r.prize, id: existing ? existing.id : undefined }, submit); toast(submit ? 'Rifa enviada: queda En revisión hasta que el superadministrador la apruebe' : 'Borrador guardado'); if (submit) confetti(); go('/rifas/' + out.id); } catch (e) { if (e.fields) { setErrors(e.fields); toast('Faltan datos: ' + Object.keys(e.fields).map(k => FIELD_NAMES[k] || k).join(', '), 'err'); } else toast(e.message, 'err'); } };
   const errList = Object.keys(errors).filter(k => errors[k]);
   const closeAt = r.drawAt ? new Date(Date.parse(r.drawAt) - (r.closeMinutes || 10) * 60e3) : null;
   const checklist = [['images', 'Flyer oficial'], ['title', 'Título y premio', !v.title && !v.prize], ['drawAt', 'Fecha del sorteo'], ['lottery', 'Lotería y horario'], ['priceUSD', 'Precio y cantidad de números', !v.priceUSD && !v.total], ['solvencyDoc', 'Documento de solvencia'], ['rules', 'Al menos una regla']];
@@ -138,7 +138,7 @@ export function Ganadores({ query }) {
   const w = r && result ? API.findWinner(r.id, result) : null;
   const finished = db.raffles.filter(x => x.status === 'finalizada' && x.winner).sort((a, b) => b.winner.reportedAt.localeCompare(a.winner.reportedAt)).slice(0, 5);
   const exportList = () => downloadCSV('ganadores-por-reportar.csv', [['Rifa', 'Premio', 'Cerró', 'Lotería', 'Boletos vendidos'], ...list.map(x => [x.title, x.prize, date(x.drawAt), x.lottery, API.raffleStats(x.id).sold])]);
-  const publish = () => { const res = attempt(() => API.reportWinner(r.id, { result, evidence, notifyAll: notify })); if (res) { setDone({ ...res, title: r.title }); setSel(null); } };
+  const publish = () => { const res = attempt(() => API.reportWinner(r.id, { result, evidence, notifyAll: notify })); if (res) { setDone({ ...res, title: r.title }); setSel(null); confetti(); } };
   return <>
     <PageHead title="Ganadores por reportar" sub={list.length ? `${plural(list.length, 'rifa cerrada espera', 'rifas cerradas esperan')} su ganador. CONALOT exige reportarlo.` : 'No hay rifas esperando ganador.'} actions={list.length > 0 && <Button icon={Download} onClick={exportList}>Exportar lista</Button>} />
     {done && <div style={{ marginBottom: 16 }}><Note tone="ok" icon={Trophy}><b>Ganador publicado en {done.title}:</b> número {done.number} · {done.sold ? `${done.name} (${cedFmt(done.cedula)})` : 'el número no se vendió (queda desierto)'}.{done.notified ? ' Se avisó a los participantes.' : ''}</Note></div>}
@@ -166,19 +166,24 @@ export function Ganadores({ query }) {
 /* ---------- Detalle de la rifa ---------- */
 export function RifaDetalle({ id, query }) {
   const db = useDB(), r = API.raffle(id);
-  const [tab, setTab] = useState(query.tab || 'config');
+  const [tab, setTab] = useState(query.tab || 'config'), [ext, setExt] = useState(false);
   if (!r) return <Card><Empty title="Esta rifa no existe" action={<LinkButton href="#/rifas">Ver rifas</LinkButton>} /></Card>;
   const state = raffleState(r), s = API.raffleStats(id), editable = API.editable(r);
+  const exts = db.extensions.filter(e => e.raffleId === id), pendingExt = exts.find(e => e.status === 'pendiente'), lastExt = exts.find(e => e.status !== 'pendiente');
   return <>
     <PageHead crumbs={<><a href="#/rifas">Rifas</a><span aria-hidden="true">›</span><span>{r.id}</span></>} title={<span className="row" style={{ gap: 12 }}>{r.title}<Badge tone={RAFFLE_TONE[state]}>{STATE_LABEL[state]}</Badge></span>}
       sub={`${r.prize} · ${r.lottery || 'sin lotería'} · sorteo ${r.drawAt ? dateTime(r.drawAt) : 'sin fecha'}`}
       actions={<>{state === 'venta' && <><a className="btn" href={`./fronts/${db.sitePublished.template}/?rifa=${r.id}`} target="_blank" rel="noopener"><ExternalLink size={15} />Página de venta</a><LinkButton variant="primary" icon={Store} href={`#/ventas/taquilla?rifa=${r.id}`}>Vender</LinkButton></>}
+        {state === 'venta' && <Button icon={Clock} onClick={() => setExt(true)} disabled={!!pendingExt}>{pendingExt ? 'Extensión en revisión' : 'Pedir más tiempo'}</Button>}
         {state === 'falta-ganador' && <LinkButton variant="brand" icon={Trophy} href={`#/rifas/ganadores?rifa=${r.id}`}>Reportar ganador</LinkButton>}
         {editable && <LinkButton variant="primary" icon={Pencil} href={`#/rifas/${r.id}/editar`}>{r.status === 'rechazada' ? 'Corregir y reenviar' : 'Editar borrador'}</LinkButton>}</>} />
-    {r.status === 'revision' && <div style={{ marginBottom: 16 }}><Note tone="info" icon={FlaskConical}><b>En revisión de CONALOT.</b> Mientras tanto no se puede editar ni vender. En este entorno puedes simular la respuesta:{' '}
+    {r.status === 'revision' && <div style={{ marginBottom: 16 }}><Note tone="info" icon={FlaskConical}><b>En revisión.</b> La revisa el superadministrador de LottoGE (entra con su usuario y ve a Rifas). Mientras tanto no se puede editar ni vender. Atajo de prueba:{' '}
       <button className="link" type="button" onClick={() => attempt(() => API.conalotDecide(r.id, true), 'CONALOT aprobó: la rifa ya está en venta')}>Aprobar</button> ·{' '}
       <button className="link" type="button" onClick={() => attempt(() => API.conalotDecide(r.id, false, 'Falta el documento de solvencia del premio.'), 'CONALOT rechazó la rifa')}>Rechazar</button></Note></div>}
-    {r.status === 'rechazada' && <div style={{ marginBottom: 16 }}><Note tone="err"><b>Rechazada por CONALOT:</b> {r.rejectReason}</Note></div>}
+    {r.status === 'rechazada' && <div style={{ marginBottom: 16 }}><Note tone="err"><b>Rechazada:</b> {r.rejectReason}</Note></div>}
+    {pendingExt && <div style={{ marginBottom: 16 }}><Note tone="info" icon={Clock}><b>Pediste mover el sorteo al {dateTime(pendingExt.requestedDate)}</b> · lo revisa el superadministrador; mientras tanto la fecha sigue siendo {dateTime(r.drawAt)}.</Note></div>}
+    {!pendingExt && lastExt && Date.now() - Date.parse(lastExt.decidedAt) < 3 * 864e5 && <div style={{ marginBottom: 16 }}><Note tone={lastExt.status === 'aprobada' ? 'ok' : 'err'} icon={Clock}><b>Extensión {lastExt.status}.</b> {lastExt.status === 'aprobada' ? `El sorteo ahora es el ${dateTime(r.drawAt)} (original: ${date(r.originalDrawAt || lastExt.originalDate)}).` : lastExt.note}</Note></div>}
+    {ext && <ExtensionModal r={r} onClose={() => setExt(false)} />}
     {r.winner && <div style={{ marginBottom: 16 }}><Note tone="ok" icon={Trophy}><b>Ganador: número {r.winner.number}</b> · {r.winner.sold ? `${r.winner.name} (${cedFmt(r.winner.cedula)})` : 'no vendido'} · reportado el {date(r.winner.reportedAt)} · evidencia: {r.winner.evidence}</Note></div>}
     <div className="stats" style={{ marginBottom: 18 }}>
       <Stat label="Vendidos" value={num(s.sold)} unit={`de ${num(r.total)}`} sub={`${Math.round(s.sold / r.total * 100)} %`} />
@@ -232,4 +237,14 @@ function Boletos({ r }) {
       <tbody>{shown.map((x, i) => <tr key={x.o.id + x.n + i}><td className="mono"><b>{x.n}</b></td><td><Badge tone={ORDER_STATUS[x.o.status][1]}>{ORDER_STATUS[x.o.status][0]}</Badge></td><td>{x.o.name}<small>{cedFmt(x.o.cedula)}</small></td><td>{x.client ? x.client.state : '—'}</td><td>{methodName(x.o.method)}</td><td className="mono">{x.o.reference || '—'}</td><td className="num">{date(x.o.createdAt)}</td></tr>)}</tbody></table></div>}
     <Pager page={page} pages={pages} onChange={setPage} shown={shown.length} total={list.length} noun="boletos" />
   </Card>;
+}
+
+function ExtensionModal({ r, onClose }) {
+  const db = useDB(), [when, setWhen] = useState(toLocalInput(new Date(Date.parse(r.drawAt) + 7 * 864e5).toISOString())), [why, setWhy] = useState('');
+  const days = Math.round((Date.parse(fromLocalInput(when)) - Date.parse(r.drawAt)) / 864e5);
+  return <Modal title="Pedir más tiempo para el sorteo" sub={`Fecha actual: ${dateTime(r.drawAt)}. Lo aprueba el superadministrador de LottoGE.`} onClose={onClose}
+    footer={<><Button onClick={onClose}>Cancelar</Button><Button variant="primary" onClick={() => attempt(() => API.requestExtension(r.id, fromLocalInput(when), why), 'Solicitud enviada al superadministrador') && onClose()}>Enviar solicitud</Button></>}>
+    <Field label="Nueva fecha y hora del sorteo" required hint={days > 0 ? `+${days} días · máximo ${db.platform.maxExtensionDays}.` : 'Debe ser después de la fecha actual.'}><Input type="datetime-local" value={when} onChange={e => setWhen(e.target.value)} /></Field>
+    <Field label="Motivo" required hint="Ej.: faltan boletos por vender o cambió el horario de la lotería."><Textarea data-autofocus rows={3} value={why} onChange={e => setWhy(e.target.value)} /></Field>
+  </Modal>;
 }

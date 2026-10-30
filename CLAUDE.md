@@ -11,7 +11,8 @@ Fronts de compra de rifas para la plataforma **LottoGE** (Venezuela). Cada front
   - `README.md` — uso, configuración y qué conectar a la API.
 - `fronts/_comun/` — lo compartido: `metodos-pago.js` (catálogo de métodos de pago e iconos; es la fuente del bloque `pagos`), `conexion.ejemplo.js` (conexión real de ejemplo con api.lottoge.net), `iconos-pago.html` y `docs/` (LÉEME y guía de implementación del kit, en HTML para subir como Google Docs).
 - `build_kit.py` — arma `kit/` (lo que va al Drive "Sevenlot fronts": `02 Fronts de venta/` con `comun/` y una carpeta por plantilla, y `03 Recursos/iconos-pago/`). Comprueba que lo común sea idéntico en las seis.
-- `plataforma/` — entorno local de pruebas del rediseño del panel del operador LottoX (React + Vite, `npm run dev`), con un servidor simulado en el navegador (`public/sandbox/api.js`) y los 6 fronts del kit conectados a él (Ajustes › Sitio web). Cliente de prueba: cédula 31689392. Ver su README.
+- `plataforma/` — simulación completa de LottoGE (React + Vite, `npm run dev`): la página principal de `landing/sencilla` con su login y denuncias, el panel del superadministrador (`admin@lottoge.net` / `Admin2026!`), el del operador (`operador@rifasmerida.ejemplo` / `Prueba2026!`) y los 6 fronts del kit, todo sobre un servidor simulado en el navegador (`public/sandbox/api.js`), con el tema aprobado de la página principal. Cliente de prueba: cédula 31689392. Ver su README.
+- `landing/sencilla/` — página principal aprobada de LottoGE (inicio, rifas activas, denuncias y login). Sus colores y su temática son los aprobados para la empresa.
 - `rifa-dubai/` — primer prototipo, temático (viaje a Dubái). Solo como referencia.
 
 ## Regla del usuario: cuando un front queda aprobado

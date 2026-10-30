@@ -1,0 +1,1147 @@
+<title>LottoGE Página Principal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="LottoGE es la plataforma de rifas en línea para operadores de Venezuela: tu página de venta con tu marca, pagos verificados y boletos que llegan solos por correo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Página blanca y cálida: texto a la izquierda, la maquinita de boletos a la derecha; tres vistas (inicio, rifas, denuncias). */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --soft: #f6f5f2;
+  --soft-2: #ecebe6;
+  --ink: #1d2340;
+  --muted: #5b6078;
+  --line: #e4e2dc;
+  --coral: #ff5a36;
+  --coral-press: #e8461f;
+  --coral-soft: #ffe7e0;
+  --sun: #ffc23c;
+  --sun-soft: #fff3d6;
+  --teal: #12a594;
+  --teal-ink: #0b6b60;
+  --teal-soft: #dcf5f1;
+  --sky: #4f7cff;
+  --sky-ink: #2546a8;
+  --sky-soft: #e5ecff;
+  --danger: #c4321a;
+  --font: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
+  --radius: 22px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --pop: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+section[id], [data-report] { scroll-margin-top: calc(88px + env(safe-area-inset-top, 0px)); }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font); font-size: 1.0625rem; line-height: 1.55;
+  -webkit-font-smoothing: antialiased; overflow-x: clip;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { line-height: 1.08; letter-spacing: -0.025em; text-wrap: balance; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; border-radius: 8px; }
+.wrap { width: 100%; max-width: calc(1180px + 2 * 56px); margin-inline: auto; padding-left: max(var(--gutter-l), 4vw); padding-right: max(var(--gutter-r), 4vw); }
+@media (min-width: 1400px) { .wrap { padding-left: 56px; padding-right: 56px; } }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; padding: 0 26px; border-radius: 999px; border: 0;
+  background: var(--coral); color: #fff; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; white-space: nowrap;
+  transition: background-color .18s var(--ease), transform .18s var(--ease), box-shadow .18s var(--ease);
+}
+.btn:hover { background: var(--coral-press); transform: translateY(-2px); box-shadow: 0 8px 18px -8px rgba(232, 70, 31, .55); }
+.btn:active { transform: translateY(0) scale(0.97); box-shadow: none; }
+.btn--ghost { background: var(--soft); color: var(--ink); }
+.btn--ghost:hover { background: var(--soft-2); box-shadow: none; }
+.btn--ink { background: var(--ink); }
+.btn--ink:hover { background: #2d3560; box-shadow: 0 8px 18px -8px rgba(29, 35, 64, .5); }
+.btn--small { min-height: 44px; padding: 0 20px; }
+.btn .arr { transition: transform .2s var(--ease); }
+.btn:hover .arr { transform: translateX(3px); }
+
+/* ---------- Barra ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: rgba(255, 255, 255, .94); transition: box-shadow .25s var(--ease); }
+.top.is-scrolled { box-shadow: 0 1px 0 var(--line); }
+.top__in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.375rem; letter-spacing: -0.03em; text-decoration: none; }
+.logo i { width: 36px; height: 36px; border-radius: 11px; background: var(--coral); display: grid; place-items: center; transition: transform .4s var(--pop); }
+.logo:hover i { transform: rotate(-12deg) scale(1.06); }
+.logo b { color: var(--coral); font-weight: 800; }
+.nav { display: flex; align-items: center; gap: 24px; font-weight: 500; }
+.nav a:not(.btn) { position: relative; text-decoration: none; padding-block: 6px; display: none; }
+.nav a:not(.btn)::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px; background: var(--coral); transform: scaleX(0); transform-origin: left; transition: transform .25s var(--ease); }
+.nav a:not(.btn):hover::after, .nav a.is-on::after { transform: scaleX(1); }
+.nav a.is-on { color: var(--coral-press); }
+.menu-btn { width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--soft); display: grid; place-items: center; cursor: pointer; }
+.menu-btn span, .menu-btn span::before, .menu-btn span::after { display: block; width: 18px; height: 2px; border-radius: 2px; background: var(--ink); position: relative; transition: transform .25s var(--ease), background-color .2s; }
+.menu-btn span::before, .menu-btn span::after { content: ''; position: absolute; left: 0; }
+.menu-btn span::before { top: -6px; } .menu-btn span::after { top: 6px; }
+.menu-btn[aria-expanded="true"] span { background: transparent; }
+.menu-btn[aria-expanded="true"] span::before { transform: translateY(6px) rotate(45deg); }
+.menu-btn[aria-expanded="true"] span::after { transform: translateY(-6px) rotate(-45deg); }
+.nav .btn { display: none; }
+.drawer { display: grid; gap: 4px; padding-bottom: 16px; }
+.drawer a { text-decoration: none; font-weight: 700; font-size: 1.25rem; padding: 12px 4px; border-radius: 12px; animation: drop .35s var(--ease) backwards; }
+.drawer a:nth-child(2) { animation-delay: 40ms; } .drawer a:nth-child(3) { animation-delay: 80ms; } .drawer a:nth-child(4) { animation-delay: 120ms; } .drawer a:nth-child(5) { animation-delay: 160ms; }
+.drawer .btn { margin-top: 8px; justify-self: start; font-size: 1rem; padding: 0 26px; animation-delay: 200ms; }
+@keyframes drop { from { opacity: 0; transform: translateY(-8px); } }
+@media (min-width: 900px) {
+  .nav a:not(.btn), .nav .btn { display: inline-flex; }
+  .menu-btn, .drawer { display: none !important; }
+}
+
+/* ---------- Vistas ---------- */
+.view { animation: view-in .5s var(--ease); }
+@keyframes view-in { from { opacity: 0; transform: translateY(14px); } }
+
+/* ---------- Portada ---------- */
+.hero { display: grid; gap: 32px; align-items: center; padding-block: 28px 64px; }
+.hero h1 { font-size: clamp(2.6rem, 1.4rem + 4.6vw, 4.6rem); font-weight: 800; }
+.hero h1 .hl { color: var(--coral); display: inline-block; }
+.hero__lede { margin-top: 20px; font-size: 1.1875rem; color: var(--muted); max-width: 30rem; }
+.hero__cta { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; }
+.tags { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.9375rem; font-weight: 500; }
+.tags span { padding: 7px 14px; border-radius: 999px; transition: transform .25s var(--pop); }
+.tags span:hover { transform: translateY(-3px) rotate(-2deg); }
+.tag--teal { background: var(--teal-soft); color: var(--teal-ink); }
+.tag--sun { background: var(--sun-soft); color: #7a5600; }
+.tag--sky { background: var(--sky-soft); color: var(--sky-ink); }
+@media (min-width: 960px) { .hero { grid-template-columns: 1.05fr .95fr; padding-block: 40px 88px; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .in-1, .in-2, .in-3, .in-4 { animation: rise .8s var(--ease) backwards; }
+  .in-2 { animation-delay: 90ms; } .in-3 { animation-delay: 180ms; } .in-4 { animation-delay: 270ms; }
+  .hero h1 .hl { animation: wobble 1s var(--pop) .5s backwards; }
+}
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+@keyframes wobble { 0% { transform: rotate(-6deg) scale(.85); opacity: 0; } 60% { opacity: 1; } }
+
+/* ---------- La maquinita ---------- */
+.machine { position: relative; justify-self: center; width: min(100%, 460px); aspect-ratio: 460 / 520; max-width: 100%; }
+.machine .blob { position: absolute; inset: 8% 2% 0; border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%; background: var(--sun-soft); }
+.machine svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.machine .press { cursor: pointer; }
+.machine .press:focus-visible { outline: none; }
+.machine .press:focus-visible circle:first-child { stroke: var(--sky); stroke-width: 4; }
+.machine-hint { position: absolute; right: 4%; bottom: 2%; font-size: .875rem; font-weight: 700; color: #7a5600; background: #fff; padding: 6px 12px; border-radius: 999px; box-shadow: 0 6px 16px -10px rgba(29, 35, 64, .5); }
+.t-anim, .bar-fill, .spark, .body-anim, .light { transform-box: fill-box; }
+.bar-fill { transform-origin: left center; transform: scaleX(.65); }
+@media (prefers-reduced-motion: no-preference) {
+  .machine { animation: pop-in .9s var(--pop) .15s backwards; }
+  .machine .blob { animation: morph 9s ease-in-out infinite; }
+  .t-anim { animation: print 4.2s var(--ease) infinite; }
+  .bar-fill { animation: fill 4.2s linear infinite; }
+  .body-anim { transform-origin: center bottom; animation: shake 4.2s linear infinite; }
+  .spark { transform-origin: center; animation: spark 4.2s var(--ease) infinite; }
+  .spark:nth-of-type(2) { animation-delay: 60ms; } .spark:nth-of-type(3) { animation-delay: 120ms; }
+  .light { animation: blink 1.4s steps(1) infinite; }
+  .float-a { animation: bob 5s ease-in-out infinite; }
+  .float-b { animation: bob 6s ease-in-out -2s infinite; }
+  .float-a, .float-b { transform-box: fill-box; transform-origin: center; }
+  .machine-hint { animation: hint 2.4s ease-in-out infinite; }
+  .press:hover .knob { transform: scale(.9); }
+  .knob { transform-box: fill-box; transform-origin: center; transition: transform .15s var(--ease); }
+}
+@keyframes pop-in { from { opacity: 0; transform: translateY(30px) scale(.92); } }
+@keyframes morph { 50% { border-radius: 54% 46% 44% 56% / 46% 56% 44% 54%; transform: rotate(4deg); } }
+@keyframes print {
+  0%, 8% { transform: translateY(170px); opacity: 1; }
+  50%, 86% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-18px) rotate(3deg); opacity: 0; }
+}
+@keyframes fill { 0%, 8% { transform: scaleX(.04); } 50%, 100% { transform: scaleX(1); } }
+@keyframes shake {
+  0%, 8%, 52%, 100% { transform: none; }
+  12%, 20%, 28%, 36%, 44% { transform: translateX(-1.5px) rotate(-.3deg); }
+  16%, 24%, 32%, 40%, 48% { transform: translateX(1.5px) rotate(.3deg); }
+}
+@keyframes spark { 0%, 48% { transform: scale(0); opacity: 0; } 54% { transform: scale(1.2); opacity: 1; } 66%, 100% { transform: scale(0); opacity: 0; } }
+@keyframes blink { 50% { opacity: .25; } }
+@keyframes bob { 50% { transform: translateY(-12px) rotate(var(--r, 0deg)); } }
+@keyframes hint { 50% { transform: translateY(-4px); } }
+
+/* ---------- Secciones de inicio ---------- */
+.sec { padding-block: 48px 88px; }
+.sec__head { text-align: center; display: grid; gap: 12px; justify-items: center; }
+.sec__head h2 { font-size: clamp(2rem, 1.3rem + 2.4vw, 3rem); font-weight: 800; }
+.sec__head p { color: var(--muted); max-width: 34rem; }
+
+.feat { list-style: none; margin: 44px 0 0; padding: 0; display: grid; gap: 16px; }
+.feat li { background: var(--c); border-radius: var(--radius); padding: 26px 24px; display: grid; gap: 8px; transition: transform .3s var(--pop), box-shadow .3s var(--ease); }
+.feat li:hover { transform: translateY(-6px) rotate(-.6deg); box-shadow: 0 18px 30px -22px rgba(29, 35, 64, .45); }
+.feat li:hover svg { animation: wiggle .5s var(--ease); }
+.feat svg { width: 44px; height: 44px; }
+.feat h3 { font-size: 1.1875rem; font-weight: 700; margin-top: 6px; }
+.feat p { color: var(--muted); font-size: 1rem; }
+@keyframes wiggle { 30% { transform: rotate(-10deg) scale(1.08); } 60% { transform: rotate(8deg); } }
+@media (min-width: 700px) { .feat { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1040px) { .feat { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.banner { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; background: var(--soft); border-radius: var(--radius); padding: 22px 26px; }
+.banner p { color: var(--muted); }
+.banner b { color: var(--ink); }
+
+.plans { margin-top: 44px; display: grid; gap: 16px; }
+.plan { border-radius: var(--radius); padding: 30px 26px; background: var(--soft); display: grid; align-content: start; gap: 6px; transition: transform .3s var(--pop), box-shadow .3s var(--ease); }
+.plan:hover { transform: translateY(-6px); box-shadow: 0 20px 34px -24px rgba(29, 35, 64, .5); }
+.plan--pro { background: var(--ink); color: #fff; }
+.plan h3 { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.badge { font-size: .8125rem; font-weight: 700; background: var(--sun); color: var(--ink); padding: 3px 10px; border-radius: 999px; letter-spacing: 0; }
+@media (prefers-reduced-motion: no-preference) { .badge { animation: bump 2.6s var(--ease) infinite; } }
+@keyframes bump { 0%, 70%, 100% { transform: none; } 80% { transform: translateY(-3px) rotate(-4deg); } 90% { transform: translateY(0) rotate(3deg); } }
+.price { margin-top: 10px; font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.price small { font-size: 1rem; font-weight: 500; letter-spacing: 0; }
+.plan .note { color: var(--muted); font-size: .9375rem; }
+.plan--pro .note { color: #c3c7da; }
+.plan ul { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.plan li { display: flex; gap: 10px; align-items: baseline; }
+.plan li::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); transform: translateY(-2px); }
+.plan--pro li::before { background: var(--sun); }
+.plan .btn { margin-top: 24px; justify-self: start; }
+.plans-fine { margin-top: 22px; text-align: center; color: var(--muted); font-size: .9375rem; }
+@media (min-width: 900px) { .plans { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.close { margin-bottom: 64px; background: var(--coral); color: #fff; border-radius: 32px; padding: clamp(32px, 6vw, 60px); display: grid; gap: 20px; align-items: center; position: relative; overflow: hidden; }
+.close h2 { font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem); font-weight: 800; position: relative; }
+.close p { margin-top: 8px; max-width: 32rem; position: relative; }
+.close .btn { background: #fff; color: var(--coral-press); justify-self: start; position: relative; }
+.close .btn:hover { background: var(--sun-soft); }
+.close .t { position: absolute; width: 92px; height: 52px; border-radius: 10px; background: rgba(255, 255, 255, .16); right: 6%; top: 18%; transform: rotate(14deg); }
+.close .t + .t { right: 18%; top: 62%; width: 70px; height: 40px; transform: rotate(-10deg); }
+@media (prefers-reduced-motion: no-preference) { .close .t { animation: bob 6s ease-in-out infinite; --r: 14deg; } .close .t + .t { animation-duration: 7s; --r: -10deg; } }
+@media (min-width: 820px) { .close { grid-template-columns: 1fr auto; } }
+
+/* ---------- Rifas activas ---------- */
+.page-head { padding-block: 32px 8px; display: grid; gap: 12px; }
+.page-head h1 { font-size: clamp(2.2rem, 1.4rem + 3vw, 3.4rem); font-weight: 800; }
+.page-head p { color: var(--muted); max-width: 36rem; }
+.demo-chip { justify-self: start; display: inline-flex; align-items: center; gap: 8px; background: var(--sun-soft); color: #7a5600; font-weight: 700; font-size: .875rem; padding: 6px 12px; border-radius: 999px; }
+.demo-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--sun); }
+@media (prefers-reduced-motion: no-preference) { .demo-chip i { animation: blink 1.6s steps(1) infinite; } }
+.tools { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.search { position: relative; flex: 1 1 260px; max-width: 420px; }
+.search input { width: 100%; min-height: 50px; border-radius: 999px; border: 2px solid var(--line); background: #fff; padding: 0 18px 0 46px; font: inherit; color: var(--ink); transition: border-color .2s; }
+.search input:focus { outline: none; border-color: var(--sky); }
+.search svg { position: absolute; left: 16px; top: 50%; translate: 0 -50%; width: 20px; height: 20px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--soft); font: inherit; font-weight: 600; font-size: .9375rem; color: var(--ink); cursor: pointer; transition: background-color .2s, transform .2s var(--pop); }
+.chips button:hover { transform: translateY(-2px); }
+.chips button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.raffles { margin-block: 28px 80px; display: grid; gap: 16px; }
+@media (min-width: 720px) { .raffles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1040px) { .raffles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.rcard { border-radius: var(--radius); background: #fff; box-shadow: 0 0 0 2px var(--line); overflow: hidden; display: grid; transition: transform .3s var(--pop), box-shadow .3s var(--ease); animation: rise .5s var(--ease) backwards; }
+.rcard:hover { transform: translateY(-6px); box-shadow: 0 0 0 2px var(--line), 0 20px 30px -22px rgba(29, 35, 64, .5); }
+.rcard__pic { aspect-ratio: 16 / 10; background: var(--sky-soft); display: grid; place-items: center; position: relative; overflow: hidden; }
+.rcard__pic svg { width: 46%; }
+.rcard__pic .flag { position: absolute; left: 14px; top: 14px; background: #fff; color: var(--ink); font-size: .8125rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+.rcard__body { padding: 20px 22px 22px; display: grid; gap: 10px; }
+.rcard__op { color: var(--muted); font-size: .9375rem; }
+.rcard h3 { font-size: 1.25rem; font-weight: 700; }
+.meter { height: 8px; border-radius: 99px; background: var(--soft-2); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--teal); border-radius: 99px; }
+.rcard__row { display: flex; justify-content: space-between; gap: 12px; font-size: .9375rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rcard .btn { justify-self: start; margin-top: 4px; }
+.empty { border-radius: var(--radius); border: 2px dashed var(--line); display: grid; place-items: center; text-align: center; gap: 10px; padding: 36px 24px; color: var(--muted); min-height: 260px; animation: rise .5s var(--ease) 80ms backwards; }
+.empty svg { width: 72px; height: 72px; }
+@media (prefers-reduced-motion: no-preference) { .empty svg { animation: bob 4s ease-in-out infinite; } }
+.empty b { color: var(--ink); font-size: 1.125rem; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 600; font-size: .9375rem; z-index: 40; max-width: calc(100% - 32px); text-align: center; animation: toast 2.6s var(--ease) forwards; }
+@keyframes toast { 0% { opacity: 0; transform: translateY(16px); } 12%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(8px); } }
+
+/* ---------- Denuncias ---------- */
+.report { display: grid; gap: 28px; margin-block: 24px 80px; }
+@media (min-width: 980px) { .report { grid-template-columns: minmax(0, 1.4fr) minmax(0, .8fr); align-items: start; } }
+.form { background: var(--soft); border-radius: 28px; padding: clamp(22px, 4vw, 36px); display: grid; gap: 22px; }
+.field { display: grid; gap: 8px; min-width: 0; }
+.field > label, .field legend { font-weight: 700; }
+.field small { color: var(--muted); font-weight: 500; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.field input[type=text], .field input[type=email], .field input[type=password], .field textarea {
+  width: 100%; min-height: 52px; border-radius: 16px; border: 2px solid transparent; background: #fff; padding: 12px 16px; font: inherit; color: var(--ink); transition: border-color .2s, box-shadow .2s;
+}
+.field textarea { min-height: 140px; resize: vertical; }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--sky); box-shadow: 0 0 0 4px var(--sky-soft); }
+.field.has-error input, .field.has-error textarea { border-color: var(--danger); }
+.err { color: var(--danger); font-size: .9375rem; font-weight: 600; }
+.field.has-error .err { animation: nudge .35s var(--ease); }
+@keyframes nudge { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.reasons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.reasons label { cursor: pointer; }
+.reasons input { position: absolute; opacity: 0; pointer-events: none; }
+.reasons span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #fff; font-weight: 600; font-size: .9375rem; box-shadow: inset 0 0 0 2px var(--line); transition: background-color .2s, color .2s, transform .25s var(--pop), box-shadow .2s; }
+.reasons label:hover span { transform: translateY(-2px); }
+.reasons input:checked + span { background: var(--coral); color: #fff; box-shadow: none; }
+.reasons input:focus-visible + span { outline: 3px solid var(--sky); outline-offset: 2px; }
+.count { justify-self: end; color: var(--muted); font-size: .875rem; font-variant-numeric: tabular-nums; }
+.file { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.file input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.file label { cursor: pointer; }
+.file .name { color: var(--muted); font-size: .9375rem; min-width: 0; overflow-wrap: anywhere; }
+.check { display: flex; gap: 10px; align-items: center; cursor: pointer; font-weight: 600; }
+.check input { width: 22px; height: 22px; accent-color: var(--coral); }
+.field.is-off { opacity: .45; }
+.form .btn { justify-self: start; }
+.aside { display: grid; gap: 14px; }
+.aside .box { border-radius: var(--radius); padding: 24px; display: grid; gap: 10px; }
+.aside .box h2 { font-size: 1.25rem; font-weight: 800; }
+.aside ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: s; }
+.aside li { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; counter-increment: s; }
+.aside li::before { content: counter(s); width: 32px; height: 32px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-weight: 800; color: var(--teal-ink); }
+.done { background: var(--teal-soft); border-radius: 28px; padding: clamp(28px, 5vw, 48px); display: grid; gap: 14px; justify-items: start; }
+.done h2 { font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem); font-weight: 800; }
+.done .ref { font-size: 1.5rem; font-weight: 800; letter-spacing: .02em; background: #fff; padding: 8px 16px; border-radius: 14px; font-variant-numeric: tabular-nums; }
+.done .demo { color: var(--teal-ink); font-size: .9375rem; }
+.tick { width: 72px; height: 72px; }
+.tick circle { fill: var(--teal); }
+.tick path { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .done .tick { animation: pop-in .6s var(--pop); }
+  .done .tick path { animation: draw .6s var(--ease) .25s backwards; }
+}
+@keyframes draw { from { stroke-dashoffset: 60; } }
+
+/* ---------- Pie ---------- */
+.foot { padding-block: 0 32px; display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; color: var(--muted); font-size: .9375rem; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.foot a { text-decoration: none; }
+.foot a:hover { color: var(--coral); }
+
+/* ---------- Sesión en la barra ---------- */
+.me { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; }
+.me i { width: 36px; height: 36px; border-radius: 50%; background: var(--teal); color: #fff; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: .875rem; animation: pop-in .5s var(--pop); }
+.me button { border: 0; background: var(--soft); color: var(--ink); font: inherit; font-weight: 600; font-size: .9375rem; min-height: 38px; padding: 0 14px; border-radius: 999px; cursor: pointer; transition: background-color .2s; }
+.me button:hover { background: var(--soft-2); }
+.nav .me { display: none; }
+@media (min-width: 900px) { .nav .me:not([hidden]) { display: inline-flex; } }
+.drawer .me { padding: 8px 4px; }
+
+/* ---------- Inicio de sesión ---------- */
+body.on-login .top, body.on-login .foot { display: none; }
+.login { position: relative; min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; overflow: hidden; background: var(--bg); padding-block: 32px; }
+.login__bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.login__in { position: relative; z-index: 1; width: 100%; max-width: 480px; display: grid; gap: 22px; justify-items: center; padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+.login .logo { font-size: 1.75rem; }
+.login .logo i { width: 48px; height: 48px; border-radius: 15px; }
+.login .logo i svg { width: 26px; height: 26px; }
+@media (prefers-reduced-motion: no-preference) {
+  .login .logo i { animation: logo-bounce 2.8s var(--ease) infinite; }
+  .lcard { animation: card-in .8s var(--pop) .1s backwards; }
+  .login .logo { animation: rise .7s var(--ease) backwards; }
+}
+@keyframes logo-bounce { 0%, 60%, 100% { transform: none; } 70% { transform: translateY(-6px) rotate(-10deg); } 80% { transform: translateY(0) rotate(6deg); } 90% { transform: rotate(-2deg); } }
+@keyframes card-in { from { opacity: 0; transform: translateY(30px) scale(.96); } }
+.lcard { width: 100%; background: rgba(255, 255, 255, .92); border-radius: 28px; padding: clamp(24px, 5vw, 36px); box-shadow: 0 0 0 1px rgba(29, 35, 64, .06), 0 30px 60px -30px rgba(29, 35, 64, .35); display: grid; gap: 18px; }
+.lcard h1 { font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.125rem); font-weight: 800; }
+.lcard .sub { color: var(--muted); margin-top: -8px; }
+.lcard .field input { background: var(--soft); }
+.lcard .field input:focus { background: #fff; }
+.pass { position: relative; }
+.pass input { padding-right: 56px; }
+.eye { position: absolute; right: 6px; top: 50%; translate: 0 -50%; width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; transition: color .2s, background-color .2s; }
+.eye:hover { color: var(--ink); background: var(--soft-2); }
+.eye svg { width: 22px; height: 22px; }
+.eye .slash { transition: stroke-dashoffset .3s var(--ease); stroke-dasharray: 26; stroke-dashoffset: 26; }
+.eye[aria-pressed="true"] .slash { stroke-dashoffset: 0; }
+.lrow { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.lrow .check { font-weight: 500; font-size: .9375rem; }
+.linkbtn { border: 0; background: none; padding: 6px 2px; font: inherit; font-weight: 700; font-size: .9375rem; color: var(--coral-press); cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color .2s; }
+.linkbtn:hover { text-decoration-color: currentColor; }
+.lcard .go { width: 100%; min-height: 56px; font-size: 1.0625rem; position: relative; overflow: hidden; }
+.lcard .go .spin { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, .4); border-top-color: #fff; animation: spin .8s linear infinite; }
+.lcard .go.is-ok { background: var(--teal); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.lcard .demo { font-size: .875rem; color: #7a5600; background: var(--sun-soft); border-radius: 12px; padding: 10px 14px; }
+.lcard .alt { text-align: center; color: var(--muted); font-size: .9375rem; }
+.lcard .alt a { color: var(--coral-press); font-weight: 700; }
+.lcard .sent { background: var(--teal-soft); color: var(--teal-ink); border-radius: 14px; padding: 14px 16px; font-weight: 600; animation: rise .4s var(--ease); }
+.back { font-weight: 600; text-decoration: none; color: var(--muted); display: inline-flex; gap: 8px; align-items: center; padding: 8px 14px; border-radius: 999px; background: rgba(255, 255, 255, .85); transition: color .2s, transform .2s var(--ease); }
+.back:hover { color: var(--ink); transform: translateX(-3px); }
+.lcard.shake { animation: nudge .4s var(--ease); }
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; width: 100%; height: 100%; }
+
+/* ---------- Aparición al bajar ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .pre { opacity: 0; transform: translateY(28px); }
+  .pre.on { opacity: 1; transform: none; transition: opacity .7s var(--ease), transform .8s var(--ease); transition-delay: calc(var(--d, 0) * 90ms); }
+}
+</style>
+
+<!-- page -->
+<header class="top" data-top>
+  <div class="wrap top__in">
+    <a class="logo" href="#inicio" aria-label="LottoGE, inicio">
+      <i aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h11A1.5 1.5 0 0 1 17 6.5V8a2 2 0 0 0 0 4v1.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 3 13.5V12a2 2 0 0 0 0-4z" fill="#fff"/></svg></i>
+      <span>Lotto<b>GE</b></span>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#inicio" data-nav="inicio">Inicio</a>
+      <a href="#rifas" data-nav="rifas">Rifas activas</a>
+      <a href="#planes" data-nav="planes">Planes</a>
+      <a href="#denuncias" data-nav="denuncias">Denuncias</a>
+      <a href="#login" data-auth="out">Iniciar sesión</a>
+      <span class="me" data-auth="in" hidden><i data-me-ini>GE</i><span data-me-name>Hola</span><button type="button" data-logout>Salir</button></span>
+      <a class="btn btn--small" href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Hablar con un asesor</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Abrir menú" data-menu><span></span></button>
+    </nav>
+  </div>
+  <div class="wrap drawer" id="drawer" hidden>
+    <a href="#inicio">Inicio</a>
+    <a href="#rifas">Rifas activas</a>
+    <a href="#planes">Planes</a>
+    <a href="#denuncias">Denuncias</a>
+    <a href="#login" data-auth="out">Iniciar sesión</a>
+    <span class="me" data-auth="in" hidden><i data-me-ini>GE</i><span data-me-name>Hola</span><button type="button" data-logout>Salir</button></span>
+    <a class="btn" href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Hablar con un asesor</a>
+  </div>
+</header>
+
+<main>
+  <!-- ===== Inicio de sesión ===== -->
+  <div class="view login" data-view="login" hidden>
+    <canvas class="login__bg" data-bg aria-hidden="true"></canvas>
+    <div class="login__in">
+      <a class="logo" href="#inicio" aria-label="LottoGE, ir a la página principal">
+        <i aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h11A1.5 1.5 0 0 1 17 6.5V8a2 2 0 0 0 0 4v1.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 3 13.5V12a2 2 0 0 0 0-4z" fill="#fff"/></svg></i>
+        <span>Lotto<b>GE</b></span>
+      </a>
+
+      <form class="lcard" novalidate data-login aria-labelledby="t-login">
+        <h1 id="t-login">Inicia sesión</h1>
+        <p class="sub">Accede a tu cuenta para ver tus rifas, boletos y ventas.</p>
+        <div class="field" data-f-lmail>
+          <label for="l-mail">Correo electrónico</label>
+          <input id="l-mail" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
+          <p class="err" hidden>Escribe tu correo.</p>
+        </div>
+        <div class="field" data-f-lpass>
+          <label for="l-pass">Contraseña</label>
+          <div class="pass">
+            <input id="l-pass" type="password" autocomplete="current-password" placeholder="Tu contraseña">
+            <button class="eye" type="button" aria-pressed="false" aria-label="Mostrar contraseña" data-eye>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg>
+            </button>
+          </div>
+          <p class="err" hidden>La contraseña debe tener al menos 6 caracteres.</p>
+        </div>
+        <div class="lrow">
+          <label class="check"><input id="l-remember" type="checkbox" checked> Recordarme</label>
+          <button class="linkbtn" type="button" data-forgot>¿Olvidaste tu contraseña?</button>
+        </div>
+        <button class="btn go" type="submit" data-go>Iniciar sesión</button>
+        <p class="demo">Prototipo: entra con cualquier correo y una contraseña de 6 caracteres o más.</p>
+        <p class="alt">¿Aún no tienes cuenta? <a href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Habla con un asesor</a></p>
+      </form>
+
+      <form class="lcard" novalidate data-forgot-form hidden aria-labelledby="t-forgot">
+        <h1 id="t-forgot">Recupera tu contraseña</h1>
+        <p class="sub">Escribe el correo de tu cuenta y te enviamos un enlace para crear una nueva.</p>
+        <div class="field" data-f-fmail>
+          <label for="f-mail">Correo electrónico</label>
+          <input id="f-mail" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
+          <p class="err" hidden>Revisa el correo: parece incompleto.</p>
+        </div>
+        <div data-forgot-msg></div>
+        <button class="btn go" type="submit">Enviar enlace</button>
+        <button class="linkbtn" type="button" data-forgot-back>← Volver a iniciar sesión</button>
+      </form>
+
+      <a class="back" href="#inicio"><span aria-hidden="true">←</span> Ver la página principal</a>
+    </div>
+  </div>
+
+  <!-- ===== Inicio ===== -->
+  <div class="view" data-view="inicio">
+    <section class="wrap hero" aria-labelledby="t-hero">
+      <div>
+        <h1 id="t-hero" class="in-1">Vende tus rifas <span class="hl">en línea</span></h1>
+        <p class="hero__lede in-2">Tu página de venta con tu marca, pagos verificados y boletos que llegan solos al correo de tus compradores.</p>
+        <div class="hero__cta in-3">
+          <a class="btn" href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Hablar con un asesor</a>
+          <a class="btn btn--ghost" href="#rifas">Ver rifas activas <span class="arr" aria-hidden="true">→</span></a>
+        </div>
+        <div class="tags in-4"><span class="tag--teal">Legal ante CONALOT</span><span class="tag--sun">Bs y $ con tasa BCV</span><span class="tag--sky">Soporte 24/7</span></div>
+      </div>
+
+      <div class="machine" role="img" aria-label="Ilustración de una maquinita imprimiendo boletos de rifa.">
+        <div class="blob"></div>
+        <svg viewBox="0 0 460 520" aria-hidden="true">
+          <g class="float-a" style="--r:-8deg">
+            <g transform="translate(36 120) rotate(-12)">
+              <rect width="104" height="58" rx="10" fill="#4f7cff"/>
+              <circle cx="72" cy="0" r="7" fill="#fff3d6"/><circle cx="72" cy="58" r="7" fill="#fff3d6"/>
+              <path d="M72 10v38" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/>
+              <rect x="14" y="18" width="42" height="8" rx="4" fill="#fff" opacity=".9"/>
+              <rect x="14" y="33" width="28" height="8" rx="4" fill="#fff" opacity=".6"/>
+            </g>
+          </g>
+          <g class="float-b" style="--r:6deg">
+            <g transform="translate(350 170) rotate(14)">
+              <rect width="92" height="52" rx="10" fill="#12a594"/>
+              <circle cx="64" cy="0" r="6" fill="#fff3d6"/><circle cx="64" cy="52" r="6" fill="#fff3d6"/>
+              <path d="M64 9v34" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/>
+              <rect x="12" y="16" width="38" height="7" rx="3.5" fill="#fff" opacity=".9"/>
+              <rect x="12" y="29" width="24" height="7" rx="3.5" fill="#fff" opacity=".6"/>
+            </g>
+          </g>
+
+          <!-- chispas cuando sale el boleto -->
+          <circle class="spark" cx="128" cy="96" r="7" fill="#ffc23c"/>
+          <circle class="spark" cx="336" cy="80" r="5" fill="#ff5a36"/>
+          <circle class="spark" cx="318" cy="150" r="6" fill="#4f7cff"/>
+
+          <svg x="150" y="40" width="160" height="200" overflow="hidden">
+            <g class="t-anim" data-ticket>
+              <rect x="10" y="10" width="140" height="190" rx="12" fill="#fff" stroke="#1d2340" stroke-width="3"/>
+              <text x="80" y="42" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="14" font-weight="800" fill="#ff5a36">LottoGE</text>
+              <text x="80" y="62" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="11" font-weight="500" fill="#5b6078">BOLETO</text>
+              <path d="M24 76h112" stroke="#1d2340" stroke-width="2" stroke-dasharray="5 5"/>
+              <text x="80" y="118" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="36" font-weight="800" fill="#1d2340" letter-spacing="1" data-num>0427</text>
+              <rect x="34" y="136" width="92" height="22" rx="11" fill="#dcf5f1"/>
+              <text x="80" y="151" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="11" font-weight="700" fill="#0b6b60">PAGADO</text>
+            </g>
+          </svg>
+
+          <g class="body-anim">
+            <rect x="70" y="220" width="320" height="250" rx="40" fill="#ff5a36"/>
+            <rect x="70" y="420" width="320" height="50" rx="25" fill="#e8461f"/>
+            <rect x="110" y="200" width="240" height="56" rx="22" fill="#ff7a5c"/>
+            <rect x="140" y="222" width="180" height="14" rx="7" fill="#1d2340"/>
+            <rect x="110" y="282" width="150" height="86" rx="16" fill="#1d2340"/>
+            <text x="128" y="316" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="13" font-weight="700" fill="#ffc23c">Imprimiendo</text>
+            <rect x="128" y="332" width="108" height="10" rx="5" fill="#2f3863"/>
+            <rect class="bar-fill" x="128" y="332" width="108" height="10" rx="5" fill="#12a594"/>
+            <circle class="light" cx="240" cy="306" r="5" fill="#12a594"/>
+            <g class="press" data-press tabindex="0" role="button" aria-label="Imprimir otro boleto">
+              <circle cx="306" cy="300" r="20" fill="#ffc23c"/>
+              <circle class="knob" cx="306" cy="300" r="12" fill="#ffd877"/>
+            </g>
+            <rect x="282" y="336" width="20" height="20" rx="6" fill="#fff" opacity=".85"/>
+            <rect x="310" y="336" width="20" height="20" rx="6" fill="#fff" opacity=".85"/>
+            <rect x="338" y="336" width="20" height="20" rx="6" fill="#4f7cff"/>
+            <rect x="110" y="388" width="240" height="8" rx="4" fill="#e8461f"/>
+            <rect x="110" y="404" width="240" height="8" rx="4" fill="#e8461f"/>
+            <rect x="110" y="466" width="40" height="18" rx="9" fill="#1d2340"/>
+            <rect x="310" y="466" width="40" height="18" rx="9" fill="#1d2340"/>
+          </g>
+        </svg>
+        <span class="machine-hint" aria-hidden="true">Toca el botón amarillo</span>
+      </div>
+    </section>
+
+    <section class="wrap sec" id="que-hacemos" aria-labelledby="t-what">
+      <div class="sec__head" data-reveal>
+        <h2 id="t-what">Todo lo que necesitas para vender</h2>
+        <p>Nosotros nos encargamos de la parte difícil. Tú te encargas de tu rifa.</p>
+      </div>
+      <ul class="feat">
+        <li style="--c:var(--coral-soft); --d:0" data-reveal>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="14" fill="#ff5a36"/><path d="M13 16h18v14a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2zM13 16l2-4h14l2 4" stroke="#fff" stroke-width="2.2" fill="none" stroke-linejoin="round"/></svg>
+          <h3>Tu página, tu marca</h3><p>Con tu logo, tu color y tu dominio.</p>
+        </li>
+        <li style="--c:var(--teal-soft); --d:1" data-reveal>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="14" fill="#12a594"/><path d="m14 22 5 5 11-11" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <h3>Pagos verificados</h3><p>Pago Móvil al instante. Zelle y Binance con tu aprobación.</p>
+        </li>
+        <li style="--c:var(--sun-soft); --d:2" data-reveal>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="14" fill="#ffc23c"/><path d="M12 17a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2v-2a3 3 0 0 0 0-6z" stroke="#1d2340" stroke-width="2.2" fill="none"/></svg>
+          <h3>Boletos automáticos</h3><p>Los números llegan solos al correo del comprador.</p>
+        </li>
+        <li style="--c:var(--sky-soft); --d:3" data-reveal>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="14" fill="#4f7cff"/><path d="M14 30V20M22 30V14M30 30v-7" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
+          <h3>Todo en un panel</h3><p>Ventas, cajas y reportes en Bs y en $.</p>
+        </li>
+      </ul>
+      <div class="banner" data-reveal>
+        <p><b>¿Viste una rifa irregular?</b> Cuéntanos en el apartado de denuncias. Es confidencial.</p>
+        <a class="btn btn--ink btn--small" href="#denuncias">Hacer una denuncia <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <section class="wrap sec" id="planes" aria-labelledby="t-plans">
+      <div class="sec__head" data-reveal>
+        <h2 id="t-plans">Planes</h2>
+        <p>Empieza con el que te sirva y cambia cuando tu rifa crezca.</p>
+      </div>
+      <div class="plans" data-plans>
+        <article class="plan" style="--d:0" data-reveal>
+          <h3>Free</h3>
+          <p class="price">$0</p>
+          <p class="note">+ $50 al mes de mantenimiento</p>
+          <ul><li>Rifas de hasta 3 cifras</li><li>Página pública estándar</li><li>Avisos de venta por correo</li></ul>
+          <a class="btn btn--ink" href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Solicitar</a>
+        </article>
+        <article class="plan" style="--d:1" data-reveal>
+          <h3>Basic</h3>
+          <p class="price">REF 799 <small>+ IVA</small></p>
+          <p class="note">+ $50 al mes de mantenimiento</p>
+          <ul><li>Rifas de hasta 4 cifras</li><li>Tu marca y dominio propio</li><li>WhatsApp automatizado</li><li>Panel de cajas</li></ul>
+          <a class="btn btn--ink" href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Solicitar</a>
+        </article>
+        <article class="plan plan--pro" style="--d:2" data-reveal>
+          <h3>Pro <span class="badge">Recomendado</span></h3>
+          <p class="price">REF 1.199 <small>+ IVA</small></p>
+          <p class="note">+ $50 al mes de mantenimiento</p>
+          <ul><li>Rifas de hasta 6 cifras</li><li>Pago Móvil verificado al instante</li><li>Chatbot de WhatsApp</li><li>CRM sin límite</li></ul>
+          <a class="btn" href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Solicitar</a>
+        </article>
+      </div>
+      <p class="plans-fine" data-reveal data-plans-note>Todos incluyen rifas sin límite, legalidad ante CONALOT, reportes y soporte 24/7. Sin contratos forzosos.</p>
+    </section>
+
+    <section class="wrap" aria-labelledby="t-close">
+      <div class="close" data-reveal>
+        <span class="t" aria-hidden="true"></span><span class="t" aria-hidden="true"></span>
+        <div>
+          <h2 id="t-close">¿Listo para empezar?</h2>
+          <p>Escríbenos y nuestro equipo comercial registra tu operadora.</p>
+        </div>
+        <a class="btn" href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Escribir por WhatsApp</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Rifas activas ===== -->
+  <div class="view" data-view="rifas" hidden>
+    <section class="wrap" aria-labelledby="t-rifas">
+      <div class="page-head">
+        <span class="demo-chip"><i></i>Datos de prueba</span>
+        <h1 id="t-rifas">Rifas activas</h1>
+        <p>Aquí aparecen las rifas que los operadores tienen a la venta en este momento.</p>
+      </div>
+      <div class="tools">
+        <label class="search"><span class="sr" hidden>Buscar rifa</span>
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="2"/><path d="m14 14 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="q" type="search" placeholder="Buscar por rifa u operador" autocomplete="off" aria-label="Buscar por rifa u operador" data-q>
+        </label>
+        <div class="chips" role="group" aria-label="Filtrar por cifras">
+          <button type="button" aria-pressed="true" data-f="all">Todas</button>
+          <button type="button" aria-pressed="false" data-f="3">3 cifras</button>
+          <button type="button" aria-pressed="false" data-f="4">4 cifras</button>
+          <button type="button" aria-pressed="false" data-f="6">6 cifras</button>
+        </div>
+      </div>
+      <div class="raffles" data-list aria-live="polite"></div>
+    </section>
+  </div>
+
+  <!-- ===== Denuncias ===== -->
+  <div class="view" data-view="denuncias" hidden>
+    <section class="wrap" aria-labelledby="t-den">
+      <div class="page-head">
+        <h1 id="t-den">Denuncias</h1>
+        <p>¿Viste una rifa irregular o tuviste un problema con un operador? Cuéntanos. Tu denuncia es confidencial.</p>
+      </div>
+      <div class="report">
+        <div data-report>
+          <form class="form" novalidate data-form>
+            <fieldset class="field" data-f-reason>
+              <legend>¿Qué quieres denunciar?</legend>
+              <div class="reasons">
+                <label><input type="radio" name="reason" value="Rifa sin autorización de CONALOT"><span>Rifa sin autorización de CONALOT</span></label>
+                <label><input type="radio" name="reason" value="No entregaron el premio"><span>No entregaron el premio</span></label>
+                <label><input type="radio" name="reason" value="Pago no reconocido"><span>Pago no reconocido</span></label>
+                <label><input type="radio" name="reason" value="Suplantan a un operador"><span>Suplantan a un operador</span></label>
+                <label><input type="radio" name="reason" value="Otro"><span>Otro</span></label>
+              </div>
+              <p class="err" hidden>Elige un motivo.</p>
+            </fieldset>
+            <div class="field" data-f-who>
+              <label for="den-who">Nombre de la rifa u operador</label>
+              <input id="den-who" type="text" maxlength="80" autocomplete="off" placeholder="Ej. Rifas del Centro">
+              <p class="err" hidden>Escribe el nombre de la rifa o del operador.</p>
+            </div>
+            <div class="field">
+              <label for="den-link">Enlace o usuario de Instagram <small>(opcional)</small></label>
+              <input id="den-link" type="text" maxlength="120" autocomplete="off" placeholder="@usuario o https://…">
+            </div>
+            <div class="field" data-f-what>
+              <label for="den-what">¿Qué pasó?</label>
+              <textarea id="den-what" maxlength="1000" placeholder="Cuéntanos con fechas, montos y lo que recuerdes."></textarea>
+              <span class="count" data-count>0 / 1000</span>
+              <p class="err" hidden>Cuéntanos un poco más: al menos 20 caracteres.</p>
+            </div>
+            <div class="field">
+              <span><b>Comprobante o captura</b> <small>(opcional)</small></span>
+              <div class="file">
+                <input id="den-file" type="file" accept="image/*,.pdf" data-file>
+                <label for="den-file" class="btn btn--ghost btn--small">Adjuntar archivo</label>
+                <span class="name" data-file-name>Ningún archivo</span>
+              </div>
+            </div>
+            <label class="check"><input id="den-anon" type="checkbox" data-anon> Quiero que sea anónima</label>
+            <div class="field" data-f-mail>
+              <label for="den-mail">Correo para responderte <small>(opcional)</small></label>
+              <input id="den-mail" type="email" maxlength="120" autocomplete="email" placeholder="tu@correo.com">
+              <p class="err" hidden>Revisa el correo: parece incompleto.</p>
+            </div>
+            <button class="btn" type="submit">Enviar denuncia <span class="arr" aria-hidden="true">→</span></button>
+          </form>
+        </div>
+        <aside class="aside" aria-label="Qué pasa después">
+          <div class="box" style="background:var(--teal-soft)">
+            <h2>Qué pasa después</h2>
+            <ol>
+              <li>Recibimos tu denuncia con un número de referencia.</li>
+              <li>Nuestro equipo la revisa y contacta al operador si hace falta.</li>
+              <li>Si dejaste tu correo, te escribimos con la respuesta.</li>
+            </ol>
+          </div>
+          <div class="box" style="background:var(--sun-soft)">
+            <h2>¿Es urgente?</h2>
+            <p>Escríbenos por WhatsApp al <b data-wa-num>0412-166-5356</b>.</p>
+            <a class="btn btn--ink btn--small" href="https://wa.me/584121665356?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20LottoGE" data-wa>Abrir WhatsApp</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="wrap foot">
+  <span>© 2026 LottoGE · Rifas en línea para Venezuela</span>
+  <nav aria-label="Pie de página">
+    <a href="#rifas">Rifas activas</a>
+    <a href="#denuncias">Denuncias</a>
+    <a href="https://www.instagram.com/lottoge_oficial">Instagram</a>
+    <a href="https://lottoge.net/terms">Términos</a>
+    <a href="https://lottoge.net/privacy">Privacidad</a>
+  </nav>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  /* ---------- Configuración ----------
+     Todo lo que puede cambiar sin tocar el código: WhatsApp, planes y precios, rifas de prueba,
+     correo de denuncias y direcciones de la API. La página exportable lo lee de config.js
+     (window.LOTTOGE_SITE); lo que falte allí usa estos valores. */
+  const DEFAULTS = {
+    whatsapp: { numero: '584121665356', mostrar: '0412-166-5356', mensaje: 'Hola, quiero más información acerca de LottoGE' },
+    denuncias: { correo: '' },
+    api: { login: '', recuperar: '', rifas: '', denuncias: '' },
+    planes: [
+      { nombre: 'Free', precio: '$0', precioNota: '', mantenimiento: '+ $50 al mes de mantenimiento', incluye: ['Rifas de hasta 3 cifras', 'Página pública estándar', 'Avisos de venta por correo'], destacado: false, insignia: '', mensaje: '' },
+      { nombre: 'Basic', precio: 'REF 799', precioNota: '+ IVA', mantenimiento: '+ $50 al mes de mantenimiento', incluye: ['Rifas de hasta 4 cifras', 'Tu marca y dominio propio', 'WhatsApp automatizado', 'Panel de cajas'], destacado: false, insignia: '', mensaje: '' },
+      { nombre: 'Pro', precio: 'REF 1.199', precioNota: '+ IVA', mantenimiento: '+ $50 al mes de mantenimiento', incluye: ['Rifas de hasta 6 cifras', 'Pago Móvil verificado al instante', 'Chatbot de WhatsApp', 'CRM sin límite'], destacado: true, insignia: 'Recomendado', mensaje: '' }
+    ],
+    planesNota: 'Todos incluyen rifas sin límite, legalidad ante CONALOT, reportes y soporte 24/7. Sin contratos forzosos.',
+    rifasDePrueba: [
+      { titulo: 'Rifa de prueba', operador: 'Operador de prueba', cifras: 4, vendido: 0, sorteo: 'Por definir', url: '' }
+    ]
+  };
+  const USER_CFG = window.LOTTOGE_SITE || {};
+  const CFG = Object.assign({}, DEFAULTS, USER_CFG);
+  for (const k of ['whatsapp', 'denuncias', 'api']) CFG[k] = Object.assign({}, DEFAULTS[k], USER_CFG[k] || {});
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const waLink = msg => `https://wa.me/${String(CFG.whatsapp.numero).replace(/\D/g, '')}?text=${encodeURIComponent(msg || CFG.whatsapp.mensaje)}`;
+  function paintWhatsApp() {
+    $$('[data-wa]').forEach(a => { a.href = waLink(a.dataset.wa); });
+    $$('[data-wa-num]').forEach(el => { el.textContent = CFG.whatsapp.mostrar; });
+  }
+  function renderPlans() {
+    const box = $('[data-plans]');
+    if (!box || !Array.isArray(CFG.planes)) return;
+    box.innerHTML = CFG.planes.map((p, i) => `
+        <article class="plan${p.destacado ? ' plan--pro' : ''}" style="--d:${i}" data-reveal>
+          <h3>${esc(p.nombre)}${p.insignia ? ` <span class="badge">${esc(p.insignia)}</span>` : ''}</h3>
+          <p class="price">${esc(p.precio)}${p.precioNota ? ` <small>${esc(p.precioNota)}</small>` : ''}</p>
+          ${p.mantenimiento ? `<p class="note">${esc(p.mantenimiento)}</p>` : ''}
+          <ul>${(p.incluye || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+          <a class="btn${p.destacado ? '' : ' btn--ink'}" href="${waLink(p.mensaje)}" data-wa="${esc(p.mensaje || '')}">Solicitar</a>
+        </article>`).join('');
+    const note = $('[data-plans-note]');
+    if (note) note.textContent = CFG.planesNota || '';
+  }
+
+  /* ---------- Avisos cortos ---------- */
+  function toast(msg) {
+    $$('.toast').forEach(t => t.remove());
+    const t = document.createElement('div');
+    t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2700);
+  }
+
+  /* ---------- Vistas: inicio, rifas y denuncias ---------- */
+  const VIEWS = ['inicio', 'rifas', 'denuncias', 'login'];
+  // Vista con la que abre la página sin enlace directo. El artefacto abre en el login para la demo;
+  // build_front.py la cambia a 'inicio' para la página exportable.
+  const START = 'login';
+  const drawer = $('#drawer'), menuBtn = $('[data-menu]');
+  const closeMenu = () => { drawer.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); };
+  menuBtn.addEventListener('click', () => { const open = drawer.hidden; drawer.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open)); });
+
+  let current = null;
+  function route() {
+    const h = location.hash.replace('#', '');
+    const view = VIEWS.includes(h) ? h : (h ? 'inicio' : (session ? 'inicio' : START));
+    document.body.classList.toggle('on-login', view === 'login');
+    if (view !== current) {
+      $$('[data-view]').forEach(v => {
+        const on = v.dataset.view === view;
+        v.hidden = !on;
+        if (on) { v.style.animation = 'none'; v.offsetWidth; v.style.animation = ''; }
+      });
+      current = view;
+      if (view === 'rifas') { renderRaffles(); loadRaffles(); }
+      if (view === 'login') { resetLogin(); startBg(); } else stopBg();
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      setTimeout(armReveal, 30);
+    }
+    if (view === 'inicio' && h && !VIEWS.includes(h)) {
+      const target = document.getElementById(h);
+      if (target) setTimeout(() => target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 40);
+    }
+    $$('[data-nav]').forEach(a => a.classList.toggle('is-on', a.dataset.nav === (VIEWS.includes(h) ? h : (h === 'planes' ? 'planes' : 'inicio'))));
+    closeMenu();
+  }
+  addEventListener('hashchange', route);
+  // Un toque en el mismo enlace también vuelve a llevar a su sitio
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); route(); const id = a.getAttribute('href').slice(1); const el = document.getElementById(id); if (el && !VIEWS.includes(id)) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }
+  });
+
+  /* ---------- Sesión (simulada) ---------- */
+  let session = null;
+  try { session = JSON.parse(sessionStorage.getItem('lottoge-session') || 'null'); } catch (e) { session = null; }
+  const nameFrom = mail => { const w = mail.split('@')[0].split(/[._\-+0-9]+/).filter(Boolean)[0] || 'operador'; return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); };
+  function paintSession() {
+    $$('[data-auth="out"]').forEach(el => { el.hidden = !!session; });
+    $$('[data-auth="in"]').forEach(el => { el.hidden = !session; });
+    if (session) {
+      $$('[data-me-name]').forEach(el => { el.textContent = `Hola, ${session.name}`; });
+      $$('[data-me-ini]').forEach(el => { el.textContent = session.name.slice(0, 2).toUpperCase(); });
+    }
+  }
+  $$('[data-logout]').forEach(b => b.addEventListener('click', () => {
+    session = null;
+    try { sessionStorage.removeItem('lottoge-session'); } catch (e) {}
+    paintSession(); closeMenu();
+    location.hash = 'login';
+    toast('Cerraste sesión.');
+  }));
+
+  /* ---------- Inicio de sesión ---------- */
+  const lform = $('[data-login]'), fform = $('[data-forgot-form]');
+  const lmail = $('#l-mail'), lpass = $('#l-pass'), goBtn = $('[data-go]');
+  const mailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+  const errIn = (field, msg) => { const er = field.querySelector('.err'); if (msg) er.textContent = msg; return setErr(field, !!msg); };
+  function resetLogin() {
+    lform.hidden = false; fform.hidden = true;
+    goBtn.disabled = false; goBtn.classList.remove('is-ok'); goBtn.textContent = 'Iniciar sesión';
+    lpass.value = '';
+  }
+  $('[data-eye]').addEventListener('click', e => {
+    const b = e.currentTarget, show = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(show)); b.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    lpass.type = show ? 'text' : 'password'; lpass.focus();
+  });
+  function welcome(name, redirect) {
+    goBtn.classList.add('is-ok'); goBtn.textContent = '¡Bienvenido!';
+    burst(goBtn);
+    session = { name, mail: lmail.value.trim() };
+    if ($('#l-remember').checked) { try { sessionStorage.setItem('lottoge-session', JSON.stringify(session)); } catch (err) {} }
+    paintSession();
+    setTimeout(() => {
+      if (redirect) { location.href = redirect; return; }
+      location.hash = 'inicio'; toast(`Sesión iniciada. ¡Hola, ${session.name}!`);
+    }, reduce ? 300 : 1100);
+  }
+  function failLogin(msg) {
+    goBtn.disabled = false; goBtn.textContent = 'Iniciar sesión';
+    errIn($('[data-f-lpass]'), msg);
+    lform.classList.remove('shake'); void lform.offsetWidth; lform.classList.add('shake');
+  }
+  lform.addEventListener('submit', async e => {
+    e.preventDefault();
+    const bad = [
+      errIn($('[data-f-lmail]'), !lmail.value.trim() ? 'Escribe tu correo.' : (!mailOk(lmail.value) ? 'Ese correo no parece completo.' : '')),
+      errIn($('[data-f-lpass]'), lpass.value.length < 6 ? 'La contraseña debe tener al menos 6 caracteres.' : '')
+    ];
+    if (bad.some(Boolean)) {
+      lform.classList.remove('shake'); void lform.offsetWidth; lform.classList.add('shake');
+      lform.querySelector('.has-error input')?.focus();
+      return;
+    }
+    goBtn.disabled = true; goBtn.innerHTML = '<span class="spin" aria-hidden="true"></span><span>Entrando…</span>';
+    const name = nameFrom(lmail.value);
+    if (!CFG.api.login) { setTimeout(() => welcome(name), reduce ? 200 : 1000); return; }
+    try {
+      const res = await fetch(CFG.api.login, {
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: lmail.value.trim(), password: lpass.value, remember: $('#l-remember').checked })
+      });
+      if (!res.ok) { failLogin(res.status === 401 ? 'Correo o contraseña incorrectos.' : (res.status === 429 ? 'Demasiados intentos. Espera unos minutos.' : 'No pudimos iniciar sesión. Intenta de nuevo.')); return; }
+      const data = await res.json().catch(() => ({}));
+      welcome(data.user?.name || name, data.redirect);
+    } catch (err) { failLogin('No hay conexión con el servidor. Intenta de nuevo.'); }
+  });
+  $('[data-forgot]').addEventListener('click', () => {
+    lform.hidden = true; fform.hidden = false;
+    $('#f-mail').value = lmail.value; $('[data-forgot-msg]').innerHTML = ''; $('#f-mail').focus();
+  });
+  $('[data-forgot-back]').addEventListener('click', () => { fform.hidden = true; lform.hidden = false; lmail.focus(); });
+  fform.addEventListener('submit', async e => {
+    e.preventDefault();
+    const v = $('#f-mail').value;
+    if (errIn($('[data-f-fmail]'), mailOk(v) ? '' : 'Revisa el correo: parece incompleto.')) return;
+    if (CFG.api.recuperar) {
+      try { await fetch(CFG.api.recuperar, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: v.trim() }) }); } catch (err) {}
+    }
+    const msg = document.createElement('p'); msg.className = 'sent';
+    msg.textContent = `Listo. Si ${v.trim()} tiene una cuenta, le llegará un enlace en unos minutos.` + (CFG.api.recuperar ? '' : ' (Prototipo: no se envía ningún correo.)');
+    $('[data-forgot-msg]').replaceChildren(msg);
+  });
+
+  /* ---------- Fondo animado del login: bolitas de lotería y boletos que flotan ---------- */
+  const cv = $('[data-bg]'), cx = cv.getContext('2d');
+  const COLORS = ['#ff5a36', '#ffc23c', '#12a594', '#4f7cff'];
+  const SOFT = ['#ffe7e0', '#fff3d6', '#dcf5f1', '#e5ecff'];
+  let W = 0, H = 0, items = [], blobs = [], raf = 0, t0 = 0, mx = 0, my = 0, tx = 0, ty = 0;
+  function sizeBg() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(Math.min(34, Math.max(14, W * H / 42000)));
+    items = Array.from({ length: n }, (_, i) => {
+      const z = .35 + Math.random() * .65;
+      return {
+        kind: i % 3 === 0 ? 'ticket' : 'ball', z,
+        x: Math.random() * W, y: Math.random() * H,
+        r: (14 + Math.random() * 18) * z + 8,
+        vy: (8 + Math.random() * 14) * z, sway: Math.random() * Math.PI * 2,
+        rot: Math.random() * Math.PI * 2, vr: (Math.random() - .5) * .6,
+        c: COLORS[i % COLORS.length], num: String(Math.floor(Math.random() * 100)).padStart(2, '0')
+      };
+    }).sort((a, b) => a.z - b.z);
+    blobs = SOFT.map((c, i) => ({ c, x: W * (.15 + .7 * Math.random()), y: H * (.15 + .7 * Math.random()), r: Math.max(W, H) * (.22 + Math.random() * .12), ph: i * 1.7 }));
+  }
+  function ball(it) {
+    const r = it.r;
+    cx.fillStyle = it.c; cx.beginPath(); cx.arc(0, 0, r, 0, Math.PI * 2); cx.fill();
+    cx.fillStyle = 'rgba(255,255,255,.95)'; cx.beginPath(); cx.arc(0, 0, r * .56, 0, Math.PI * 2); cx.fill();
+    cx.fillStyle = 'rgba(255,255,255,.45)'; cx.beginPath(); cx.arc(-r * .42, -r * .42, r * .18, 0, Math.PI * 2); cx.fill();
+    cx.fillStyle = '#1d2340'; cx.font = `800 ${Math.round(r * .52)}px 'Plus Jakarta Sans', Arial, sans-serif`;
+    cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(it.num, 0, r * .04);
+  }
+  function ticketShape(it) {
+    const w = it.r * 3, h = it.r * 1.7, rr = h * .2, notch = h * .16, sx = w * .2;
+    cx.fillStyle = it.c;
+    cx.beginPath(); cx.roundRect(-w / 2, -h / 2, w, h, rr); cx.fill();
+    cx.globalCompositeOperation = 'destination-out';
+    cx.beginPath(); cx.arc(sx, -h / 2, notch, 0, Math.PI * 2); cx.arc(sx, h / 2, notch, 0, Math.PI * 2); cx.fill();
+    cx.globalCompositeOperation = 'source-over';
+    cx.strokeStyle = 'rgba(255,255,255,.85)'; cx.lineWidth = 2; cx.setLineDash([4, 4]);
+    cx.beginPath(); cx.moveTo(sx, -h / 2 + notch + 3); cx.lineTo(sx, h / 2 - notch - 3); cx.stroke(); cx.setLineDash([]);
+    cx.fillStyle = 'rgba(255,255,255,.9)';
+    cx.beginPath(); cx.roundRect(-w / 2 + w * .1, -h * .2, w * .42, h * .16, h * .08); cx.fill();
+    cx.fillStyle = 'rgba(255,255,255,.55)';
+    cx.beginPath(); cx.roundRect(-w / 2 + w * .1, h * .06, w * .28, h * .16, h * .08); cx.fill();
+  }
+  function frame(t) {
+    const dt = Math.min(.05, (t - (t0 || t)) / 1000); t0 = t;
+    tx += (mx - tx) * .06; ty += (my - ty) * .06;
+    cx.clearRect(0, 0, W, H);
+    cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, W, H);
+    for (const b of blobs) {
+      const k = t / 1000 * .25 + b.ph;
+      cx.globalAlpha = .9; cx.fillStyle = b.c; cx.beginPath();
+      cx.arc(b.x + Math.cos(k) * 40 - tx * 10, b.y + Math.sin(k * 1.3) * 30 - ty * 10, b.r, 0, Math.PI * 2); cx.fill();
+    }
+    cx.globalAlpha = 1;
+    for (const it of items) {
+      it.y -= it.vy * dt; it.sway += dt * .8; it.rot += it.vr * dt;
+      const pad = it.r * 3;
+      if (it.y < -pad) { it.y = H + pad; it.x = Math.random() * W; }
+      const x = it.x + Math.sin(it.sway) * 14 * it.z - tx * 30 * it.z, y = it.y - ty * 30 * it.z;
+      cx.save(); cx.translate(x, y); cx.rotate(it.kind === 'ball' ? Math.sin(it.sway) * .25 : it.rot);
+      cx.globalAlpha = .45 + it.z * .55;
+      it.kind === 'ball' ? ball(it) : ticketShape(it);
+      cx.restore();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  function startBg() {
+    if (raf) return;
+    sizeBg();
+    if (reduce) { t0 = 0; frame(0); cancelAnimationFrame(raf); raf = 0; return; }
+    t0 = 0; raf = requestAnimationFrame(frame);
+  }
+  function stopBg() { cancelAnimationFrame(raf); raf = 0; }
+  addEventListener('resize', () => { if (current === 'login') { const on = !!raf; stopBg(); if (on || reduce) startBg(); } });
+  addEventListener('pointermove', e => { if (current !== 'login') return; mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
+  document.addEventListener('visibilitychange', () => { if (current !== 'login') return; if (document.hidden) stopBg(); else startBg(); });
+
+  /* ---------- Confeti al entrar ---------- */
+  function burst(from) {
+    if (reduce) return;
+    const c = document.createElement('canvas'); c.className = 'confetti'; document.body.appendChild(c);
+    const g = c.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 2);
+    c.width = innerWidth * dpr; c.height = innerHeight * dpr; g.scale(dpr, dpr);
+    const r = from.getBoundingClientRect(), ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+    const ps = Array.from({ length: 90 }, () => ({ x: ox, y: oy, vx: (Math.random() - .5) * 520, vy: -Math.random() * 520 - 160, s: 5 + Math.random() * 7, c: COLORS[Math.floor(Math.random() * 4)], a: Math.random() * 6, va: (Math.random() - .5) * 12 }));
+    let last = performance.now(), life = 0;
+    const step = now => {
+      const dt = Math.min(.04, (now - last) / 1000); last = now; life += dt;
+      g.clearRect(0, 0, innerWidth, innerHeight);
+      for (const p of ps) { p.vy += 900 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.a += p.va * dt; g.save(); g.translate(p.x, p.y); g.rotate(p.a); g.globalAlpha = Math.max(0, 1 - life / 1.6); g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); }
+      if (life < 1.6) requestAnimationFrame(step); else c.remove();
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- Sombra de la barra al bajar ---------- */
+  const top = $('[data-top]');
+  addEventListener('scroll', () => top.classList.toggle('is-scrolled', scrollY > 8), { passive: true });
+
+  /* ---------- Aparición al bajar: solo lo que está fuera de la primera pantalla ---------- */
+  let io = null;
+  function armReveal() {
+    if (reduce || !('IntersectionObserver' in window)) return;
+    io?.disconnect();
+    io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    $$('[data-reveal]').forEach(el => {
+      if (el.closest('[hidden]') || el.classList.contains('on')) return;
+      if (el.getBoundingClientRect().top > innerHeight * 0.92) { el.classList.add('pre'); io.observe(el); }
+    });
+  }
+
+  /* ---------- La maquinita: un número nuevo en cada boleto; el botón amarillo imprime otro ---------- */
+  const ticket = $('[data-ticket]'), num = $('[data-num]');
+  const newNum = () => { num.textContent = String(Math.floor(Math.random() * 10000)).padStart(4, '0'); };
+  ticket.addEventListener('animationiteration', newNum);
+  const syncAll = $$('.t-anim, .bar-fill, .body-anim, .spark');
+  function printNow() {
+    newNum();
+    if (reduce) { toast(`Boleto ${num.textContent} impreso`); return; }
+    syncAll.forEach(el => { el.style.animation = 'none'; void el.getBoundingClientRect(); });
+    requestAnimationFrame(() => syncAll.forEach(el => { el.style.animation = ''; }));
+  }
+  const press = $('[data-press]');
+  press.addEventListener('click', printNow);
+  press.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); printNow(); } });
+
+  /* ---------- Rifas activas (datos de prueba) ---------- */
+  // Cada rifa: { titulo, operador, cifras, vendido (%), sorteo (texto), url }. La API puede mandar los campos del contrato
+  // (title, operator.name, digits, soldPct, drawAt, url) y aquí se traducen.
+  const fmtDraw = d => { const t = new Date(d); return isNaN(t) ? String(d || 'Por definir') : t.toLocaleString('es-VE', { timeZone: 'America/Caracas', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); };
+  const fromApi = r => ({ titulo: r.titulo ?? r.title, operador: r.operador ?? r.operator?.name ?? '', cifras: r.cifras ?? r.digits, vendido: r.vendido ?? r.soldPct ?? 0, sorteo: r.sorteo ?? fmtDraw(r.drawAt), url: r.url || '' });
+  let RAFFLES = (CFG.rifasDePrueba || []).map(fromApi);
+  let rafflesLoaded = !CFG.api.rifas;
+  async function loadRaffles() {
+    if (rafflesLoaded) return;
+    rafflesLoaded = true;
+    try {
+      const res = await fetch(`${CFG.api.rifas}${CFG.api.rifas.includes('?') ? '&' : '?'}status=active`, { credentials: 'include' });
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      RAFFLES = (Array.isArray(data) ? data : data.items || []).map(fromApi);
+      $('.demo-chip')?.remove();
+    } catch (err) { toast('No pudimos cargar las rifas. Intenta más tarde.'); }
+    renderRaffles();
+  }
+  let filter = 'all';
+  const list = $('[data-list]'), q = $('[data-q]');
+  const TICKET_SVG = '<svg viewBox="0 0 120 70" aria-hidden="true"><rect width="120" height="70" rx="12" fill="#4f7cff"/><circle cx="84" cy="0" r="8" fill="#e5ecff"/><circle cx="84" cy="70" r="8" fill="#e5ecff"/><path d="M84 12v46" stroke="#fff" stroke-width="2.5" stroke-dasharray="5 5"/><rect x="16" y="22" width="48" height="9" rx="4.5" fill="#fff"/><rect x="16" y="39" width="32" height="9" rx="4.5" fill="#fff" opacity=".6"/></svg>';
+  const EMPTY_SVG = '<svg viewBox="0 0 72 72" aria-hidden="true"><rect x="10" y="22" width="52" height="40" rx="12" fill="#ffe7e0"/><rect x="18" y="12" width="36" height="18" rx="6" fill="#fff" stroke="#1d2340" stroke-width="2.5"/><rect x="18" y="30" width="36" height="6" rx="3" fill="#1d2340"/><circle cx="50" cy="46" r="5" fill="#ffc23c"/></svg>';
+  function renderRaffles() {
+    const term = q.value.trim().toLowerCase();
+    const rows = RAFFLES.filter(r => (filter === 'all' || String(r.cifras) === filter) && (!term || (r.titulo + ' ' + r.operador).toLowerCase().includes(term)));
+    list.innerHTML = rows.map((r, i) => `
+      <article class="rcard" style="animation-delay:${i * 70}ms">
+        <div class="rcard__pic">${TICKET_SVG}<span class="flag">${esc(r.cifras)} cifras</span></div>
+        <div class="rcard__body">
+          <span class="rcard__op">${esc(r.operador)}</span>
+          <h3>${esc(r.titulo)}</h3>
+          <div class="meter" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, Number(r.vendido) || 0))}%"></i></div>
+          <div class="rcard__row"><span>${esc(r.vendido)}% vendido</span><span>Sorteo: ${esc(r.sorteo)}</span></div>
+          ${r.url ? `<a class="btn btn--ink btn--small" href="${esc(r.url)}">Ver rifa</a>` : '<button class="btn btn--ink btn--small" type="button" data-open>Ver rifa</button>'}
+        </div>
+      </article>`).join('') + `
+      <div class="empty">${EMPTY_SVG}<b>${rows.length ? 'Pronto habrá más rifas aquí' : 'No hay rifas con ese filtro'}</b><span>${rows.length ? 'Cuando los operadores publiquen sus rifas, aparecerán en esta lista.' : 'Prueba con otra búsqueda o con “Todas”.'}</span></div>`;
+  }
+  q.addEventListener('input', renderRaffles);
+  $$('[data-f]').forEach(b => b.addEventListener('click', () => { filter = b.dataset.f; $$('[data-f]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderRaffles(); }));
+  list.addEventListener('click', e => { if (e.target.closest('[data-open]')) toast('Es una rifa de prueba: todavía no tiene página.'); });
+
+  /* ---------- Denuncias ---------- */
+  const form = $('[data-form]'), holder = $('[data-report]');
+  const what = $('#den-what'), count = $('[data-count]');
+  what.addEventListener('input', () => { count.textContent = `${what.value.length} / 1000`; });
+  $('[data-file]').addEventListener('change', e => { const f = e.target.files[0]; $('[data-file-name]').textContent = f ? f.name : 'Ningún archivo'; });
+  const anon = $('[data-anon]'), mailField = $('[data-f-mail]'), mail = $('#den-mail');
+  anon.addEventListener('change', () => { mail.disabled = anon.checked; mailField.classList.toggle('is-off', anon.checked); if (anon.checked) { mail.value = ''; mailField.classList.remove('has-error'); mailField.querySelector('.err').hidden = true; } });
+  const setErr = (field, bad) => { field.classList.toggle('has-error', bad); const er = field.querySelector('.err'); er.hidden = !bad; if (bad) { er.style.animation = 'none'; er.offsetWidth; er.style.animation = ''; } return bad; };
+  const sendBtn = form.querySelector('button[type=submit]');
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const reason = form.querySelector('input[name=reason]:checked');
+    const bad = [
+      setErr($('[data-f-reason]'), !reason),
+      setErr($('[data-f-who]'), $('#den-who').value.trim().length < 2),
+      setErr($('[data-f-what]'), what.value.trim().length < 20),
+      setErr(mailField, !anon.checked && mail.value.trim() !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail.value.trim()))
+    ];
+    if (bad.some(Boolean)) { const first = form.querySelector('.has-error input, .has-error textarea'); (first || form.querySelector('.has-error')).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' }); first?.focus({ preventScroll: true }); return; }
+    let ref = `DN-2026-${String(Math.floor(Math.random() * 100000)).padStart(5, '0')}`;
+    if (CFG.api.denuncias) {
+      const fd = new FormData();
+      fd.append('reason', reason.value);
+      fd.append('target', $('#den-who').value.trim());
+      fd.append('link', $('#den-link').value.trim());
+      fd.append('description', what.value.trim());
+      const file = $('[data-file]').files[0]; if (file) fd.append('file', file);
+      fd.append('anonymous', anon.checked ? 'true' : 'false');
+      if (!anon.checked && mail.value.trim()) fd.append('email', mail.value.trim());
+      if (CFG.denuncias.correo) fd.append('notify', CFG.denuncias.correo);
+      sendBtn.disabled = true;
+      try {
+        const res = await fetch(CFG.api.denuncias, { method: 'POST', credentials: 'include', body: fd });
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json().catch(() => ({}));
+        ref = data.reference || data.referencia || ref;
+      } catch (err) { sendBtn.disabled = false; toast('No pudimos enviar la denuncia. Intenta de nuevo.'); return; }
+      sendBtn.disabled = false;
+    }
+    form.hidden = true;
+    const done = document.createElement('div');
+    done.className = 'done view';
+    done.setAttribute('role', 'status');
+    done.innerHTML = `
+      <svg class="tick" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="36"/><path d="m22 37 9 9 19-20"/></svg>
+      <h2>Recibimos tu denuncia</h2>
+      <p>Motivo: <b></b>. Guarda este número de referencia:</p>
+      <span class="ref"></span>
+      <p>${anon.checked ? 'Es anónima, así que no te escribiremos.' : (mail.value.trim() ? 'Te escribiremos a tu correo cuando la revisemos.' : 'No dejaste correo; si quieres seguimiento, escríbenos por WhatsApp con tu número de referencia.')}</p>
+      ${CFG.api.denuncias ? '' : '<p class="demo">Prototipo: el envío está simulado y no llega a nadie todavía.</p>'}
+      <button class="btn btn--ink" type="button" data-again>Hacer otra denuncia</button>`;
+    done.querySelector('b').textContent = reason.value;
+    done.querySelector('.ref').textContent = ref;
+    holder.appendChild(done);
+    holder.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    done.querySelector('[data-again]').addEventListener('click', () => {
+      done.remove(); form.reset(); form.hidden = false; count.textContent = '0 / 1000';
+      $('[data-file-name]').textContent = 'Ningún archivo'; mail.disabled = false; mailField.classList.remove('is-off');
+    });
+  });
+
+  paintWhatsApp();
+  renderPlans();
+  paintSession();
+  route();
+})();
+</script>

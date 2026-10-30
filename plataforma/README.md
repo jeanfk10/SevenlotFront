@@ -1,6 +1,6 @@
 # LottoX · entorno de pruebas
 
-Entorno local para probar el **rediseño del panel del operador de LottoX** (la propuesta del 29/10/2026) junto con los **6 fronts de venta** de Sevenlot, conectados entre sí. No es la plataforma real y no habla con api.lottoge.net. Un servidor simulado corre en el navegador, con una base de datos de ejemplo, así que todo se puede usar y repetir cuantas veces haga falta sin tocar nada de producción.
+Simulación completa de la plataforma LottoGE para probar el **rediseño** (la propuesta del 29/10/2026): la **página principal aprobada** (con su login y sus denuncias), el **panel del superadministrador**, el **panel del operador** y los **6 fronts de venta** de Sevenlot, todo conectado entre sí. Usa los colores y la temática aprobados de la página principal (blanco, azul marino, coral, Plus Jakarta Sans y bolitas de lotería en movimiento). No es la plataforma real y no habla con api.lottoge.net. Un servidor simulado corre en el navegador, con una base de datos de ejemplo, así que todo se puede usar y repetir cuantas veces haga falta sin tocar nada de producción.
 
 ## Cómo levantarlo (localhost)
 
@@ -12,16 +12,46 @@ npm install
 npm run dev
 ```
 
-Abre **http://localhost:5173**. `npm run dev` copia los fronts de venta del kit (`../kit/02 Fronts de venta`) a `public/fronts/`, los conecta y arranca el panel. Con `--host` también se abre desde el teléfono, en la misma red Wi-Fi, usando la IP que muestra la consola.
+Abre **http://localhost:5173**: sale la página principal de LottoGE. Toca *Iniciar sesión* y entra con uno de los dos usuarios. `npm run dev` copia la página principal (`../landing/sencilla/front`) y los fronts de venta del kit (`../kit/02 Fronts de venta`) a `public/`, los conecta y arranca el panel.
+
+### Usuarios de prueba
+
+| Usuario | Correo | Contraseña | Entra a |
+|---|---|---|---|
+| Superadministrador | `admin@lottoge.net` | `Admin2026!` | Panel de la plataforma: empresas, rifas, denuncias, cobros |
+| Operador de rifas (Rifas Mérida) | `operador@rifasmerida.ejemplo` | `Prueba2026!` | Panel del operador: ventas, rifas, clientes, mensajería, ajustes |
+
+*Cerrar sesión* (menú de la cuenta, arriba a la derecha) vuelve al login de la página principal. Con `--host` también se abre desde el teléfono, en la misma red Wi-Fi, usando la IP que muestra la consola.
 
 `npm run build` genera `dist/`, una versión estática que funciona en cualquier servidor (`npx vite preview`, `python3 -m http.server`, etc.).
 
 - **Cliente de prueba:** cédula **31689392** (Jean Franco Sánchez Suárez). La taquilla, el verificador, el bot y los fronts la reconocen y autocompletan sus datos.
-- **Contraseña de la cuenta (Ajustes › Seguridad):** `Prueba2026!`
 - **Datos:** se guardan en el navegador (localStorage). Para volver a la base de ejemplo: barra morada › *Herramientas de prueba* › *Reiniciar datos*.
-- **Página pública:** `http://localhost:5173/fronts/` abre la plantilla y la rifa publicadas en *Ajustes › Sitio web*.
+- **Página de venta del operador:** `http://localhost:5173/fronts/` abre la plantilla y la rifa publicadas en *Ajustes › Sitio web*.
+- **Página principal:** `http://localhost:5173/pagina-principal/` (también se abre sola desde la raíz cuando no hay sesión).
 
-## Qué hay
+## Cómo se conecta todo
+
+- **Página principal → login → panel.** El login de la página principal valida el correo y la contraseña contra el servidor simulado y lleva a cada usuario a su panel. Sin sesión, el panel manda de vuelta a la página principal.
+- **Denuncias.** Lo que se envía en *Denuncias* de la página principal llega al superadministrador (*Denuncias*), con su número de referencia, para revisarla, anotarla y resolverla.
+- **Rifas activas.** La lista de la página principal muestra las rifas en venta de las empresas activas. Las de Rifas Mérida abren su front de venta.
+- **Rifas nuevas.** Cuando el operador envía una rifa, queda *En revisión* hasta que el superadministrador la aprueba o la rechaza con motivo (*Rifas › Supervisor de rifas*).
+- **Extensiones de fecha.** El operador pide más tiempo desde el detalle de una rifa en venta; el superadministrador la aprueba y la fecha del sorteo cambia, guardando la original.
+- **Ver como operador.** Desde *Empresas › Rifas Mérida › Ver su panel*, el superadministrador entra al panel del operador con una franja para volver.
+- **Notas de versión.** Las que publica el superadministrador le salen al operador en su Inicio.
+
+## Panel del superadministrador
+
+| Sección | Pantallas |
+|---|---|
+| Inicio | Resumen (accesos rápidos, cifras, ventas del mes por empresa, *Pendiente de ti*) · Sala situacional (en vivo, con pausa; cédulas y teléfonos enmascarados; alertas) · Actividad (bitácora de toda la plataforma) |
+| Empresas | Pendientes, activas, suspendidas y rechazadas; búsqueda por nombre, RIF, RUN/LOT o correo; aprobar, rechazar o suspender con motivo; reactivar; cambiar plan; documentos que faltan |
+| Rifas | Supervisor de rifas (revisión de solo lectura con requisitos) · Extensiones de fecha |
+| Denuncias | Las de la página principal: revisión, notas, resolver o descartar con motivo |
+| Facturación | Cobros (mantenimiento y licencias, registrar pago) · Planes (los mismos precios de la página principal) |
+| Ajustes | Plataforma (un solo nombre y contacto, reglas generales) · Loterías · Usuarios · Notas de versión · Seguridad |
+
+## Panel del operador
 
 Navegación de la propuesta: 6 secciones arriba (en el teléfono, una barra abajo con Inicio, Vender, Pagos, Mensajes y Más), buscador global **Ctrl K** (clientes, cédulas, boletos, órdenes LG-…, rifas y pantallas), la tasa vigente siempre visible, ayuda (?) con guías y recorrido a pedido, notificaciones y cuenta (con tema claro u oscuro).
 
@@ -45,7 +75,7 @@ En **Ajustes › Sitio web** eliges una de las 6 plantillas (Estándar, Minimali
 
 ### Herramientas de prueba (barra morada)
 
-Simulan lo que en producción hacen otros: la respuesta de CONALOT a una rifa en revisión, un mensaje entrante de WhatsApp, los recordatorios de pago, el vencimiento de pagos de rifas cerradas (a las 48 h en producción) y el reinicio de los datos.
+Simulan lo que en producción hacen otros: un atajo para responder una rifa en revisión sin cambiar de usuario, un mensaje entrante de WhatsApp, los recordatorios de pago, el vencimiento de pagos de rifas cerradas (a las 48 h en producción) y el reinicio de los datos.
 
 ## Reglas que aplica el servidor simulado
 
@@ -84,10 +114,14 @@ El panel usa directamente las funciones de `window.LottoAPI`. Al integrarlo con 
 5. Las rutas marcadas *por confirmar* hay que validarlas con el backend de LottoX.
 6. El código QR de *Ajustes › Empresa* es una muestra visual, no se puede escanear.
 
+## Movimiento
+
+Mismo lenguaje que la página principal: entrada escalonada de cada pantalla, bolitas de lotería y boletos flotando en el saludo, cifras que cuentan hasta su valor, barras que crecen, botones con resorte, números que saltan al elegirlos en la taquilla, confeti al aprobar un pago, vender, publicar un ganador, aprobar una rifa o una empresa, y una marca de "listo" que se dibuja en el recibo. Todo se apaga si el sistema pide reducir el movimiento.
+
 ## Qué no incluye
 
-- El panel del **superadministrador**: la propuesta lo deja para después, con el mismo sistema.
-- El inicio de sesión real y los envíos reales de correo y WhatsApp: se simulan y quedan en *Mensajería › Historial*.
+- El inicio de sesión contra el servidor real y los envíos reales de correo y WhatsApp: se simulan y quedan en *Mensajería › Historial*.
+- Las demás empresas del superadministrador son registros de ejemplo con cifras fijas; Rifas Mérida es la única con operación completa.
 
 ## Estructura
 
@@ -95,6 +129,7 @@ El panel usa directamente las funciones de `window.LottoAPI`. Al integrarlo con 
 plataforma/
   index.html               carga el catálogo de pagos y el servidor simulado, luego el panel
   src/                     panel (React + Vite): lib.js, ui.jsx, shell.jsx, styles.css y pages/
-  public/sandbox/          api.js (servidor simulado), conexion.js (fronts ↔ servidor), puente.js
-  scripts/copiar-fronts.mjs  copia y conecta los fronts del kit (public/fronts se genera, no se versiona)
+  src/pages/admin.jsx      panel del superadministrador
+  public/sandbox/          api.js (servidor simulado), conexion.js (fronts ↔ servidor), pagina-principal.js (login, rifas y denuncias ↔ servidor), puente.js
+  scripts/copiar-fronts.mjs  copia y conecta la página principal y los fronts (public/fronts y public/pagina-principal se generan, no se versionan)
 ```

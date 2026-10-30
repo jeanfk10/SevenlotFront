@@ -1,7 +1,7 @@
 // Componentes base accesibles: botones con texto, rótulos asociados, errores junto al campo, foco visible.
 import { useEffect, useId, useRef, cloneElement, isValidElement, Children } from 'react';
 import { X, AlertTriangle, Inbox, Check, Upload } from 'lucide-react';
-import { PAGOS, initials } from './lib.js';
+import { PAGOS, initials, useCountUp, reduceMotion } from './lib.js';
 
 export function Button({ variant, size, icon: Icon, children, block, className = '', ...p }) {
   const cls = ['btn', variant && 'btn--' + variant, size && 'btn--' + size, block && 'btn--block', className].filter(Boolean).join(' ');
@@ -23,6 +23,7 @@ export function Card({ title, actions, children, foot, body = true, className = 
     {foot && <div className="card__foot">{foot}</div>}
   </section>;
 }
+export function Count({ to, format }) { const v = useCountUp(to); return <>{format(v)}</>; }
 export const Stat = ({ label, value, unit, sub, subTone }) => <div className="stat"><small>{label}</small><b>{value}{unit && <em>{unit}</em>}</b>{sub && <span className={subTone ? subTone + '-text' : ''}>{sub}</span>}</div>;
 
 export function Seg({ options, value, onChange, label }) {
@@ -123,4 +124,47 @@ export function Thumb({ raffle, lg }) {
   const src = img && (/^(data:|https?:)/.test(img) ? img : './fronts/comun/img/' + img);
   const label = raffle.title.split(/\s+/).filter(w => w.length > 2).slice(-1)[0] || raffle.title;
   return <span className={'thumb' + (raffle.tone && raffle.tone !== 'violeta' ? ' thumb--' + raffle.tone : '') + (lg ? ' thumb--lg' : '')} aria-hidden="true">{src ? <img src={src} alt="" loading="lazy" /> : <span>{label.slice(0, lg ? 24 : 6).toUpperCase()}</span>}</span>;
+}
+
+/* Logo de LottoGE (el de la página principal). */
+export const LogoMark = () => <i className="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="#fff" d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5V9a2 2 0 0 0 0 4v2.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 15.5V13a2 2 0 0 0 0-4z" /><path d="M9.5 9.5h5M9.5 12.5h3" stroke="#ff5a36" strokeWidth="1.8" strokeLinecap="round" /></svg></i>;
+
+/* Bolitas de lotería y boletos que flotan despacio (el fondo del login, en pequeño). */
+export function FloatBg({ count = 14 }) {
+  const ref = useRef();
+  useEffect(() => {
+    if (reduceMotion()) return;
+    const cv = ref.current, cx = cv.getContext('2d'), COLORS = ['#ff5a36', '#ffc23c', '#12a594', '#4f7cff'];
+    let W = 0, H = 0, raf = 0, items = [], mx = 0, tx = 0;
+    const size = () => { const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); };
+    size();
+    items = Array.from({ length: Math.max(6, Math.round(count * Math.min(1, W / 1000))) }, (_, i) => ({ kind: i % 3 === 0 ? 'ticket' : 'ball', x: W * (.35 + Math.random() * .65), y: Math.random() * H, r: 9 + Math.random() * 13, c: COLORS[i % 4], v: 6 + Math.random() * 12, sway: Math.random() * 6, rot: Math.random() - .5, n: String(Math.floor(Math.random() * 100)).padStart(2, '0'), z: .4 + Math.random() * .6 }));
+    let last = performance.now();
+    const frame = t => {
+      const dt = Math.min(.05, (t - last) / 1000); last = t; tx += (mx - tx) * .05;
+      cx.clearRect(0, 0, W, H);
+      for (const it of items) {
+        it.y -= it.v * dt * it.z; it.sway += dt; if (it.y < -40) { it.y = H + 40; it.x = W * (.35 + Math.random() * .65); }
+        const x = it.x + Math.sin(it.sway) * 8 + tx * 18 * it.z, y = it.y;
+        cx.save(); cx.translate(x, y); cx.globalAlpha = .3 * it.z + .12;
+        if (it.kind === 'ball') {
+          cx.rotate(Math.sin(it.sway) * .25); cx.fillStyle = it.c; cx.beginPath(); cx.arc(0, 0, it.r, 0, 7); cx.fill();
+          cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(0, 0, it.r * .6, 0, 7); cx.fill();
+          cx.fillStyle = '#1d2340'; cx.font = `800 ${Math.round(it.r * .62)}px "Plus Jakarta Sans", Arial`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(it.n, 0, 1);
+        } else {
+          cx.rotate(it.rot + Math.sin(it.sway) * .1); const w = it.r * 2.6, h = it.r * 1.5;
+          cx.fillStyle = it.c; cx.beginPath(); cx.roundRect(-w / 2, -h / 2, w, h, 5); cx.fill();
+          cx.fillStyle = 'rgba(255,255,255,.85)'; cx.fillRect(-w / 2 + 6, -h / 2 + 6, w * .4, 3); cx.fillRect(-w / 2 + 6, -h / 2 + 12, w * .26, 3);
+        }
+        cx.restore();
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    const mv = e => { mx = e.clientX / innerWidth - .5; };
+    const vis = () => { cancelAnimationFrame(raf); if (!document.hidden) { last = performance.now(); raf = requestAnimationFrame(frame); } };
+    addEventListener('resize', size); addEventListener('pointermove', mv, { passive: true }); document.addEventListener('visibilitychange', vis);
+    return () => { cancelAnimationFrame(raf); removeEventListener('resize', size); removeEventListener('pointermove', mv); document.removeEventListener('visibilitychange', vis); };
+  }, []);
+  return <canvas ref={ref} aria-hidden="true" />;
 }

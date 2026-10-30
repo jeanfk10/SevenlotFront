@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
-import { Plus, Store, Trophy, CreditCard, Plug, Users, AlertTriangle, ChevronRight } from 'lucide-react';
+import { Plus, Store, Trophy, CreditCard, Plug, Users, AlertTriangle, ChevronRight, Search, Megaphone } from 'lucide-react';
 import { API, useDB, usd, bs, num, plural, greeting, longDate, date, dateTime, shortDate, firstName, raffleState, pendingTasks, daysLeft, methodName, initials, ago, compact } from '../lib.js';
-import { PageHead, Card, Stat, Seg, LinkButton, Bar, Thumb, Empty, Badge, Avatar, Input } from '../ui.jsx';
+import { PageHead, Card, Stat, Seg, LinkButton, Bar, Thumb, Empty, Badge, Avatar, Input, Count, FloatBg, Note } from '../ui.jsx';
 
 const DAY = 864e5;
 const TICON = { trophy: Trophy, card: CreditCard, plug: Plug, users: Users, alert: AlertTriangle };
@@ -41,15 +41,22 @@ export function Inicio() {
   const latest = db.orders.filter(o => o.status === 'aprobada' || o.status === 'abono').slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 4);
   const pendTotal = tasks.length;
   return <>
-    <PageHead title={`${greeting()}, ${db.me.short}`} sub={<>{longDate(now).replace(/^\w/, c => c.toUpperCase())} · {plural(live.length, 'rifa en venta', 'rifas en venta')} · {plural(pendTotal, 'tarea pendiente', 'tareas pendientes')}</>}
-      actions={<LinkButton href="#/rifas/nueva" variant="primary" icon={Plus}>Nueva rifa</LinkButton>} />
+    <div className="hello"><FloatBg /><PageHead title={<>{greeting()}, <em>{db.me.short}</em></>} sub={<>{longDate(now).replace(/^\w/, c => c.toUpperCase())} · {plural(live.length, 'rifa en venta', 'rifas en venta')} · {plural(pendTotal, 'tarea pendiente', 'tareas pendientes')}</>}
+      actions={<LinkButton href="#/rifas/nueva" variant="primary" icon={Plus}>Nueva rifa</LinkButton>} /></div>
+    {db.releaseNotes && db.releaseNotes[0] && Date.now() - Date.parse(db.releaseNotes[0].at) < 7 * 864e5 && <div style={{ marginBottom: 16 }}><Note tone="info" icon={Megaphone}><b>Novedad de LottoGE: {db.releaseNotes[0].title}.</b> {db.releaseNotes[0].body}</Note></div>}
+    <div className="quick">
+      <a className="q1" href="#/ventas/taquilla"><i><Store size={22} /></i><b>Vender boletos</b><small>En la taquilla, en 4 pasos</small></a>
+      <a className="q2" href="#/ventas/pagos"><i><CreditCard size={22} /></i><b>Revisar pagos{pend.length > 0 && <em>{pend.length}</em>}</b><small>Aprobar o rechazar comprobantes</small></a>
+      <a className="q3" href="#/ventas/verificador"><i><Search size={22} /></i><b>Buscar boletos</b><small>Por la cédula del cliente</small></a>
+      <a className="q4" href="#/rifas/ganadores"><i><Trophy size={22} /></i><b>Reportar ganador{db.raffles.filter(r => API.raffleState(r) === 'falta-ganador').length > 0 && <em>{db.raffles.filter(r => API.raffleState(r) === 'falta-ganador').length}</em>}</b><small>De las rifas que ya cerraron</small></a>
+    </div>
     <div className="grid grid--side">
       <div className="stack">
         <div className="stats">
-          <Stat label="Vendido hoy" value={usd(sum(todayList), true)} unit={bs(sum(todayList, o => paidOf(o) * o.rate), true)} sub={todayList.length ? `${plural(todayList.length, 'venta', 'ventas')} · ${todayList.filter(o => o.channel === 'taquilla').length} en taquilla` : 'Sin ventas todavía'} subTone={todayList.length ? 'ok' : ''} />
-          <Stat label={`Vendido en ${new Date(now).toLocaleDateString('es-VE', { month: 'long' })}`} value={usd(sum(month), true)} unit={bs(sum(month, o => paidOf(o) * o.rate), true)} sub={growth == null ? 'Primer mes con ventas' : `${growth >= 0 ? '+' : ''}${growth} % vs. mismo tramo del mes anterior`} subTone={growth >= 0 ? 'ok' : 'err'} />
-          <Stat label="Por cobrar" value={usd(owed, true)} unit={plural(pend.length + abonos.length, 'venta', 'ventas')} sub={`${pend.length} por verificar · ${abonos.length} abonos`} />
-          {main ? <Stat label="Boletos disponibles" value={num(mainStats.available)} unit={`de ${num(main.total)}`} sub={main.title} /> : <Stat label="Boletos disponibles" value="—" sub="No hay rifas en venta" />}
+          <Stat label="Vendido hoy" value={<Count to={sum(todayList)} format={v => usd(Math.round(v), true)} />} unit={bs(sum(todayList, o => paidOf(o) * o.rate), true)} sub={todayList.length ? `${plural(todayList.length, 'venta', 'ventas')} · ${todayList.filter(o => o.channel === 'taquilla').length} en taquilla` : 'Sin ventas todavía'} subTone={todayList.length ? 'ok' : ''} />
+          <Stat label={`Vendido en ${new Date(now).toLocaleDateString('es-VE', { month: 'long' })}`} value={<Count to={sum(month)} format={v => usd(Math.round(v), true)} />} unit={bs(sum(month, o => paidOf(o) * o.rate), true)} sub={growth == null ? 'Primer mes con ventas' : `${growth >= 0 ? '+' : ''}${growth} % vs. mismo tramo del mes anterior`} subTone={growth >= 0 ? 'ok' : 'err'} />
+          <Stat label="Por cobrar" value={<Count to={owed} format={v => usd(Math.round(v), true)} />} unit={plural(pend.length + abonos.length, 'venta', 'ventas')} sub={`${pend.length} por verificar · ${abonos.length} abonos`} />
+          {main ? <Stat label="Boletos disponibles" value={<Count to={mainStats.available} format={v => num(v)} />} unit={`de ${num(main.total)}`} sub={main.title} /> : <Stat label="Boletos disponibles" value="—" sub="No hay rifas en venta" />}
         </div>
         <Card title="Ventas" actions={<><span className="subtle hide-mobile">US$ · cada venta con la tasa de su día</span><Seg label="Periodo" value={period} onChange={setPeriod} options={[{ key: '30', label: '30 días' }, { key: '90', label: '90 días' }, { key: 'año', label: 'Año' }]} /></>}>
           <div className="chart" role="img" aria-label={`Ventas de los últimos ${period === 'año' ? '12 meses' : days + ' días'}: total ${usd(series.reduce((a, s) => a + s.usd, 0))}`}>

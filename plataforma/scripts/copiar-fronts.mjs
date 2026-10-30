@@ -25,6 +25,19 @@ for (const [carpeta, slug] of Object.entries(PLANTILLAS)) {
   html = html.replace(conexion, '<!-- Entorno de pruebas: conectado al servidor simulado de LottoX. -->\n' + SANDBOX);
   writeFileSync(join(dst, 'index.html'), html);
 }
+// Página principal aprobada (landing/sencilla): login, rifas activas y denuncias conectados al servidor simulado.
+const land = join(root, '..', 'landing', 'sencilla', 'front'), pp = join(root, 'public', 'pagina-principal');
+rmSync(pp, { recursive: true, force: true }); mkdirSync(pp, { recursive: true });
+let lhtml = readFileSync(join(land, 'index.html'), 'utf8');
+if (!lhtml.includes('<script src="config.js"></script>')) throw new Error('No encuentro config.js en la página principal');
+lhtml = lhtml.replace('<script src="config.js"></script>', '<script src="../sandbox/api.js"></script>\n<script src="../sandbox/pagina-principal.js"></script>\n<script src="config.js"></script>');
+writeFileSync(join(pp, 'index.html'), lhtml);
+writeFileSync(join(pp, 'config.js'), readFileSync(join(land, 'config.js'), 'utf8') + `
+// Entorno de pruebas: las llamadas van al servidor simulado (sandbox/pagina-principal.js).
+window.LOTTOGE_SITE.api = { login: '__lottox/auth/login', recuperar: '__lottox/auth/forgot', rifas: '__lottox/raffles', denuncias: '__lottox/reports' };
+window.LOTTOGE_SITE.rifasDePrueba = [];
+`);
+
 // fronts/ → la plantilla y la rifa publicadas en Ajustes › Sitio web
 writeFileSync(join(out, 'index.html'), `<!doctype html><html lang="es-VE"><head><meta charset="utf-8"><title>Página pública</title>
 <script src="../sandbox/api.js"></script></head><body><script>
@@ -32,4 +45,4 @@ const s = window.LottoAPI.db.sitePublished, q = new URLSearchParams(location.sea
 if (!q.get('rifa')) q.set('rifa', s.raffleId);
 location.replace(s.template + '/?' + q);
 </script></body></html>`);
-console.log('Fronts de venta listos en public/fronts:', Object.values(PLANTILLAS).join(', '));
+console.log('Fronts de venta listos en public/fronts:', Object.values(PLANTILLAS).join(', '), '· página principal en public/pagina-principal');
