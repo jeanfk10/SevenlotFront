@@ -928,3 +928,60 @@ button.tkt--all.is-sel { outline-color: var(--coral); }
 .azar .note { text-align: left; max-width: 520px; }
 .numhit { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 18px; background: var(--surface-2); }
 .numhit b { display: block; } .numhit small { color: var(--ink-3); }
+
+/* barra superior con el naranja de LottoGE que se difumina hacia el blanco de la página */
+.top, .top.is-scrolled { background: linear-gradient(100deg, #ff5a36 0%, #ff7a50 16%, #ffb196 34%, #ffe3d9 52%, #fff6f2 66%, var(--bg) 82%); border-bottom: 0; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.top.is-scrolled { box-shadow: 0 8px 24px rgba(255, 90, 54, .14); }
+.top .brand b, .top .brand b em { color: #fff; }
+.top .brand > span:last-child { color: rgba(255, 255, 255, .85); }
+.top .logo-mark { background: #fff; box-shadow: 0 4px 12px rgba(160, 40, 10, .25); }
+.top .logo-mark path[fill="#fff"] { fill: #ff5a36; }
+.top .logo-mark path[stroke] { stroke: #fff; }
+.top .nav a { color: #1d2340; }
+.top .nav a[aria-current="page"] { color: #1d2340; }
+.top .nav a::after, .top .nav a[aria-current="page"]::after { background: #1d2340; }
+.top .nav a svg { opacity: .8; }
+.top .subnav a { color: #1d2340; }
+.top .subnav a:hover, .top .subnav__more > button:hover { background: rgba(255, 255, 255, .55); }
+.top .subnav a[aria-current="page"], .top .subnav__more > button[aria-current="page"] { background: #1d2340; color: #fff; }
+.top .subnav__more > button { color: #1d2340; }
+:root[data-theme="dark"] .top, :root[data-theme="dark"] .top.is-scrolled { background: linear-gradient(100deg, #c2401f 0%, #8a3322 22%, #3a2530 48%, var(--bg) 78%); }
+:root[data-theme="dark"] .top .nav a, :root[data-theme="dark"] .top .subnav a, :root[data-theme="dark"] .top .subnav__more > button { color: var(--ink); }
+:root[data-theme="dark"] .top .nav a::after { background: var(--coral); }
+
+/* menú "Más" del teléfono: 6 botones grandes y las pantallas de la sección elegida */
+.sheet--more { padding: 6px 16px calc(18px + env(safe-area-inset-bottom)); max-height: 86vh; }
+.sheet__grip { width: 44px; height: 5px; border-radius: 3px; background: var(--line-2); margin: 4px auto 6px; }
+.sheet__head { display: flex; align-items: center; justify-content: space-between; padding: 2px 0 10px; }
+.sheet__head b { font-size: 18px; font-weight: 800; }
+.mtiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mtile { position: relative; display: grid; justify-items: center; gap: 8px; padding: 14px 6px 12px; border: 0; border-radius: 20px; background: var(--surface-2); color: var(--ink); font: 700 13px var(--font); cursor: pointer; transition: transform .25s var(--pop), background .2s, box-shadow .2s; }
+.mtile:active { transform: scale(.95); }
+.mtile i { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px; color: #fff; }
+.mtile span { line-height: 1.2; text-align: center; }
+.mtile .count { position: absolute; top: 8px; right: 10px; }
+.mtile--coral i { background: var(--coral); } .mtile--sun i { background: var(--sun); color: #1d2340; } .mtile--teal i { background: var(--teal); } .mtile--sky i { background: var(--sky); } .mtile--ink i { background: #1d2340; }
+.mtile[aria-current="true"] { background: var(--coral-soft); }
+.mtile[aria-expanded="true"] { background: var(--surface); box-shadow: inset 0 0 0 2px var(--coral), 0 8px 18px color-mix(in srgb, var(--coral) 18%, transparent); }
+.mpages { margin-top: 14px; border-radius: 20px; background: var(--surface-2); padding: 6px; animation: rise .3s var(--ease); }
+.mpages h3 { padding: 8px 12px 6px; font-size: 12px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; }
+.mpages a { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 12px; margin: 2px 0; border-radius: 14px; background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; text-decoration: none; }
+.mpages a span { flex: 1; } .mpages a svg { color: var(--ink-3); }
+.mpages a[aria-current="page"] { color: var(--brand-text); box-shadow: inset 3px 0 0 var(--coral); }
+.mpages .count { position: static; }
+.mextra { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.mextra button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border: 0; border-radius: 16px; background: var(--surface-2); color: var(--ink); font: 600 14px var(--font); cursor: pointer; }
+.mextra .is-out { background: var(--err-soft); color: var(--err); }
+
+/* teléfono: menos cosas a la vez */
+@media (max-width: 760px) {
+  .sandbar { justify-content: space-between; padding: 4px 14px; }
+  .sandbar a { display: none; }
+  .top .subnav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
+  .top .subnav__more { display: none; }
+  .top .rate-pill { background: rgba(255, 255, 255, .85); }
+  .top .brand b { font-size: 17px; }
+  .mbar { box-shadow: 0 -6px 20px rgba(29, 35, 64, .08); border-top: 0; }
+  .mbar a, .mbar button { font-size: 11.5px; padding: 9px 0 8px; }
+}
+.mpages__more { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 48px; margin-top: 2px; border: 0; border-radius: 14px; background: none; color: var(--brand-text); font: 700 14px var(--font); cursor: pointer; }

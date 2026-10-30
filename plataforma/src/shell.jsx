@@ -1,7 +1,7 @@
 // Estructura del panel: barra superior con 6 secciones, subnavegación, buscador Ctrl K, tasa vigente,
 // ayuda, notificaciones, cuenta; en el teléfono, barra inferior con las cinco tareas del día.
 import { Component, useMemo, useState, useRef, useEffect } from 'react';
-import { Search, HelpCircle, Bell, Home, Store, CreditCard, MessageSquare, Menu, FlaskConical, ExternalLink, RotateCcw, Trophy, Plug, Users, AlertTriangle, ChevronRight, Ticket, User, FileText, LogOut, Sun, Moon, Building2, Flag, Settings, Receipt, ChevronDown } from 'lucide-react';
+import { Search, HelpCircle, Bell, Home, Store, CreditCard, MessageSquare, Menu, FlaskConical, ExternalLink, RotateCcw, Trophy, Plug, Users, AlertTriangle, ChevronRight, Ticket, User, FileText, LogOut, Sun, Moon, Building2, Flag, Settings, Receipt, ChevronDown, X } from 'lucide-react';
 import { API, useDB, useRoute, go, dec, num, time, cedFmt, pendingTasks, useHotkey, useToasts, toast, attempt, raffleState, date, ago, initials } from './lib.js';
 import { Modal, Button, Drawer, Note, Badge, Confirm, LogoMark } from './ui.jsx';
 
@@ -90,15 +90,29 @@ export function Shell({ children, admin, session }) {
       <a href="#/mensajeria/bandeja" aria-current={path === '/mensajeria/bandeja' ? 'page' : undefined}><MessageSquare size={20} aria-hidden="true" />Mensajes{c.bandeja > 0 && <span className="count">{c.bandeja}</span>}</a>
       <button type="button" onClick={() => setMore(true)} aria-haspopup="dialog"><Menu size={20} aria-hidden="true" />Más</button>
     </nav>}
-    {more && <><div className="scrim" onClick={() => setMore(false)} /><div className="sheet" role="dialog" aria-label="Todas las secciones">
-      {SECS.map(s => <div key={s.key}><h3>{s.label}</h3>{s.pages.map(([h, l]) => <a key={h} href={'#' + h}>{l}</a>)}</div>)}
-      <h3>Más</h3><a href="#/" onClick={e => { e.preventDefault(); setMore(false); setHelp(true); }}>Ayuda</a><a href="#/" onClick={e => { e.preventDefault(); setMore(false); setTools(true); }}>Herramientas de prueba</a><a href="#/" onClick={e => { e.preventDefault(); logout(); }} style={{ color: 'var(--err)', fontWeight: 600 }}>Cerrar sesión</a>
-    </div></>}
+    {more && <MoreSheet secs={SECS} cur={sec.key} path={path} c={c} onClose={() => setMore(false)} onHelp={() => { setMore(false); setHelp(true); }} onTools={() => { setMore(false); setTools(true); }} />}
     {palette && <Palette db={db} admin={admin} onClose={() => setPalette(false)} />}
     {help && <Help onClose={() => setHelp(false)} />}
     {tools && <Tools db={db} onClose={() => setTools(false)} />}
     <Toasts />
   </>;
+}
+
+// Menú "Más" del teléfono: solo las 6 secciones en botones grandes; al tocar una, se abren sus pantallas.
+const TILE_TONES = ['coral', 'sun', 'teal', 'sky', 'ink', 'coral'];
+function MoreSheet({ secs, cur, path, c, onClose, onHelp, onTools }) {
+  const [open, setOpen] = useState(cur), [all, setAll] = useState(false), s = secs.find(x => x.key === open);
+  const n = s ? (s.show || s.pages.length) : 0, curHref = s && activeHref(s.pages, path), shown = s ? (all || s.pages.slice(n).some(p => p[0] === curHref) ? s.pages : s.pages.slice(0, n)) : [];
+  const tap = x => x.pages.length === 1 ? (location.hash = x.pages[0][0], onClose()) : (setOpen(open === x.key ? '' : x.key), setAll(false));
+  return <><div className="scrim" onClick={onClose} /><div className="sheet sheet--more" role="dialog" aria-modal="true" aria-label="Menú">
+    <div className="sheet__grip" aria-hidden="true" />
+    <div className="sheet__head"><b>Menú</b><button type="button" className="icon-btn" onClick={onClose} aria-label="Cerrar"><X size={20} /></button></div>
+    <div className="mtiles">{secs.map((x, i) => <button key={x.key} type="button" className={'mtile mtile--' + TILE_TONES[i % 6]} aria-expanded={x.pages.length > 1 ? open === x.key : undefined} aria-current={cur === x.key ? 'true' : undefined} onClick={() => tap(x)}>
+      <i>{x.icon && <x.icon size={22} aria-hidden="true" />}</i><span>{x.label}</span>{x.badge && c[x.badge] > 0 && <em className="count">{c[x.badge]}</em>}</button>)}</div>
+    {s && s.pages.length > 1 && <div className="mpages" key={s.key}><h3>{s.label}</h3>{shown.map(([h, l, badge]) => <a key={h} href={'#' + h} onClick={onClose} aria-current={curHref === h ? 'page' : undefined}><span>{l}</span>{badge && c[badge] > 0 && <em className="count">{c[badge]}</em>}<ChevronRight size={18} aria-hidden="true" /></a>)}
+      {shown.length < s.pages.length && <button type="button" className="mpages__more" onClick={() => setAll(true)}>Ver más opciones ({s.pages.length - shown.length})<ChevronDown size={16} aria-hidden="true" /></button>}</div>}
+    <div className="mextra"><button type="button" onClick={onHelp}><HelpCircle size={18} aria-hidden="true" />Ayuda</button><button type="button" onClick={onTools}><FlaskConical size={18} aria-hidden="true" />Pruebas</button><button type="button" className="is-out" onClick={logout}><LogOut size={18} aria-hidden="true" />Salir</button></div>
+  </div></>;
 }
 
 // Subnavegación corta: las pantallas de todos los días a la vista y el resto en "Más".
