@@ -31,7 +31,7 @@ export function Inicio() {
     {other.length > 0 && <section className="todo" aria-label="Pendiente de ti"><h2 className="sec-title">Pendiente de ti</h2>
       <div className="todo__list">{other.slice(0, 3).map(t => { const I = TICON[t.icon]; return <a key={t.id + t.title} className={'todo__item todo__item--' + t.tone} href={'#' + t.to}><i><I size={20} aria-hidden="true" /></i><span className="grow"><b>{t.title}</b><small>{t.sub}</small></span><span className="todo__go">{t.action}<ChevronRight size={15} aria-hidden="true" /></span></a>; })}</div></section>}
     <div className="quick">
-      <a className="q1" href="#/ventas/taquilla"><i><Store size={22} /></i><b>Vender boletos</b><small>En la taquilla, en 4 pasos</small></a>
+      <a className="q1" href="#/ventas/taquilla"><i><Store size={22} /></i><b>Vender boletos</b><small>En el POS Terminal, en 4 pasos</small></a>
       <a className="q2" href="#/ventas/pagos"><i><CreditCard size={22} /></i><b>Revisar pagos{pend.length > 0 && <em>{pend.length}</em>}</b><small>Aprobar o rechazar comprobantes</small></a>
       <a className="q3" href="#/ventas/verificador"><i><Search size={22} /></i><b>Buscar boletos</b><small>Por la cédula del cliente</small></a>
       <a className="q4" href="#/rifas/ganadores"><i><Trophy size={22} /></i><b>Reportar ganador{winners > 0 && <em>{winners}</em>}</b><small>De las rifas que ya cerraron</small></a>

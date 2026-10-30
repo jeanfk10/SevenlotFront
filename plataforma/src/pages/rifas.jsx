@@ -205,7 +205,7 @@ function Promos({ r }) {
       {!list.length && <Empty title="No hay promociones configuradas" text="Ejemplo: 5 boletos por menos de lo que cuestan sueltos." />}
       {list.map((p, i) => <div key={i} className="row"><Input type="number" style={{ width: 100 }} disabled={!can} aria-label="Cantidad" value={p.qty} onChange={e => setList(list.map((x, j) => j === i ? { ...x, qty: +e.target.value } : x))} /><span>boletos por</span><div className="input-affix" style={{ width: 130 }}><Input type="number" disabled={!can} aria-label="Precio" value={p.priceUSD} onChange={e => setList(list.map((x, j) => j === i ? { ...x, priceUSD: +e.target.value } : x))} /><span>US$</span></div><span className="subtle">sueltos: {usd(p.qty * r.priceUSD, true)} · ahorro {usd(p.qty * r.priceUSD - p.priceUSD)}</span>{can && <Button size="sm" variant="ghost" icon={Trash2} onClick={() => setList(list.filter((_, j) => j !== i))}>Quitar</Button>}</div>)}
       {can && <div><Button size="sm" icon={Plus} onClick={() => setList([...list, { qty: 5, priceUSD: r.priceUSD * 5 - r.priceUSD / 2 }])}>Agregar promoción</Button></div>}
-      <Note tone="info" icon={Info}>Se aplican en la Taquilla. Hallazgo: los fronts de venta todavía no muestran promociones, por eso en línea se cobra el precio normal.</Note>
+      <Note tone="info" icon={Info}>Se aplican en el POS Terminal. Hallazgo: los fronts de venta todavía no muestran promociones, por eso en línea se cobra el precio normal.</Note>
     </div>
   </Card>;
 }

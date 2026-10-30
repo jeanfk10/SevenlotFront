@@ -112,7 +112,7 @@ export function Cajas() {
 }
 
 /* ---------- Métodos de pago ---------- */
-const CHANNEL = { online: 'Página pública', taquilla: 'Solo taquilla', ambos: 'Página y taquilla' };
+const CHANNEL = { online: 'Página pública', taquilla: 'Solo POS Terminal', ambos: 'Página y POS Terminal' };
 export function Metodos() {
   const db = useDB(), [edit, setEdit] = useState(null), [del, setDel] = useState(null);
   const gw = API.gatewayActive();
@@ -220,7 +220,9 @@ export function Sitio() {
   useEffect(() => { clearTimeout(timer.current); timer.current = setTimeout(() => { try { API.saveSite(s, false); setNonce(n => n + 1); } catch (e) { } }, 350); return () => clearTimeout(timer.current); }, [JSON.stringify(s)]);
   const src = `./fronts/${s.template}/?rifa=${s.raffleId}&borrador=1&v=${nonce}`;
   const [scale, setScale] = useState(.6), stage = useRef();
-  useEffect(() => { const f = () => stage.current && setScale(Math.min(1, (stage.current.clientWidth) / 1440)); f(); addEventListener('resize', f); return () => removeEventListener('resize', f); }, [dev]);
+  // El iPhone se achica para caber entero en la pantalla: la página se ve a 393 px, como en el teléfono.
+  const [ps, setPs] = useState(.7);
+  useEffect(() => { const f = () => { if (!stage.current) return; const w = stage.current.clientWidth; setScale(Math.min(1, w / 1440)); const top = stage.current.getBoundingClientRect().top + scrollY; setPs(Math.max(.5, Math.min(1, (innerHeight - top - 56) / 876, (w - 32) / 417))); }; f(); addEventListener('resize', f); return () => removeEventListener('resize', f); }, [dev]);
   return <>
     <PageHead title="Sitio web" sub="Personaliza tu página pública de rifas con las plantillas de venta" actions={<><a className="btn" href={src} target="_blank" rel="noopener"><Eye size={15} />Vista previa</a><Button variant="primary" disabled={!dirty} onClick={() => attempt(() => API.saveSite(s, true), 'Cambios publicados en tu página pública')}>Publicar cambios</Button></>} />
     <div className="grid grid--sitio">
@@ -243,9 +245,9 @@ export function Sitio() {
         <div className="card__foot"><span>{dirty ? 'Cambios sin publicar' : `Publicado ${ago(db.sitePublishedAt)}`}</span>{dirty && <button className="link" type="button" onClick={() => setS({ ...db.sitePublished })}>Descartar</button>}</div>
       </Card>
       <div>
-        <div className="row row--between" style={{ marginBottom: 10 }}><Seg label="Dispositivo" value={dev} onChange={setDev} options={[{ key: 'phone', label: <><Smartphone size={14} aria-hidden="true" /> Teléfono</> }, { key: 'desk', label: <><Monitor size={14} aria-hidden="true" /> Computadora</> }]} /><a className="subtle" href={src} target="_blank" rel="noopener">Abrir en otra pestaña <ExternalLink size={12} /></a></div>
+        <div className="row row--between" style={{ marginBottom: 10 }}><Seg label="Dispositivo" value={dev} onChange={setDev} options={[{ key: 'phone', label: <><Smartphone size={14} aria-hidden="true" /> iPhone</> }, { key: 'desk', label: <><Monitor size={14} aria-hidden="true" /> Computadora</> }]} /><a className="subtle" href={src} target="_blank" rel="noopener">Abrir en otra pestaña <ExternalLink size={12} /></a></div>
         <div className="preview-stage" ref={stage}>{!live.length ? <Empty title="No hay rifas en venta para mostrar" /> : dev === 'phone'
-          ? <div className="phone"><iframe key={src} src={src} title="Vista previa en teléfono" /></div>
+          ? <div className="iphone-wrap" style={{ width: 417 * ps, height: 876 * ps }}><div className="iphone" style={{ transform: `scale(${ps})` }}><span className="iphone__island" aria-hidden="true" /><div className="iphone__screen"><div className="iphone__status" aria-hidden="true"><b>9:41</b><span><i /><i /><i /><i /><em /></span></div><iframe key={src} src={src} title="Vista previa en iPhone" /></div></div></div>
           : <div className="desk-frame"><div className="desk-frame__bar"><i /><i /><i /></div><div className="desk-frame__view" style={{ aspectRatio: 'auto', height: 900 * scale }}><iframe key={src} src={src} title="Vista previa en computadora" style={{ transform: `scale(${scale})` }} /></div></div>}</div>
       </div>
     </div>

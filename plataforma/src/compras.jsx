@@ -41,7 +41,7 @@ export function ClientCard({ cedula, name, compact }) {
 export function OrderDetail({ o, showRaffle = true, hideNumbers }) {
   const db = useDB(), r = raffleOf(o.raffleId), m = API.method(o.method), caja = API.caja(o.cajaId);
   const seller = o.sellerId && db.users.find(u => u.id === o.sellerId);
-  const channel = o.channel === 'admin' ? 'Asignado por el superadministrador' : o.channel === 'taquilla' ? `Taquilla${caja ? ` · ${caja.name} (${caja.code})` : ''}${seller ? ` · vendió ${seller.name || seller.email}` : ''}` : 'Página de venta en línea';
+  const channel = o.channel === 'admin' ? 'Asignado por el superadministrador' : o.channel === 'taquilla' ? `POS Terminal${caja ? ` · ${caja.name} (${caja.code})` : ''}${seller ? ` · vendió ${seller.name || seller.email}` : ''}` : 'Página de venta en línea';
   const inf = o.influencer && db.influencers.find(i => i.code === o.influencer);
   return <div className="odetail">
     <dl className="kv kv--left">
@@ -73,7 +73,7 @@ export function PurchaseList({ orders, extra = [], actions }) {
     {orders.map(o => { const r = raffleOf(o.raffleId), on = open.has(o.id); return <div key={o.id} className={'plist__item' + (on ? ' is-open' : '')}>
       <button type="button" className="plist__head" aria-expanded={on} onClick={() => toggle(o.id)}>
         {on ? <ChevronDown size={16} aria-hidden="true" /> : <ChevronRight size={16} aria-hidden="true" />}
-        <span className="grow" style={{ minWidth: 0 }}><b>{r ? r.title : o.raffleId}</b><small className="subtle">{dateTime(o.createdAt)} · {o.numbers.length ? (o.numbers.length > 6 ? `${o.numbers.slice(0, 6).join(' · ')} +${o.numbers.length - 6}` : o.numbers.join(' · ')) : plural(o.qty, 'boleto al azar', 'boletos al azar')} · {(API.method(o.method) || {}).name || (o.channel === 'admin' ? 'Asignado' : o.channel === 'taquilla' ? 'Taquilla' : 'Sin método')}</small></span>
+        <span className="grow" style={{ minWidth: 0 }}><b>{r ? r.title : o.raffleId}</b><small className="subtle">{dateTime(o.createdAt)} · {o.numbers.length ? (o.numbers.length > 6 ? `${o.numbers.slice(0, 6).join(' · ')} +${o.numbers.length - 6}` : o.numbers.join(' · ')) : plural(o.qty, 'boleto al azar', 'boletos al azar')} · {(API.method(o.method) || {}).name || (o.channel === 'admin' ? 'Asignado' : o.channel === 'taquilla' ? 'POS Terminal' : 'Sin método')}</small></span>
         <Badge tone={STATUS[o.status][1]}>{o.status === 'abono' ? `Abono ${Math.round(o.paidUSD / o.amountUSD * 100)} %` : STATUS[o.status][0]}</Badge>
         <b className="num plist__amt">{usd(o.status === 'abono' ? o.paidUSD : o.amountUSD)}</b>
       </button>

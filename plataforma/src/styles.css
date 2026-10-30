@@ -863,3 +863,68 @@ a.kpi:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(29, 35, 
   .toolbar--bare .input-icon { width: 100% !important; margin-left: 0 !important; }
 }
 @media (prefers-reduced-motion: reduce) { .rcard, .kpi, .fact, .todo__item { animation: none; } .rcard:hover { transform: none; } }
+
+/* vista previa en iPhone (15): marco de titanio, isla dinámica y botones laterales; se escala para caber */
+.iphone-wrap { position: relative; flex: none; }
+.iphone { position: absolute; left: 0; top: 0; width: 417px; height: 876px; padding: 12px; border-radius: 66px; transform-origin: 0 0; background: linear-gradient(145deg, #4a4a50, #1c1c1f 40%, #3a3a3f); box-shadow: inset 0 0 0 2px #6b6b72, inset 0 0 0 6px #0b0b0d, 0 30px 60px rgba(29, 35, 64, .28); }
+.iphone::before, .iphone::after { content: ''; position: absolute; width: 4px; border-radius: 2px; background: #3a3a3f; }
+.iphone::before { left: -3px; top: 170px; height: 64px; box-shadow: 0 84px 0 #3a3a3f; }
+.iphone::after { right: -3px; top: 220px; height: 96px; }
+.iphone__screen { display: flex; flex-direction: column; width: 393px; height: 852px; border-radius: 54px; overflow: hidden; background: #fff; }
+.iphone__status { flex: none; display: flex; align-items: center; justify-content: space-between; height: 54px; padding: 4px 34px 0 46px; color: #000; font: 600 16px -apple-system, 'SF Pro Text', var(--font); }
+.iphone__status span { display: flex; align-items: flex-end; gap: 2px; }
+.iphone__status i { width: 3px; border-radius: 1px; background: #000; } .iphone__status i:nth-child(1) { height: 4px; } .iphone__status i:nth-child(2) { height: 6px; } .iphone__status i:nth-child(3) { height: 8px; } .iphone__status i:nth-child(4) { height: 10px; }
+.iphone__status em { width: 24px; height: 11px; margin-left: 6px; border-radius: 3px; border: 1.5px solid #000; box-shadow: inset 0 0 0 1.5px #fff, inset 0 0 0 10px #000; }
+.iphone iframe { flex: 1; width: 393px; border: 0; background: #fff; display: block; }
+.iphone__island { position: absolute; z-index: 2; top: 23px; left: 50%; width: 122px; height: 35px; margin-left: -61px; border-radius: 20px; background: #000; }
+.preview-stage { min-height: 0; }
+
+/* ventana central de pagos: comprobante completo y datos al lado */
+.modal--xl { width: min(1100px, calc(100vw - 24px)); }
+.paymodal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 20px; align-items: start; }
+.paymodal__info { display: grid; gap: 14px; min-width: 0; }
+.paymodal .proof { position: sticky; top: 0; }
+.proof--full { display: grid; gap: 8px; place-items: stretch; min-height: 0; padding: 10px; }
+.proof__img { display: block; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.proof--full img { display: block; width: auto; max-width: 100%; height: auto; max-height: 62vh; margin: 0 auto; object-fit: contain; border-radius: 10px; }
+.proof__zoom { justify-self: center; }
+.lightbox { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 24px; background: rgba(10, 12, 24, .88); cursor: zoom-out; animation: fadeup .2s ease-out; }
+.lightbox img { max-width: 100%; max-height: calc(100vh - 100px); object-fit: contain; border-radius: 12px; box-shadow: 0 30px 60px rgba(0, 0, 0, .5); }
+.lightbox__close { position: absolute; top: 18px; right: 18px; }
+.history summary { cursor: pointer; font-weight: 600; font-size: 13px; color: var(--ink-2); }
+.history ol { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; }
+.abono { display: grid; gap: 12px; padding: 16px; border-radius: 20px; background: var(--sun-soft); }
+.abono h3 { font-size: 16px; font-weight: 800; }
+.abono .input, .abono .select { background: var(--surface); }
+@media (max-width: 860px) { .paymodal { grid-template-columns: minmax(0, 1fr); } .paymodal .proof { position: static; } .proof--full { max-height: none; } }
+
+/* boletos como tickets (carrito del POS, recibo, abonos) */
+.tkts { display: flex; flex-wrap: wrap; gap: 8px; }
+.tkt { position: relative; display: inline-grid; justify-items: center; align-content: center; min-width: 62px; height: 40px; padding: 0 12px; border: 0; border-radius: 9px; background: linear-gradient(135deg, var(--coral), color-mix(in srgb, var(--coral) 70%, var(--sun))); color: #fff; font: 800 15px var(--font); font-variant-numeric: tabular-nums; letter-spacing: .02em; box-shadow: 0 6px 14px color-mix(in srgb, var(--coral) 30%, transparent); animation: tkt-in .5s var(--pop) backwards;
+  -webkit-mask: radial-gradient(circle 6px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 6px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 6px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 6px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat; }
+.tkt::after { content: ''; position: absolute; top: 6px; bottom: 6px; right: 18px; border-right: 1.5px dashed rgba(255, 255, 255, .5); }
+.tkt b { font-weight: 800; line-height: 1; }
+.tkt small { font-size: 10px; font-weight: 600; opacity: .85; line-height: 1.1; }
+.tkt i { position: absolute; top: 3px; right: 4px; display: grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; background: rgba(0, 0, 0, .2); cursor: pointer; z-index: 1; }
+.tkt--q { background: linear-gradient(135deg, #1d2340, #4f5a8c); box-shadow: 0 6px 14px rgba(29, 35, 64, .25); }
+.tkt--all { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line-2); font-size: 13px; }
+.tkt--more { background: var(--surface-2); color: var(--ink-2); box-shadow: none; }
+button.tkt { cursor: pointer; transition: transform .3s var(--pop), opacity .2s; }
+button.tkt:not(.is-sel) { opacity: .62; } .tkts:not(:has(.is-sel)) button.tkt { opacity: 1; }
+button.tkt.is-sel { opacity: 1; transform: translateY(-3px) scale(1.06); outline: 3px solid var(--ink); outline-offset: 2px; }
+button.tkt--all.is-sel { outline-color: var(--coral); }
+.tkts--cart { max-height: 260px; overflow-y: auto; padding: 4px 2px 6px; }
+@keyframes tkt-in { 0% { opacity: 0; transform: translateX(26px) rotate(8deg) scale(.6); } 70% { transform: translateX(-3px) rotate(-2deg) scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .tkt { animation: none; } }
+
+/* POS: modalidad al azar con contador grande */
+.pill-max { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--sky-soft); color: color-mix(in srgb, var(--sky) 70%, var(--ink)); font-size: 12.5px; font-weight: 700; }
+.azar { display: grid; gap: 16px; justify-items: center; text-align: center; padding: 28px 18px; }
+.azar__lead { font-size: 17px; font-weight: 800; }
+.stepper { display: flex; align-items: center; gap: 12px; }
+.stepper .input { width: 110px; height: 64px; text-align: center; font-size: 30px; font-weight: 800; border-radius: 18px; }
+.stepper .btn { width: 56px; height: 56px; padding: 0; }
+.azar .note { text-align: left; max-width: 520px; }
+.numhit { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 18px; background: var(--surface-2); }
+.numhit b { display: block; } .numhit small { color: var(--ink-3); }

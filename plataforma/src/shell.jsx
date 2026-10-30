@@ -6,11 +6,12 @@ import { API, useDB, useRoute, go, dec, num, time, cedFmt, pendingTasks, useHotk
 import { Modal, Button, Drawer, Note, Badge, Confirm, LogoMark } from './ui.jsx';
 
 export const SECTIONS = [
-  { key: 'inicio', label: 'Inicio', icon: Home, base: '/', pages: [['/', 'Resumen'], ['/actividad', 'Actividad']] },
+  { key: 'inicio', label: 'Inicio', icon: Home, base: '/', pages: [['/', 'Resumen'], ['/ventas/reportes', 'Reportes'], ['/actividad', 'Actividad']] },
+  { key: 'pos', label: 'POS Terminal', icon: Store, base: '/ventas/taquilla', pages: [['/ventas/taquilla', 'POS Terminal']] },
+  { key: 'verificar', label: 'Verificar ventas', icon: CreditCard, base: '/ventas/pagos', badge: 'pagos', pages: [['/ventas/pagos', 'Pagos y abonos', 'pagos'], ['/ventas/verificador', 'Buscar boletos']] },
   { key: 'rifas', label: 'Rifas', icon: Ticket, base: '/rifas', pages: [['/rifas', 'Todas las rifas'], ['/rifas/nueva', 'Nueva rifa'], ['/rifas/ganadores', 'Ganadores por reportar', 'ganadores']] },
-  { key: 'ventas', label: 'Ventas', icon: Store, base: '/ventas', badge: 'pagos', pages: [['/ventas/pagos', 'Pagos por verificar', 'pagos'], ['/ventas/taquilla', 'Taquilla'], ['/ventas/verificador', 'Verificador'], ['/ventas/reportes', 'Reportes']] },
-  { key: 'clientes', label: 'Clientes', icon: Users, base: '/clientes', pages: [['/clientes', 'Clientes'], ['/clientes/influencers', 'Influencers']] },
-  { key: 'mensajeria', label: 'Mensajería', icon: MessageSquare, base: '/mensajeria', badge: 'bandeja', show: 3, pages: [['/mensajeria/bandeja', 'Bandeja', 'bandeja'], ['/mensajeria/campanas', 'Campañas'], ['/mensajeria/automatizaciones', 'Automatizaciones'], ['/mensajeria/resumen', 'Resumen'], ['/mensajeria/historial', 'Historial'], ['/mensajeria/contactos', 'Contactos'], ['/mensajeria/agentes', 'Agentes'], ['/mensajeria/bot', 'Bot'], ['/mensajeria/conexion', 'Conexión']] },
+  // La mensajería vive dentro de Clientes: los mensajes son con los clientes.
+  { key: 'clientes', label: 'Clientes', icon: Users, base: '/clientes', badge: 'bandeja', show: 5, pages: [['/clientes', 'Clientes'], ['/mensajeria/bandeja', 'Mensajes', 'bandeja'], ['/mensajeria/campanas', 'Campañas'], ['/mensajeria/automatizaciones', 'Automatizaciones'], ['/clientes/influencers', 'Influencers'], ['/mensajeria/resumen', 'Resumen de mensajes'], ['/mensajeria/historial', 'Historial de envíos'], ['/mensajeria/contactos', 'Contactos'], ['/mensajeria/agentes', 'Agentes'], ['/mensajeria/bot', 'Bot'], ['/mensajeria/conexion', 'Conexión de WhatsApp']] },
   { key: 'ajustes', label: 'Ajustes', icon: Settings, base: '/ajustes', show: 4, pages: [['/ajustes/empresa', 'Empresa'], ['/ajustes/metodos', 'Métodos de pago'], ['/ajustes/monedas', 'Monedas y tasas'], ['/ajustes/sitio', 'Sitio web'], ['/ajustes/usuarios', 'Usuarios'], ['/ajustes/cajas', 'Cajas'], ['/ajustes/pasarelas', 'Pasarelas'], ['/ajustes/dominios', 'Dominios'], ['/ajustes/seguridad', 'Seguridad']] }
 ];
 export const ADMIN_SECTIONS = [
@@ -31,7 +32,12 @@ const adminCounts = db => ({
 // La página activa de la subnavegación: la ruta más larga que coincide.
 const activeHref = (pages, path) => pages.map(p => p[0]).filter(h => path === h || path.startsWith(h + '/') || (h === '/rifas' && /^\/rifas\/R-/.test(path))).sort((a, b) => b.length - a.length)[0];
 export const logout = () => { API.logout(); location.href = './pagina-principal/#login'; };
-export const sectionOf = path => path === '/' || path === '/actividad' ? SECTIONS[0] : SECTIONS.find(s => s.key !== 'inicio' && path.startsWith(s.base)) || SECTIONS[0];
+// La sección de una ruta: la de la pantalla con la ruta más larga que coincide.
+export const sectionOf = path => {
+  let best = null, len = -1;
+  SECTIONS.forEach(s => s.pages.forEach(([h]) => { if ((path === h || (h !== '/' && path.startsWith(h + '/'))) && h.length > len) { best = s; len = h.length; } }));
+  return best || (path.startsWith('/mensajeria') ? SECTIONS.find(s => s.key === 'clientes') : SECTIONS[0]);
+};
 const counts = db => ({
   pagos: db.orders.filter(o => o.status === 'pendiente').length,
   ganadores: db.raffles.filter(r => raffleState(r) === 'falta-ganador').length,
@@ -79,8 +85,8 @@ export function Shell({ children, admin, session }) {
       <button type="button" onClick={() => setMore(true)} aria-haspopup="dialog"><Menu size={20} aria-hidden="true" />Más</button>
     </nav> : <nav className="mbar" aria-label="Tareas del día">
       <a href="#/" aria-current={path === '/' ? 'page' : undefined}><Home size={20} aria-hidden="true" />Inicio</a>
-      <a href="#/ventas/taquilla" aria-current={path === '/ventas/taquilla' ? 'page' : undefined}><Store size={20} aria-hidden="true" />Vender</a>
-      <a href="#/ventas/pagos" aria-current={path === '/ventas/pagos' ? 'page' : undefined}><CreditCard size={20} aria-hidden="true" />Pagos{c.pagos > 0 && <span className="count">{c.pagos}</span>}</a>
+      <a href="#/ventas/taquilla" aria-current={path === '/ventas/taquilla' ? 'page' : undefined}><Store size={20} aria-hidden="true" />POS</a>
+      <a href="#/ventas/pagos" aria-current={path === '/ventas/pagos' ? 'page' : undefined}><CreditCard size={20} aria-hidden="true" />Verificar{c.pagos > 0 && <span className="count">{c.pagos}</span>}</a>
       <a href="#/mensajeria/bandeja" aria-current={path === '/mensajeria/bandeja' ? 'page' : undefined}><MessageSquare size={20} aria-hidden="true" />Mensajes{c.bandeja > 0 && <span className="count">{c.bandeja}</span>}</a>
       <button type="button" onClick={() => setMore(true)} aria-haspopup="dialog"><Menu size={20} aria-hidden="true" />Más</button>
     </nav>}
@@ -199,14 +205,14 @@ function Palette({ db, onClose, admin }) {
 
 /* Ayuda escrita para el operador, organizada por tareas. Cada guía abre su contenido. */
 const GUIDES = [
-  ['Vender en la taquilla', 'Ventas › Taquilla', ['Elige la rifa en venta.', 'Toca los números o usa "Al azar" con la cantidad (1, 2, 5 o 10). "Ir al número" salta a uno en particular.', 'Escribe la cédula: si el cliente ya compró antes, sus datos se llenan solos.', 'Elige el método de pago. Si cobras una parte, marca "Es un abono" y escribe el monto cobrado.', 'Confirma: sale el recibo con los números para imprimir o enviar por WhatsApp.']],
-  ['Verificar un pago', 'Ventas › Pagos por verificar', ['Abre el pago: el panel lateral muestra el comprobante, el monto en US$ y Bs y la tasa con la que se cobró.', 'Compara la referencia y el monto con tu banco.', '"Aprobar pago" asigna los números (si compró al azar) y le avisa al cliente por correo y WhatsApp.', 'Si no hay referencia ni comprobante, el sistema pide una confirmación explícita y lo deja en la Actividad.', 'Para rechazar, elige el motivo: los números reservados se liberan.']],
+  ['Vender en el POS Terminal', 'POS Terminal', ['Elige la rifa en venta.', 'Elige "Escoger números" y tócalos, o "Al azar" con la cantidad: al azar los números se ven cuando se cobra completo.', 'Escribe la cédula: si el cliente ya compró antes, sus datos se llenan solos.', 'Elige el método de pago. Si cobras una parte, marca "Es un abono" y escribe el monto cobrado.', 'Confirma: sale el recibo con los números para imprimir o enviar por WhatsApp.']],
+  ['Verificar un pago', 'Verificar ventas › Pagos y abonos', ['Abre el pago: el panel lateral muestra el comprobante, el monto en US$ y Bs y la tasa con la que se cobró.', 'Compara la referencia y el monto con tu banco.', '"Aprobar pago" asigna los números (si compró al azar) y le avisa al cliente por correo y WhatsApp.', 'Si no hay referencia ni comprobante, el sistema pide una confirmación explícita y lo deja en la Actividad.', 'Para rechazar, elige el motivo: los números reservados se liberan.']],
   ['Reportar el ganador', 'Rifas › Ganadores por reportar', ['Elige la rifa cerrada.', 'Escribe el resultado publicado por la lotería: el sistema busca el boleto y te dice si se vendió y a quién.', 'Adjunta la evidencia del resultado (foto o captura).', 'Marca "Avisar a todos los participantes" si quieres que les llegue el mensaje.']],
   ['Crear una rifa', 'Rifas › Nueva rifa', ['Completa los 4 pasos. Los errores se marcan en cada campo.', 'El cierre de ventas se calcula solo desde la fecha del sorteo.', 'Puedes guardar el borrador en cualquier paso.', 'Al enviarla queda "En revisión CONALOT". En este entorno, la respuesta de CONALOT se simula desde el detalle de la rifa.']],
   ['Actualizar la tasa', 'Ajustes › Monedas y tasas', ['Toca "Actualizar tasa" y escribe la tasa del BCV.', 'Se usa al instante en todo el sistema y en la página pública.', 'Cada venta guarda la tasa con la que se cobró: cambiarla no altera ventas pasadas.']],
   ['Activar el pago automático', 'Ajustes › Pasarelas', ['Completa los pasos de AvilaPay o ChinChin hasta que el estado diga "Activa".', 'Desde ese momento, el método "Pago Móvil al instante" aparece en tu página pública y entrega los números sin revisión manual.']],
   ['Cambiar el diseño de la página pública', 'Ajustes › Sitio web', ['Elige una de las 6 plantillas de venta, el color de tu marca y los textos.', 'Mira la vista previa en teléfono o computadora.', '"Publicar cambios" la deja en tu página pública.']],
-  ['Enviar una campaña', 'Mensajería › Campañas', ['Elige el canal (WhatsApp o correo) y la audiencia por segmento de clientes.', 'Por WhatsApp solo se envía a quien dio su consentimiento (política de Meta).', 'El embudo enviados → entregados → leídos → fallidos siempre suma lo mismo.']]
+  ['Enviar una campaña', 'Clientes › Campañas', ['Elige el canal (WhatsApp o correo) y la audiencia por segmento de clientes.', 'Por WhatsApp solo se envía a quien dio su consentimiento (política de Meta).', 'El embudo enviados → entregados → leídos → fallidos siempre suma lo mismo.']]
 ];
 function Help({ onClose }) {
   const [open, setOpen] = useState(null), [tour, setTour] = useState(false);
@@ -217,7 +223,7 @@ function Help({ onClose }) {
     {tour && <Tour onClose={() => { setTour(false); onClose(); }} />}
   </Drawer>;
 }
-const TOUR = [['Inicio', 'Aquí ves lo que tienes que hacer hoy: pagos por verificar, ganadores por reportar y pasarelas sin terminar.', '/'], ['Ventas', 'Pagos por verificar, Taquilla, Verificador y Reportes están en Ventas.', '/ventas/pagos'], ['Tasa vigente', 'La tasa Bs/US$ está siempre arriba. Tócala para actualizarla.', '/ajustes/monedas'], ['Buscador', 'Con Ctrl K buscas clientes, boletos, órdenes y pantallas desde cualquier lugar.', '/']];
+const TOUR = [['Inicio', 'Aquí ves lo que tienes que hacer hoy: pagos por verificar, ganadores por reportar y pasarelas sin terminar.', '/'], ['Verificar ventas', 'Aquí revisas los pagos y abonos, y buscas boletos por cédula, número o rifa. Para vender, usa el POS Terminal.', '/ventas/pagos'], ['Tasa vigente', 'La tasa Bs/US$ está siempre arriba. Tócala para actualizarla.', '/ajustes/monedas'], ['Buscador', 'Con Ctrl K buscas clientes, boletos, órdenes y pantallas desde cualquier lugar.', '/']];
 function Tour({ onClose }) {
   const [i, setI] = useState(0);
   useEffect(() => { go(TOUR[i][2]); }, [i]);

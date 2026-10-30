@@ -465,6 +465,22 @@
     return r2(total + left * r.priceUSD);
   };
 
+  // Reglamento: una persona natural (una cédula) puede tener hasta el 2,5 % de los números de una rifa.
+  const maxPerPerson = r => Math.max(1, Math.floor(r.total * 0.025));
+  const heldBy = (rid, ced) => db.orders.filter(o => o.raffleId === rid && o.cedula === ced && ['pendiente', 'abono', 'aprobada'].includes(o.status)).reduce((a, o) => a + o.qty, 0);
+  // Referencias repetidas: se comparan solo letras y números, desde 4 caracteres, contra pagos que no se rechazaron.
+  const refKey = x => String(x || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  function refUses(ref, skipId) {
+    const k = refKey(ref); if (k.length < 4) return [];
+    const out = [];
+    db.orders.forEach(o => {
+      if (o.id === skipId || ['rechazada', 'vencida', 'anulada'].includes(o.status)) return;
+      if (refKey(o.reference) === k) out.push({ id: o.id, name: o.name, cedula: o.cedula, at: o.createdAt, status: o.status, where: 'compra' });
+      (o.payments || []).forEach(p => { if (refKey(p.reference) === k) out.push({ id: o.id, name: o.name, cedula: o.cedula, at: p.at, status: o.status, where: 'abono' }); });
+    });
+    return out;
+  }
+
   function audit(action, detail, by) { db.audit.unshift({ id: uid('a'), at: iso(now()), by: by || db.me.short, action, detail }); if (db.audit.length > 400) db.audit.length = 400; }
   function deliverSim(seedStr, to, channel) {
     if (!to || to === '—') return ['fallido', channel === 'correo' ? 'El cliente no tiene correo' : 'Número sin WhatsApp'];
@@ -506,6 +522,12 @@
     if (clash.length) throw err(409, `Ya no están libres: ${clash.join(', ')}`);
     if (chosen.length && chosen.length !== qty) throw err(400, 'La cantidad no coincide con los números');
     const stats = raffleStats(r.id); if (qty > stats.available) throw err(409, `Solo quedan ${stats.available} boletos`);
+    const ced = cedKey((o.customer || {}).cedula);
+    if (ced) {
+      const max = maxPerPerson(r), has = heldBy(r.id, ced);
+      if (has + qty > max) throw err(409, `Por reglamento, una persona puede tener hasta ${max} boletos de esta rifa (2,5 %). ${has ? `Esta cédula ya tiene ${has}: puede llevar ${Math.max(0, max - has)} más.` : `Elige ${max} o menos.`}`);
+    }
+    if (o.channel === 'taquilla' && o.reference) { const d = refUses(o.reference); if (d.length) throw err(409, `La referencia ${o.reference} ya se usó en la orden ${d[0].id} (${d[0].name}). Revisa el pago.`); }
     const c = upsertClient(o.customer || {});
     // Los fronts de venta no muestran promociones: en línea se cobra el precio normal (ver Hallazgos en el README).
     const amountUSD = o.channel === 'taquilla' ? priceFor(r, qty) : r2(qty * r.priceUSD), rt = rate();
@@ -535,7 +557,7 @@
     get db() { return db; },
     reset() { db = seed(); commit(); },
     util: { cedKey, cedFmt, hash, r2, STATES, LOTTERIES, ROLES, REJECT_REASONS, STATE_LABEL },
-    raffle, client, method, caja, rate, raffleState, raffleStats, takenMap, editable, onSale, closesAt, gatewayActive, gatewayState, priceFor, pad, digits, freeNumbers,
+    raffle, client, method, caja, rate, raffleState, raffleStats, takenMap, editable, onSale, closesAt, gatewayActive, gatewayState, priceFor, pad, digits, freeNumbers, maxPerPerson, heldBy, refUses,
 
     /* Monedas y tasa */
     setRate(value, source) {
@@ -669,8 +691,8 @@
       const order = createOrder(Object.assign({}, o, { channel: 'taquilla' }));
       const paid = o.partialUSD ? r2(+o.partialUSD) : 0;
       if (paid && paid < order.amountUSD) {
-        if (!order.numbers.length) order.numbers = freeNumbers(raffle(order.raffleId), order.qty);
-        order.status = 'abono'; order.paidUSD = paid; order.history.push({ at: iso(now()), text: `Abono de US$ ${paid} en taquilla`, by: db.me.short });
+        // Al azar: los números se asignan cuando se completa el pago, igual que en la página de venta.
+        order.status = 'abono'; order.paidUSD = paid; order.payments = [{ at: iso(now()), amountUSD: paid, method: order.method, reference: order.reference }]; order.history.push({ at: iso(now()), text: `Abono de US$ ${paid} en taquilla`, by: db.me.short });
         notify('abono', order);
       } else approve(order, (caja(o.cajaId) || {}).name || 'Taquilla', 'Venta cobrada en taquilla · números: ');
       if (order.status === 'aprobada') order.history[order.history.length - 1].text += order.numbers.join(', ');
@@ -682,6 +704,8 @@
       const m = method(o.method);
       const hasEvidence = o.reference || o.proof || (m && !m.requireReceipt);
       if (!hasEvidence && !force) throw err(412, 'Este pago no tiene referencia ni comprobante');
+      const dup = refUses(o.reference, o.id).filter(d => d.status !== 'pendiente' || d.id < o.id);
+      if (dup.length && !force) { const e = err(409, `La referencia ${o.reference} ya se usó en la orden ${dup[0].id} (${dup[0].name})`); e.code = 'dup'; throw e; }
       approve(o, db.me.short, force && !hasEvidence ? 'Aprobado sin comprobante (confirmado por el operador)' : null);
       if (force && !hasEvidence) o.history[o.history.length - 1].text += ' · números: ' + o.numbers.join(', ');
       audit(force && !hasEvidence ? 'Pago aprobado sin comprobante' : 'Pago aprobado', `${o.id} · ${o.name} · US$ ${o.amountUSD}`); commit(); return o;
@@ -694,14 +718,39 @@
       o.history.push({ at: iso(now()), text: 'Pago rechazado: ' + reason + (o.numbers.length ? ' · se liberan ' + o.numbers.join(', ') : ''), by: db.me.short });
       audit('Pago rechazado', `${o.id} · ${reason}`); commit();
     },
-    registerPayment(id, amountUSD, methodId, reference) {
+    /* Abono: registrar un pago. Con { number } el dinero (más lo ya abonado) va primero a ese boleto:
+       si alcanza su precio, ese boleto se confirma en una orden aparte y el resto sigue como abono. */
+    registerPayment(id, amountUSD, methodId, reference, opts = {}) {
       const o = db.orders.find(x => x.id === id); if (!o || o.status !== 'abono') throw err(409, 'Esta venta no es un abono');
       const v = r2(+amountUSD), due = r2(o.amountUSD - o.paidUSD);
       if (!(v > 0)) throw err(400, 'Escribe el monto');
-      if (v > due) throw err(400, `El saldo es US$ ${due}`);
+      if (v > due + 0.001) throw err(400, `El saldo es US$ ${due}`);
+      if (reference) { const d = refUses(reference); if (d.length) throw err(409, `La referencia ${reference} ya se usó en la orden ${d[0].id} (${d[0].name})`); }
+      const r = raffle(o.raffleId), mName = methodId ? ((method(methodId) || {}).name || '') : '';
+      o.payments = o.payments || [{ at: o.createdAt, amountUSD: o.paidUSD, method: o.method, reference: o.reference }];
+      o.payments.push({ at: iso(now()), amountUSD: v, method: methodId || '', reference: reference || '' });
       o.paidUSD = r2(o.paidUSD + v);
-      o.history.push({ at: iso(now()), text: `Pago de US$ ${v}${methodId ? ' · ' + ((method(methodId) || {}).name || '') : ''}${reference ? ' · ref. ' + reference : ''}`, by: db.me.short });
-      if (o.paidUSD >= o.amountUSD) approve(o, db.me.short, 'Saldo completado · venta confirmada'); else notify('abono', o);
+      const target = opts.number != null ? String(opts.number) : '';
+      if (target && o.qty > 1) {
+        if (!o.random && !o.numbers.includes(target)) throw err(400, `El número ${target} no está en esta venta`);
+        o.focus = target;
+        const unit = r2(o.amountUSD / o.qty);
+        if (o.paidUSD >= unit - 0.001) {
+          const num = o.random && !o.numbers.length ? freeNumbers(r, 1)[0] : target;
+          o.numbers = o.numbers.filter(n => n !== num); o.qty -= 1; o.amountUSD = r2(o.amountUSD - unit); o.amountBs = r2(o.amountUSD * o.rate); o.paidUSD = r2(o.paidUSD - unit); o.focus = '';
+          const done = { ...JSON.parse(JSON.stringify(o)), id: 'LG-' + (++db.seq), qty: 1, numbers: [num], random: false, amountUSD: unit, amountBs: r2(unit * o.rate), paidUSD: unit, payments: [], parentId: o.id, status: 'aprobada', decidedAt: iso(now()), decidedBy: db.me.short,
+            history: [...o.history, { at: iso(now()), text: `Boleto ${num} pagado completo (sale de ${o.id})`, by: db.me.short }] };
+          db.orders.unshift(done);
+          o.history.push({ at: iso(now()), text: `Pago de US$ ${v}${mName ? ' · ' + mName : ''}${reference ? ' · ref. ' + reference : ''} · completó el boleto ${num}, que pasa a la orden ${done.id}`, by: db.me.short });
+          notify('compra_confirmada', done);
+          if (o.paidUSD >= o.amountUSD - 0.001) approve(o, db.me.short, 'Saldo completado · venta confirmada'); else notify('abono', o);
+          audit('Abono registrado', `${o.id} · US$ ${v} · boleto ${num} completo`); commit(); return done;
+        }
+        o.history.push({ at: iso(now()), text: `Pago de US$ ${v}${mName ? ' · ' + mName : ''}${reference ? ' · ref. ' + reference : ''} · para el boleto ${target} (le faltan US$ ${r2(unit - o.paidUSD)})`, by: db.me.short });
+        notify('abono', o); audit('Abono registrado', `${o.id} · US$ ${v} · para el ${target}`); commit(); return o;
+      }
+      o.history.push({ at: iso(now()), text: `Pago de US$ ${v}${mName ? ' · ' + mName : ''}${reference ? ' · ref. ' + reference : ''}`, by: db.me.short });
+      if (o.paidUSD >= o.amountUSD - 0.001) approve(o, db.me.short, 'Saldo completado · venta confirmada'); else notify('abono', o);
       audit('Abono registrado', `${o.id} · US$ ${v}`); commit(); return o;
     },
     expireClosed() {

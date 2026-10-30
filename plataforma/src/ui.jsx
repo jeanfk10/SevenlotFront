@@ -84,9 +84,9 @@ function useDialog(onClose) {
   }, []);
   return ref;
 }
-export function Modal({ title, sub, onClose, children, footer, wide }) {
+export function Modal({ title, sub, onClose, children, footer, wide, xl }) {
   const ref = useDialog(onClose), id = useId();
-  return <><div className="scrim" onClick={onClose} /><div ref={ref} className={'modal' + (wide ? ' modal--wide' : '')} role="dialog" aria-modal="true" aria-labelledby={id} tabIndex={-1}>
+  return <><div className="scrim" onClick={onClose} /><div ref={ref} className={'modal' + (wide ? ' modal--wide' : '') + (xl ? ' modal--xl' : '')} role="dialog" aria-modal="true" aria-labelledby={id} tabIndex={-1}>
     <div className="modal__head"><div><h2 id={id}>{title}</h2>{sub && <p>{sub}</p>}</div><button className="icon-btn" type="button" onClick={onClose} aria-label="Cerrar"><X size={18} /></button></div>
     <div className="modal__body">{children}</div>
     {footer && <div className="modal__foot">{footer}</div>}

@@ -127,6 +127,17 @@ Después de que el equipo probó el panel, se simplificó en un solo commit para
 
 Para volver a la versión anterior: `git revert <commit de la versión simplificada>` (o `git checkout ace7a30 -- plataforma/src`).
 
+## Ventas: POS Terminal, pagos y abonos
+
+- **Menú del operador**: Inicio (con Reportes y Actividad) · **POS Terminal** · **Verificar ventas** (Pagos y abonos, Buscar boletos) · Rifas · **Clientes** (con toda la mensajería: Mensajes, Campañas, Automatizaciones y el resto en "Más") · Ajustes. Las rutas no cambiaron.
+- **Ventana del pago al centro** (no al costado), con el **comprobante completo** y el botón "Ver en grande".
+- **Referencias repetidas**: se comparan letras y números (desde 4) contra los pagos no rechazados y los abonos. En Pagos se marca "Referencia repetida", no entra en la aprobación en lote y aprobarla pide confirmar. En el POS y al registrar un abono, una referencia ya usada se rechaza.
+- **Abonos por número**: el buscador encuentra por número de boleto; la ventana muestra cada boleto como ticket y deja elegir a cuál va el pago. Lo ya abonado se aplica primero a ese boleto; cuando alcanza su precio, ese boleto queda confirmado en una orden aparte y los demás siguen como abono.
+- **POS Terminal**: dos modalidades, "Escoger números" (se ven) o "Al azar" (solo la cantidad; los números se asignan al cobrar completo, como en la página de venta). Los boletos entran al carrito como tickets animados.
+- **Máximo por persona**: 2,5 % de los números de la rifa por cédula (1.000 → 25, 10.000 → 250), sumando todo lo que esa cédula tiene en la rifa. Lo valida el servidor simulado en cualquier compra (POS y página de venta).
+- **Buscar boletos**: por cédula, por número de boleto (dentro de una rifa) o por rifa (con filtro por nombre, cédula o número).
+- **Sitio web**: la vista previa usa un iPhone con isla dinámica que se ajusta para verse entero en la pantalla.
+
 ## Movimiento
 
 Mismo lenguaje que la página principal: entrada escalonada de cada pantalla, bolitas de lotería y boletos flotando en el saludo, cifras que cuentan hasta su valor, barras que crecen, botones con resorte, números que saltan al elegirlos en la taquilla, confeti al aprobar un pago, vender, publicar un ganador, aprobar una rifa o una empresa, y una marca de "listo" que se dibuja en el recibo. Todo se apaga si el sistema pide reducir el movimiento.
