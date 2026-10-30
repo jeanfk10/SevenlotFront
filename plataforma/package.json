@@ -1,0 +1,22 @@
+{
+  "name": "lottox-entorno-de-pruebas",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Entorno local de pruebas del rediseño del panel del operador LottoX, con los fronts de venta conectados.",
+  "scripts": {
+    "fronts": "node scripts/copiar-fronts.mjs",
+    "dev": "node scripts/copiar-fronts.mjs && vite --host",
+    "build": "node scripts/copiar-fronts.mjs && vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "lucide-react": "^0.544.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.4",
+    "vite": "^7.1.9"
+  }
+}
