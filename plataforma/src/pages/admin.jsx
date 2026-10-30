@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Building2, Ticket, Flag, Receipt, Check, X, Search, Eye, Pause, Play, RefreshCw, AlertTriangle, CalendarClock, FileText, ShieldCheck, Plus, Clock, Lock, Download, Pencil, Trash2, History, Info, UserPlus, Mail } from 'lucide-react';
 import { API, useDB, go, setQuery, usd, bs, num, plural, date, dateTime, ago, greeting, cedFmt, raffleState, STATE_LABEL, RAFFLE_TONE, LOTTERIES, attempt, toast, confetti, downloadCSV, daysLeft, readImage, toLocalInput, fromLocalInput, STATES } from '../lib.js';
+import { ClientCard, OrderDetail, PurchaseList, clientTotals } from '../compras.jsx';
 import { PageHead, Card, Seg, Button, LinkButton, Badge, Note, Drawer, Modal, Field, Input, Select, Textarea, Empty, Stat, Toggle, Confirm, Count, FloatBg, Bar, Check2, FileDrop, Thumb, Steps } from '../ui.jsx';
 
 const COMPANY_STATUS = { pendiente: ['Pendiente', 'warn'], activa: ['Activa', 'ok'], suspendida: ['Suspendida', 'err'], rechazada: ['Rechazada', 'muted'] };
@@ -607,11 +608,15 @@ function NumberModal({ r, x, editable, onClose }) {
   const known = ced.length >= 6 && API.client('V' + ced);
   const save = () => { try { API.setNumberStatus(r.id, x.n, to, { reason, cedula: ced, name }); toast(`Número ${x.k}: ${NUM_STATUS[x.status][0].toLowerCase()} → ${NUM_STATUS[to][0].toLowerCase()}`); onClose(); } catch (e) { setErrs(e.fields || {}); toast(e.message, 'err'); } };
   const options = ['vendido', 'apartado', 'disponible'].filter(s => s !== x.status);
-  return <Modal title={<span className="row" style={{ gap: 10 }}>Número <span className="mono" style={{ fontSize: 22 }}>{x.k}</span><Badge tone={NUM_STATUS[x.status][1]}>{NUM_STATUS[x.status][0]}</Badge></span>} sub={`${r.title} · ${coName(db, r.companyId)}`} onClose={onClose}
+  return <Modal wide title={<span className="row" style={{ gap: 10 }}>Número <span className="mono" style={{ fontSize: 22 }}>{x.k}</span><Badge tone={NUM_STATUS[x.status][1]}>{NUM_STATUS[x.status][0]}</Badge></span>} sub={`${r.title} · ${coName(db, r.companyId)}`} onClose={onClose}
     footer={editable ? <><Button onClick={onClose}>Cerrar</Button><Button variant="primary" disabled={!to} onClick={save}>{to ? `Cambiar a ${NUM_STATUS[to][0].toLowerCase()}` : 'Elige el nuevo estado'}</Button></> : <Button onClick={onClose}>Cerrar</Button>}>
-    {x.status !== 'disponible' ? <dl className="kv kv--left" style={{ gridTemplateColumns: '110px 1fr' }}><dt>Cliente</dt><dd>{x.name || '—'}{x.cedula ? ` · ${cedFmt(x.cedula)}` : ''}</dd>
-      {ord && <><dt>Compra</dt><dd className="mono">{ord.id} · {plural(ord.qty, 'boleto', 'boletos')} · {usd(ord.amountUSD)}</dd><dt>Pago</dt><dd>{ord.channel === 'admin' ? 'Asignado por el superadministrador' : (API.method(ord.method) || {}).name || (ord.channel === 'taquilla' ? 'Taquilla' : 'Sin método')}{ord.status === 'abono' ? ` · abono de ${usd(ord.paidUSD)}` : ''}</dd></>}
-      {x.at && <><dt>Fecha</dt><dd>{dateTime(x.at)}</dd></>}</dl> : <p className="muted">Nadie tiene este número todavía.</p>}
+    {x.status !== 'disponible' ? <>
+      {x.name === 'Comprador de ejemplo' && !x.cedula ? <Note icon={Info}>Empresa de ejemplo: este número vendido no tiene un cliente cargado en el entorno de pruebas.</Note> : <>
+        <div className="row row--between"><b>Quién lleva este número</b>{x.cedula && <a className="link" href={`#/admin/rifas/verificador?ced=${x.cedula}`}>Ver todas sus compras</a>}</div>
+        <ClientCard cedula={x.cedula} name={x.name} />
+        {ord ? <><b>Compra de este número</b><OrderDetail o={ord} showRaffle={false} /></> : x.at && <p className="subtle">Asignado por el superadministrador el {dateTime(x.at)} (empresa de ejemplo, sin detalle de pago).</p>}
+      </>}
+    </> : <p className="muted">Nadie tiene este número todavía.</p>}
     {editable && <>
       <fieldset style={{ border: 0, padding: 0, margin: 0 }}><legend className="field__label" style={{ marginBottom: 8 }}>Cambiar el estado a<span className="req">*</span></legend>
         <div className="row">{options.map(o => <button key={o} type="button" className="tpl" style={{ width: 'auto', padding: '9px 14px' }} aria-pressed={to === o} onClick={() => setTo(o)}><b>{NUM_STATUS[o][0]}</b></button>)}</div></fieldset>
@@ -625,4 +630,38 @@ function NumberModal({ r, x, editable, onClose }) {
       {to && <Field label="Motivo del cambio" required error={errs.reason} hint="Queda registrado con tu usuario en la Actividad y en el historial del número."><Textarea rows={2} value={reason} onChange={e => setReason(e.target.value)} placeholder="Ej.: el cliente pagó en efectivo en la oficina" /></Field>}
     </>}
   </Modal>;
+}
+
+/* ---------- Verificador del superadministrador: todas las compras de una cédula en todas las rifas ---------- */
+export function AdminVerificador({ query }) {
+  const db = useDB(), key = query.ced ? API.util.cedKey(query.ced) : '';
+  const [input, setInput] = useState(key ? cedFmt(key) : ''), [tab, setTab] = useState('todas'), [rf, setRf] = useState('');
+  const search = e => { e.preventDefault(); const k = API.util.cedKey(input); if (!k) return toast('Escribe una cédula de 6 a 8 números', 'err'); go('/admin/rifas/verificador', { ced: k }); };
+  const c = key && API.client(key);
+  const orders = key ? db.orders.filter(o => o.cedula === key).sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : [];
+  const extra = key ? db.extRaffles.flatMap(r => Object.entries(r.numberOverrides || {}).filter(([, v]) => v.cedula === key && v.status !== 'disponible').map(([n, v]) => ({ raffleId: r.id, title: r.title, company: coName(db, r.companyId), number: String(n).padStart(String(r.total - 1).length, '0'), status: v.status, at: v.at, name: v.name }))) : [];
+  const name = c ? c.name : (orders[0] || extra[0] || {}).name;
+  const f = o => tab === 'todas' || (tab === 'activas' ? o.status === 'aprobada' && raffleState(API.raffle(o.raffleId)) === 'venta' : tab === 'pendientes' ? ['pendiente', 'abono'].includes(o.status) : ['rechazada', 'vencida', 'anulada'].includes(o.status));
+  const list = orders.filter(f).filter(o => !rf || o.raffleId === rf);
+  const raffles = [...new Set(orders.map(o => o.raffleId))].map(id => API.raffle(id)).filter(Boolean);
+  const t = key ? clientTotals(key) : null;
+  const tickets = orders.filter(o => ['aprobada', 'abono', 'pendiente'].includes(o.status)).reduce((a, o) => a + o.qty, 0) + extra.length;
+  return <>
+    <PageHead title="Verificador" sub="Busca por cédula y ve todo lo que una persona compró, en todas las rifas de todas las empresas" />
+    <Card><form className="row" style={{ flexWrap: 'nowrap' }} onSubmit={search}><div className="input-icon grow"><Search size={15} /><Input data-autofocus inputMode="numeric" value={input} onChange={e => setInput(e.target.value)} placeholder="V-18.456.732" aria-label="Cédula" /></div><Button variant="primary" type="submit">Buscar</Button></form>
+      <p className="hint" style={{ marginTop: 6 }}>Con o sin puntos y letra. Prueba con 31689392 (cliente de prueba).</p></Card>
+    <div style={{ height: 18 }} />
+    {key && !c && !orders.length && !extra.length && <Card><Empty icon={Search} title={`No hay compras con la cédula ${cedFmt(key)}`} text="Esta persona no ha comprado en ninguna rifa de la plataforma." /></Card>}
+    {key && (c || orders.length || extra.length) && <div className="grid grid--verif">
+      <div className="stack"><ClientCard cedula={key} name={name} />
+        <Card body={false}><div className="list-row"><span className="grow">Boletos en total</span><b className="num">{num(tickets)}</b></div><div className="list-row"><span className="grow">Rifas en las que participó</span><b className="num">{new Set([...orders.map(o => o.raffleId), ...extra.map(e => e.raffleId)]).size}</b></div><div className="list-row"><span className="grow">Primera compra</span><b className="num">{t && t.first ? date(t.first) : extra[0] ? date(extra[0].at) : '—'}</b></div></Card>
+      </div>
+      <Card body={false}>
+        <div className="toolbar"><Seg label="Compras" value={tab} onChange={setTab} options={[{ key: 'todas', label: 'Todas', count: orders.length + extra.length }, { key: 'activas', label: 'Activas', count: orders.filter(o => o.status === 'aprobada' && raffleState(API.raffle(o.raffleId)) === 'venta').length }, { key: 'pendientes', label: 'Pendientes', count: orders.filter(o => ['pendiente', 'abono'].includes(o.status)).length }, { key: 'otras', label: 'Rechazadas o anuladas', count: orders.filter(o => ['rechazada', 'vencida', 'anulada'].includes(o.status)).length }]} />
+          {raffles.length > 1 && <div style={{ marginLeft: 'auto', width: 220 }}><Select aria-label="Filtrar por rifa" value={rf} onChange={e => setRf(e.target.value)} placeholder="Rifa: todas" options={raffles.map(r => [r.id, r.title])} /></div>}</div>
+        {list.length || (tab === 'todas' && !rf && extra.length) ? <PurchaseList orders={list} extra={tab === 'todas' && !rf ? extra : []} /> : <Empty title="No hay compras con este filtro" />}
+        <div className="card__foot"><span>Toca una compra para ver todo su detalle: números, pago, verificación e historial.</span></div>
+      </Card>
+    </div>}
+  </>;
 }

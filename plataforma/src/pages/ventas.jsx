@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Search, Check, X, AlertTriangle, Image, Shuffle, ChevronRight, Printer, MessageCircle, Plus, Download, Store, Calendar, UserCheck, ExternalLink, FlaskConical } from 'lucide-react';
 import { API, PAGOS, useDB, go, setQuery, usd, bs, money, num, dec, plural, date, dateTime, ago, cedFmt, cedKey, methodName, ORDER_STATUS, REJECT_REASONS, raffleState, attempt, toast, downloadCSV, readImage, STATES, firstName, confetti } from '../lib.js';
+import { ClientCard, PurchaseList } from '../compras.jsx';
 import { PageHead, Card, Seg, Button, LinkButton, Badge, Note, Drawer, Modal, Field, Input, Select, Textarea, Steps, Empty, Pager, Stat, MethodIcon, Thumb, Avatar, Check2, Bar, FileDrop, Confirm } from '../ui.jsx';
 
 /* ---------- comprobante: la imagen subida o una captura de ejemplo ---------- */
@@ -253,7 +254,7 @@ export function Verificador({ query }) {
   const active = mine.filter(o => o.status === 'aprobada' && raffleState(API.raffle(o.raffleId)) === 'venta');
   const pend = mine.filter(o => o.status === 'pendiente' || o.status === 'abono');
   const lists = { activos: active, pendientes: pend, historial: mine };
-  const list = lists[tab].filter(o => !rf || o.raffleId === rf), per = 6, pages = Math.max(1, Math.ceil(list.length / per)), shown = list.slice((page - 1) * per, page * per);
+  const list = lists[tab].filter(o => !rf || o.raffleId === rf), per = 10, pages = Math.max(1, Math.ceil(list.length / per)), shown = list.slice((page - 1) * per, page * per);
   const paid = mine.reduce((a, o) => a + (o.status === 'aprobada' ? o.amountUSD : o.status === 'abono' ? o.paidUSD : 0), 0), owes = mine.filter(o => o.status === 'abono').reduce((a, o) => a + o.amountUSD - o.paidUSD, 0);
   const raffles = [...new Set(mine.map(o => o.raffleId))].map(id => API.raffle(id));
   return <>
@@ -262,17 +263,14 @@ export function Verificador({ query }) {
       <p className="hint" id="ver-h" style={{ marginTop: 6 }}>Con o sin puntos y letra; mínimo 6 dígitos. Prueba con 31689392 (cliente de prueba).</p></Card>
     <div style={{ height: 18 }} />
     {key && !c && <Card><Empty icon={Search} title={`No hay compras con la cédula ${cedFmt(key)}`} text="Revisa el número o véndele su primer boleto." action={<LinkButton href={`#/ventas/taquilla?ced=${key}`} variant="primary" icon={Store}>Vender</LinkButton>} /></Card>}
-    {c && <div className="grid grid--side-l">
-      <Card><div style={{ display: 'grid', gap: 12 }}><Avatar name={c.name} lg /><div><b style={{ fontSize: 15 }}>{c.name}</b>{c.test && <> <Badge tone="brand">Cliente de prueba</Badge></>}<p className="subtle">{cedFmt(c.cedula)} · {c.state || '—'}{c.municipality ? ', ' + c.municipality : ''}</p><p className="subtle">{c.phone || 'Sin teléfono'} · {c.email || 'sin correo'}</p></div>
-        <dl className="kv"><dt>Compras</dt><dd>{mine.filter(o => ['aprobada', 'abono'].includes(o.status)).length}</dd><dt>Boletos activos</dt><dd>{active.reduce((a, o) => a + o.qty, 0)}</dd><dt>Total pagado</dt><dd>{usd(paid)}</dd><dt>Saldo pendiente</dt><dd className={owes ? 'warn-text' : ''}>{usd(owes)}</dd></dl>
-        <div className="row"><LinkButton size="sm" icon={Store} href={`#/ventas/taquilla?ced=${c.cedula}`}>Vender</LinkButton>{c.phone && <a className="btn btn--sm" target="_blank" rel="noopener" href={'https://wa.me/58' + c.phone.replace(/\D/g, '').replace(/^0/, '')}><MessageCircle size={14} />WhatsApp</a>}</div></div></Card>
+    {c && <div className="grid grid--verif">
+      <div className="stack"><ClientCard cedula={c.cedula} />
+        <div className="row"><LinkButton size="sm" icon={Store} href={`#/ventas/taquilla?ced=${c.cedula}`}>Venderle</LinkButton>{c.phone && <a className="btn btn--sm" target="_blank" rel="noopener" href={'https://wa.me/58' + c.phone.replace(/\D/g, '').replace(/^0/, '')}><MessageCircle size={14} />WhatsApp</a>}</div></div>
       <Card body={false}>
         <div className="toolbar"><Seg label="Compras" value={tab} onChange={t => { setTab(t); setPage(1); }} options={[{ key: 'activos', label: 'Activos', count: active.length }, { key: 'pendientes', label: 'Pendientes', count: pend.length }, { key: 'historial', label: 'Historial', count: mine.length }]} />
           <div style={{ marginLeft: 'auto', width: 220 }}><Select aria-label="Filtrar por rifa" value={rf} onChange={e => { setRf(e.target.value); setPage(1); }} placeholder="Rifa: todas" options={raffles.map(r => [r.id, r.title])} /></div></div>
         {!list.length ? <Empty title={tab === 'activos' ? 'Sin boletos activos' : tab === 'pendientes' ? 'Sin pagos pendientes' : 'Sin compras'} /> :
-          <div className="tbl-wrap"><table className="tbl tbl--cards"><thead><tr><th>Rifa</th><th>Números</th><th>Estado</th><th className="r">Pagado</th><th>Fecha</th></tr></thead>
-            <tbody>{shown.map(o => <tr key={o.id} className="clickable" onClick={() => go('/ventas/pagos', { tab: { pendiente: 'pendiente', abono: 'abono', aprobada: 'aprobada' }[o.status] || 'rechazada', orden: o.id })}><td>{API.raffle(o.raffleId).title}<small className="mono">{o.id}</small></td><td className="mono">{o.numbers.length && o.status !== 'rechazada' && o.status !== 'vencida' ? o.numbers.join(' · ') : '—'}</td>
-              <td><Badge tone={ORDER_STATUS[o.status][1]}>{o.status === 'abono' ? `Abono ${Math.round(o.paidUSD / o.amountUSD * 100)} %` : ORDER_STATUS[o.status][0]}</Badge></td><td className="r num">{usd(o.status === 'aprobada' ? o.amountUSD : o.paidUSD)}</td><td className="num">{dateTime(o.createdAt)}</td></tr>)}</tbody></table></div>}
+          <PurchaseList key={tab + rf + page} orders={shown} actions={o => <LinkButton size="sm" href={`#/ventas/pagos?tab=${{ pendiente: 'pendiente', abono: 'abono', aprobada: 'aprobada' }[o.status] || 'rechazada'}&orden=${o.id}`}>Abrir en Pagos</LinkButton>} />}
         <Pager page={page} pages={pages} onChange={setPage} shown={shown.length} total={list.length} noun="compras" />
       </Card>
     </div>}
