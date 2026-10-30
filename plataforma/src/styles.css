@@ -930,7 +930,8 @@ button.tkt--all.is-sel { outline-color: var(--coral); }
 .numhit b { display: block; } .numhit small { color: var(--ink-3); }
 
 /* barra superior con el naranja de LottoGE que se difumina hacia el blanco de la página */
-.top, .top.is-scrolled { background: linear-gradient(100deg, #ff5a36 0%, #ff7a50 16%, #ffb196 34%, #ffe3d9 52%, #fff6f2 66%, var(--bg) 82%); border-bottom: 0; backdrop-filter: none; -webkit-backdrop-filter: none; }
+/* el degradado baja de naranja a blanco y solo cubre la fila del logo y el menú (64 px; 58 px en el teléfono) */
+.top, .top.is-scrolled { --row: 64px; background: linear-gradient(180deg, #ff5a36 0%, #ff7048 30%, #ffa68a 62%, #ffe0d6 86%, var(--bg) 100%) top / 100% var(--row) no-repeat, var(--bg); border-bottom: 0; backdrop-filter: none; -webkit-backdrop-filter: none; }
 .top.is-scrolled { box-shadow: 0 8px 24px rgba(255, 90, 54, .14); }
 .top .brand b, .top .brand b em { color: #fff; }
 .top .brand > span:last-child { color: rgba(255, 255, 255, .85); }
@@ -942,11 +943,12 @@ button.tkt--all.is-sel { outline-color: var(--coral); }
 .top .nav a::after, .top .nav a[aria-current="page"]::after { background: #1d2340; }
 .top .nav a svg { opacity: .8; }
 .top .subnav a { color: #1d2340; }
-.top .subnav a:hover, .top .subnav__more > button:hover { background: rgba(255, 255, 255, .55); }
+.top .subnav a:hover, .top .subnav__more > button:hover { background: var(--sunken); }
 .top .subnav a[aria-current="page"], .top .subnav__more > button[aria-current="page"] { background: #1d2340; color: #fff; }
 .top .subnav__more > button { color: #1d2340; }
-:root[data-theme="dark"] .top, :root[data-theme="dark"] .top.is-scrolled { background: linear-gradient(100deg, #c2401f 0%, #8a3322 22%, #3a2530 48%, var(--bg) 78%); }
+:root[data-theme="dark"] .top, :root[data-theme="dark"] .top.is-scrolled { background: linear-gradient(180deg, #c2401f 0%, #8a3322 50%, var(--bg) 100%) top / 100% var(--row) no-repeat, var(--bg); }
 :root[data-theme="dark"] .top .nav a, :root[data-theme="dark"] .top .subnav a, :root[data-theme="dark"] .top .subnav__more > button { color: var(--ink); }
+:root[data-theme="dark"] .top .subnav a[aria-current="page"] { background: var(--ink); color: var(--bg); }
 :root[data-theme="dark"] .top .nav a::after { background: var(--coral); }
 
 /* menú "Más" del teléfono: 6 botones grandes y las pantallas de la sección elegida */
@@ -979,9 +981,13 @@ button.tkt--all.is-sel { outline-color: var(--coral); }
   .sandbar a { display: none; }
   .top .subnav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
   .top .subnav__more { display: none; }
+  .top, .top.is-scrolled { --row: 58px; }
   .top .rate-pill { background: rgba(255, 255, 255, .85); }
   .top .brand b { font-size: 17px; }
   .mbar { box-shadow: 0 -6px 20px rgba(29, 35, 64, .08); border-top: 0; }
   .mbar a, .mbar button { font-size: 11.5px; padding: 9px 0 8px; }
 }
 .mpages__more { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 48px; margin-top: 2px; border: 0; border-radius: 14px; background: none; color: var(--brand-text); font: 700 14px var(--font); cursor: pointer; }
+
+.top .search-btn, .top .rate-pill { background: rgba(255, 255, 255, .9); }
+.top .icon-btn { color: #1d2340; }
