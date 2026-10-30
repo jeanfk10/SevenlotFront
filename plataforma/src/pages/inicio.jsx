@@ -41,7 +41,7 @@ export function Inicio() {
   const latest = db.orders.filter(o => o.status === 'aprobada' || o.status === 'abono').slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 4);
   const pendTotal = tasks.length;
   return <>
-    <PageHead title={`${greeting()}, ${firstName(db.me.short)}`} sub={<>{longDate(now).replace(/^\w/, c => c.toUpperCase())} · {plural(live.length, 'rifa en venta', 'rifas en venta')} · {plural(pendTotal, 'tarea pendiente', 'tareas pendientes')}</>}
+    <PageHead title={`${greeting()}, ${db.me.short}`} sub={<>{longDate(now).replace(/^\w/, c => c.toUpperCase())} · {plural(live.length, 'rifa en venta', 'rifas en venta')} · {plural(pendTotal, 'tarea pendiente', 'tareas pendientes')}</>}
       actions={<LinkButton href="#/rifas/nueva" variant="primary" icon={Plus}>Nueva rifa</LinkButton>} />
     <div className="grid grid--side">
       <div className="stack">

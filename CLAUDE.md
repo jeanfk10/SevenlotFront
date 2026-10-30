@@ -11,6 +11,7 @@ Fronts de compra de rifas para la plataforma **LottoGE** (Venezuela). Cada front
   - `README.md` — uso, configuración y qué conectar a la API.
 - `fronts/_comun/` — lo compartido: `metodos-pago.js` (catálogo de métodos de pago e iconos; es la fuente del bloque `pagos`), `conexion.ejemplo.js` (conexión real de ejemplo con api.lottoge.net), `iconos-pago.html` y `docs/` (LÉEME y guía de implementación del kit, en HTML para subir como Google Docs).
 - `build_kit.py` — arma `kit/` (lo que va al Drive "Sevenlot fronts": `02 Fronts de venta/` con `comun/` y una carpeta por plantilla, y `03 Recursos/iconos-pago/`). Comprueba que lo común sea idéntico en las seis.
+- `plataforma/` — entorno local de pruebas del rediseño del panel del operador LottoX (React + Vite, `npm run dev`), con un servidor simulado en el navegador (`public/sandbox/api.js`) y los 6 fronts del kit conectados a él (Ajustes › Sitio web). Cliente de prueba: cédula 31689392. Ver su README.
 - `rifa-dubai/` — primer prototipo, temático (viaje a Dubái). Solo como referencia.
 
 ## Regla del usuario: cuando un front queda aprobado

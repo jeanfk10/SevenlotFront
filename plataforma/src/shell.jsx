@@ -30,7 +30,7 @@ export function Shell({ children }) {
   const ves = db.currencies.find(x => x.code === 'VES');
   return <>
     <a className="skip" href="#main" onClick={e => { e.preventDefault(); document.getElementById('main').focus(); }}>Saltar al contenido</a>
-    <div className="sandbar" role="note"><FlaskConical size={14} aria-hidden="true" />Entorno de pruebas · datos de ejemplo guardados en este navegador
+    <div className="sandbar" role="note"><FlaskConical size={14} aria-hidden="true" />Entorno de pruebas<span className="sandbar__text"> · datos de ejemplo guardados en este navegador</span>
       <button type="button" onClick={() => setTools(true)}>Herramientas de prueba</button>
       <a href={publicUrl(db)} target="_blank" rel="noopener">Abrir página pública</a></div>
     <header className="top">

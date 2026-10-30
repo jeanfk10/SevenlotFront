@@ -54,10 +54,12 @@
     const now = Date.now(), R = rng(20261030);
     const pick = a => a[Math.floor(R() * a.length)];
     const at = (daysAgo, hour = 9 + Math.floor(R() * 12), min = Math.floor(R() * 60)) => {
-      const d = new Date(now - daysAgo * DAY); d.setHours(hour, min, 0, 0); return Math.min(d.getTime(), now - 60e3);
+      return Math.min(ve(now - daysAgo * DAY, hour, min), now - 60e3);
     };
-    const future = (days, hh, mm) => { const d = new Date(now + days * DAY); d.setHours(hh, mm, 0, 0); return iso(d); };
-    const past = (days, hh, mm) => { const d = new Date(now - days * DAY); d.setHours(hh, mm, 0, 0); return iso(d); };
+    // Las horas de ejemplo son de Venezuela (UTC−4), sin importar la zona del computador.
+    const ve = (t, hh, mm) => { const d = new Date(t - 4 * HOUR); d.setUTCHours(hh + 4, mm, 0, 0); return d.getTime(); };
+    const future = (days, hh, mm) => iso(ve(now + days * DAY, hh, mm));
+    const past = (days, hh, mm) => iso(ve(now - days * DAY, hh, mm));
 
     // Tasa del bolívar: una por semana, de ~560 hace 11 semanas a 700 hoy.
     const rateHistory = [];
