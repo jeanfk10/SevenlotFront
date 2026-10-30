@@ -2,7 +2,8 @@
 // Corrige lo que señaló el informe de revisión: acciones con confirmación y motivo, un solo estado por
 // objeto, datos personales enmascarados en la sala situacional y cifras que salen de la misma fuente.
 import { useState, useEffect, useMemo } from 'react';
-import { Building2, Ticket, Flag, Receipt, Check, X, Search, Eye, Pause, Play, RefreshCw, AlertTriangle, CalendarClock, FileText, ShieldCheck, Plus, Clock, Lock, Download, Pencil, Trash2, History, Info, UserPlus, Mail } from 'lucide-react';
+import { Building2, Ticket, Flag, Receipt, Check, X, Search, Eye, Pause, Play, RefreshCw, AlertTriangle, CalendarClock, FileText, ShieldCheck, Plus, Clock, Lock, Download, Pencil, Trash2, History, Info, UserPlus, Mail, ChevronRight } from 'lucide-react';
+import { RaffleCard, RaffleHero, RaffleFacts, PrizeList, RulesBlock, soldOf } from '../rifa-ui.jsx';
 import { API, useDB, go, setQuery, usd, bs, num, plural, date, dateTime, ago, greeting, cedFmt, raffleState, STATE_LABEL, RAFFLE_TONE, LOTTERIES, attempt, toast, confetti, downloadCSV, daysLeft, readImage, toLocalInput, fromLocalInput, STATES } from '../lib.js';
 import { ClientCard, OrderDetail, PurchaseList, clientTotals } from '../compras.jsx';
 import { PageHead, Card, Seg, Button, LinkButton, Badge, Note, Drawer, Modal, Field, Input, Select, Textarea, Empty, Stat, Toggle, Confirm, Count, FloatBg, Bar, Check2, FileDrop, Thumb, Steps } from '../ui.jsx';
@@ -29,29 +30,25 @@ export function AdminInicio() {
     newRep.length && { icon: Flag, tone: 'err', title: plural(newRep.length, 'denuncia nueva', 'denuncias nuevas'), sub: 'Llegaron desde la página principal', to: '/admin/denuncias', action: 'Ver' },
     dueInv.length && { icon: Receipt, tone: 'info', title: plural(dueInv.length, 'cobro pendiente', 'cobros pendientes'), sub: usd(dueInv.reduce((a, f) => a + f.amountUSD, 0)) + ' por cobrar', to: '/admin/facturacion', action: 'Cobrar' }
   ].filter(Boolean);
+  // Empresas, rifas, denuncias y cobros ya salen con su número en los accesos grandes.
+  const other = tasks.filter(t => t.icon === CalendarClock);
   return <>
     <div className="hello"><FloatBg /><PageHead title={<>{greeting()}, <em>superadministrador</em></>} sub={`${plural(active.length, 'empresa activa', 'empresas activas')} · ${plural(all.filter(r => r.status === 'venta').length, 'rifa en venta', 'rifas en venta')} · ${plural(tasks.length, 'tarea pendiente', 'tareas pendientes')}`} actions={<LinkButton href="#/admin/sala" variant="dark" icon={Eye}>Sala situacional</LinkButton>} /></div>
+    {other.length > 0 && <section className="todo" aria-label="Pendiente de ti"><h2 className="sec-title">Pendiente de ti</h2>
+      <div className="todo__list">{other.slice(0, 3).map((t, i) => <a key={i} className={'todo__item todo__item--' + t.tone} href={'#' + t.to}><i><t.icon size={20} aria-hidden="true" /></i><span className="grow"><b>{t.title}</b><small>{t.sub}</small></span><span className="todo__go">{t.action}<ChevronRight size={15} aria-hidden="true" /></span></a>)}</div></section>}
     <div className="quick">
       <a className="q1" href="#/admin/empresas"><i><Building2 size={22} /></i><b>Empresas{pendCo.length > 0 && <em>{pendCo.length}</em>}</b><small>Aprobar, suspender, cambiar plan</small></a>
       <a className="q2" href="#/admin/rifas"><i><Ticket size={22} /></i><b>Rifas por revisar{pendR.length > 0 && <em>{pendR.length}</em>}</b><small>Antes de que salgan a la venta</small></a>
       <a className="q3" href="#/admin/denuncias"><i><Flag size={22} /></i><b>Denuncias{newRep.length > 0 && <em>{newRep.length}</em>}</b><small>Las que llegan de la página principal</small></a>
       <a className="q4" href="#/admin/facturacion"><i><Receipt size={22} /></i><b>Cobros{dueInv.length > 0 && <em>{dueInv.length}</em>}</b><small>Mantenimiento y licencias</small></a>
     </div>
-    <div className="grid grid--side">
-      <div className="stack">
-        <div className="stats">
-          <Stat label="Empresas activas" value={<Count to={active.length} format={v => num(v)} />} sub={`${pendCo.length} pendientes · ${db.companies.filter(c => c.status === 'suspendida').length} suspendidas`} />
-          <Stat label="Rifas en venta" value={<Count to={all.filter(r => r.status === 'venta').length} format={v => num(v)} />} sub={`${all.filter(r => r.status === 'falta-ganador').length} esperan ganador`} />
-          <Stat label="Ventas del mes" value={<Count to={month} format={v => usd(v, true)} />} sub="Todas las empresas" />
-          <Stat label="Denuncias abiertas" value={<Count to={db.reports.filter(r => ['nueva', 'revision'].includes(r.status)).length} format={v => num(v)} />} sub={`${newRep.length} sin revisar`} subTone={newRep.length ? 'err' : ''} />
-        </div>
-        <Card title="Ventas del mes por empresa" body={false}>{sales.map(({ c, s }) => <div className="hbar" key={c.id}><span>{c.name}{c.live && <> <Badge tone="brand" plain>datos reales del entorno</Badge></>}</span><Bar value={s.monthSalesUSD} max={max} label={c.name} /><b className="num" style={{ textAlign: 'right' }}>{usd(s.monthSalesUSD, true)}</b></div>)}</Card>
-      </div>
-      <div className="stack">
-        <Card title="Pendiente de ti" body={false}>{tasks.length ? tasks.map((t, i) => <div className="list-row" key={i}><t.icon size={17} className={t.tone + '-text'} aria-hidden="true" /><span className="grow"><b>{t.title}</b><small>{t.sub}</small></span><LinkButton size="sm" href={'#' + t.to}>{t.action}</LinkButton></div>) : <Empty title="Estás al día" />}</Card>
-        <Card title="Actividad reciente" actions={<a className="subtle" href="#/admin/actividad">Ver todo</a>} body={false}>{db.audit.slice(0, 5).map(a => <div className="list-row" key={a.id}><span className="grow"><b>{a.action}</b><small>{a.detail} · {a.by} · {ago(a.at)}</small></span></div>)}</Card>
-      </div>
+    <div className="kpis">
+      <div className="kpi kpi--coral"><small>Empresas activas</small><b className="num"><Count to={active.length} format={v => num(v)} /></b><span>{pendCo.length} pendientes · {db.companies.filter(c => c.status === 'suspendida').length} suspendidas</span></div>
+      <div className="kpi kpi--teal"><small>Rifas en venta</small><b className="num"><Count to={all.filter(r => r.status === 'venta').length} format={v => num(v)} /></b><span>{all.filter(r => r.status === 'falta-ganador').length} esperan ganador</span></div>
+      <div className="kpi kpi--sun"><small>Ventas del mes</small><b className="num"><Count to={month} format={v => usd(v, true)} /></b><span>Todas las empresas</span></div>
     </div>
+    <Card title="Ventas del mes por empresa" body={false}>{sales.map(({ c, s }) => <div className="hbar" key={c.id}><span>{c.name}{c.live && <> <Badge tone="brand" plain>datos reales del entorno</Badge></>}</span><Bar value={s.monthSalesUSD} max={max} label={c.name} /><b className="num" style={{ textAlign: 'right' }}>{usd(s.monthSalesUSD, true)}</b></div>)}</Card>
+    <p className="subtle" style={{ marginTop: 14 }}>Los compradores en vivo están en la <a className="link" href="#/admin/sala">Sala situacional</a> y el historial, en <a className="link" href="#/admin/actividad">Actividad</a>.</p>
   </>;
 }
 
@@ -163,15 +160,12 @@ export function SupervisorRifas({ query }) {
   const open = query.r && all.find(r => r.id === query.r);
   return <>
     <PageHead title="Supervisor de rifas" sub="Las rifas se revisan antes de salir a la venta (requisito de CONALOT)" />
-    <Card body={false}>
-      <div className="toolbar"><Seg label="Estado" value={tab} onChange={t => setQuery({ tab: t, r: '' })} options={[{ key: 'revision', label: 'Por revisar', count: cnt('revision') }, { key: 'venta', label: 'En venta', count: cnt('venta') }, { key: 'falta-ganador', label: 'Falta ganador', count: cnt('falta-ganador') }, { key: 'rechazada', label: 'Rechazadas', count: cnt('rechazada') }, { key: 'todas', label: 'Todas', count: all.length }]} />
-        <div className="input-icon" style={{ marginLeft: 'auto', width: 240 }}><Search size={15} /><Input placeholder="Rifa o empresa" value={q} onChange={e => setQ(e.target.value)} aria-label="Buscar rifas" /></div></div>
-      {!list.length ? <Empty icon={Ticket} title={tab === 'revision' ? 'No hay rifas por revisar' : 'No hay rifas en este estado'} text={tab === 'revision' ? 'Cuando un operador envíe una rifa, aparece aquí.' : ''} /> :
-        <div className="tbl-wrap"><table className="tbl tbl--cards"><thead><tr><th>Rifa</th><th>Empresa</th><th>Estado</th><th>Sorteo</th><th className="r">Precio</th><th>Vendido</th><th><span className="sr-only">Acción</span></th></tr></thead>
-          <tbody>{list.map(r => <tr key={r.id} className="clickable" onClick={e => e.target.closest('button,a') || go('/admin/rifas/detalle', { r: r.id })}><td><b>{r.title}</b><small>{r.prize}</small></td><td>{coName(db, r.companyId)}</td><td><Badge tone={RAFFLE_TONE[r.status]}>{STATE_LABEL[r.status]}</Badge></td><td className="num">{date(r.drawAt)}<small>{r.lottery}</small></td><td className="r num">{usd(r.priceUSD, true)}</td>
-            <td style={{ minWidth: 110 }}>{r.status === 'revision' ? <span className="subtle">—</span> : <><Bar value={r.soldPct} max={100} label="Vendido" /><small className="num">{r.soldPct} %</small></>}</td>
-            <td className="r"><div className="row" style={{ justifyContent: 'flex-end', flexWrap: 'nowrap' }}>{['venta', 'revision'].includes(r.status) && <LinkButton size="sm" icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`} aria-label={`Editar ${r.title}`}>Editar</LinkButton>}{r.status === 'revision' ? <Button size="sm" variant="primary" onClick={() => setQuery({ r: r.id })}>Revisar</Button> : <LinkButton size="sm" href={`#/admin/rifas/detalle?r=${r.id}`}>Ver</LinkButton>}</div></td></tr>)}</tbody></table></div>}
-    </Card>
+    <div className="toolbar toolbar--bare"><Seg label="Estado" value={tab} onChange={t => setQuery({ tab: t, r: '' })} options={[{ key: 'revision', label: 'Por revisar', count: cnt('revision') }, { key: 'venta', label: 'En venta', count: cnt('venta') }, { key: 'falta-ganador', label: 'Falta ganador', count: cnt('falta-ganador') }, { key: 'rechazada', label: 'Rechazadas', count: cnt('rechazada') }, { key: 'todas', label: 'Todas', count: all.length }]} />
+        <div className="input-icon" style={{ marginLeft: 'auto', width: 240 }}><Search size={15} /><Input placeholder="Rifa o empresa" value={q} onChange={e => setQ(e.target.value)} aria-label="Buscar rifas" /></div>
+    </div>
+    {!list.length ? <Card><Empty icon={Ticket} title={tab === 'revision' ? 'No hay rifas por revisar' : 'No hay rifas en este estado'} text={tab === 'revision' ? 'Cuando un operador envíe una rifa, aparece aquí.' : ''} /></Card> :
+      <div className="rgrid">{list.map(r => <RaffleCard key={r.id} r={r} state={r.status} sold={soldOf(r)} href={`#/admin/rifas/detalle?r=${r.id}`} hint={`Enviada el ${date(r.createdAt)}. Revísala antes de que salga a la venta.`} extra={<p className="rcard__co"><Building2 size={14} aria-hidden="true" />{coName(db, r.companyId)}</p>}
+        action={r.status === 'revision' ? <Button size="sm" variant="primary" onClick={() => setQuery({ r: r.id })}>Revisar</Button> : r.status === 'venta' ? <LinkButton size="sm" icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`} aria-label={`Editar ${r.title}`}>Editar</LinkButton> : null} />)}</div>}
     {open && <RaffleDrawer r={open} onClose={() => setQuery({ r: '' })} />}
   </>;
 }
@@ -545,35 +539,25 @@ export function AdminRifaDetalle({ query }) {
   const st = r.live ? API.raffleStats(r.id) : null, randomPend = st ? st.reserved - c.apartado : 0;
   const decide = ok => { if (attempt(() => API.superRaffleDecide(r.id, ok, reason), ok ? 'Rifa aprobada: ya está en venta' : 'Rifa rechazada')) { if (ok) confetti(); setRej(false); } };
   return <>
-    <PageHead crumbs={<><a href="#/admin/rifas">Rifas</a><span aria-hidden="true">›</span><span>{r.id}</span></>}
-      title={<span className="row" style={{ gap: 12 }}>{r.title}<Badge tone={RAFFLE_TONE[r.status]}>{STATE_LABEL[r.status]}</Badge></span>}
-      sub={`${coName(db, r.companyId)} · ${r.prize} · ${r.lottery} · sorteo ${dateTime(r.drawAt)}`}
-      actions={<>{info.editable && <LinkButton icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`}>Editar rifa</LinkButton>}{r.status === 'revision' && <><Button variant="danger" onClick={() => setRej(true)}>Rechazar…</Button><Button variant="success" icon={Check} onClick={() => decide(true)}>Aprobar rifa</Button></>}</>} />
-    <div className="stats" style={{ marginBottom: 18 }}>
-      <Stat label="Vendidos" value={num(c.vendido)} unit={`de ${num(r.total)}`} sub={`${Math.round(c.vendido / r.total * 100)} %`} />
-      <Stat label="Apartados" value={num(c.apartado)} sub={randomPend > 0 ? `+ ${plural(randomPend, 'boleto al azar', 'boletos al azar')} sin número aún` : 'Esperan pago o verificación'} />
-      <Stat label="Disponibles" value={num(c.disponible)} />
-      <Stat label="Precio" value={usd(r.priceUSD, true)} sub={st ? `Recaudado ${usd(st.revenueUSD, true)}` : 'Empresa de ejemplo'} />
-    </div>
-    <div className="tabs" role="tablist" aria-label="Secciones de la rifa">{[['boletos', `Boletos (${num(r.total)})`], ['promos', `Promociones (${(info.data.promotions || []).length})`], ['config', 'Configuración']].map(([k, l]) => <button key={k} role="tab" type="button" aria-selected={tab === k} onClick={() => setQuery({ tab: k })}>{l}</button>)}</div>
+    <nav className="crumbs crumbs--top" aria-label="Ruta"><a href="#/admin/rifas">Rifas</a><span aria-hidden="true">›</span><span>{r.title}</span></nav>
+    <RaffleHero r={{ ...r, prizes: info.data.prizes }} state={r.status} sold={c.vendido} kicker={coName(db, r.companyId)}
+      figures={[['Apartados', num(c.apartado) + (randomPend > 0 ? ` + ${randomPend} al azar` : ''), c.apartado ? 'sun' : ''], ['Disponibles', num(c.disponible), 'sky'], ...(st ? [['Recaudado', usd(st.revenueUSD, true), 'teal']] : [])]}
+      actions={<>{r.status === 'revision' && <><Button variant="success" size="lg" icon={Check} onClick={() => decide(true)}>Aprobar rifa</Button><Button variant="danger" size="lg" onClick={() => setRej(true)}>Rechazar…</Button></>}{info.editable && <LinkButton size="lg" icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`}>Editar rifa</LinkButton>}</>} />
+    <div className="tabs" role="tablist" aria-label="Secciones de la rifa">{[['boletos', `Boletos (${num(r.total)})`], ['config', 'Resumen'], ['promos', `Promociones (${(info.data.promotions || []).length})`]].map(([k, l]) => <button key={k} role="tab" type="button" aria-selected={tab === k} onClick={() => setQuery({ tab: k })}>{l}</button>)}</div>
     {tab === 'boletos' && <TicketBoard key={r.id} r={r} N={N} counts={c} />}
     {tab === 'promos' && <Card title="Promociones por volumen" actions={info.editable && <LinkButton size="sm" icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`}>Editar promociones</LinkButton>} body={false}>
       {(info.data.promotions || []).length ? <div className="tbl-wrap"><table className="tbl"><thead><tr><th>Promoción</th><th className="r">Precio</th><th className="r">Sueltos costarían</th><th className="r">Ahorro</th></tr></thead>
         <tbody>{info.data.promotions.map((p, i) => <tr key={i}><td><b>{p.qty} boletos</b></td><td className="r num">{usd(p.priceUSD)}</td><td className="r num">{usd(p.qty * r.priceUSD)}</td><td className="r num ok-text">{usd(p.qty * r.priceUSD - p.priceUSD)} ({Math.round((1 - p.priceUSD / (p.qty * r.priceUSD)) * 100)} %)</td></tr>)}</tbody></table></div>
         : <Empty title="Esta rifa no tiene promociones" text={info.editable ? 'Puedes agregarlas desde "Editar promociones".' : ''} />}
     </Card>}
-    {tab === 'config' && <div className="grid grid--side">
-      <Card title="Información"><dl className="kv kv--left" style={{ gridTemplateColumns: '160px 1fr' }}>
-        <dt>Premios</dt><dd>{info.data.prizes.filter(Boolean).map((p, i) => <div key={i}>{i + 1}º · {p}</div>)}</dd><dt>Lotería</dt><dd>{r.lottery}</dd>
-        <dt>Sorteo</dt><dd>{dateTime(r.drawAt)}{info.originalDrawAt && <small className="subtle"> (original: {dateTime(info.originalDrawAt)})</small>}</dd>
-        <dt>Cierre de ventas</dt><dd>{info.data.closeMinutes} min antes del sorteo</dd><dt>Precio</dt><dd>{usd(r.priceUSD)} · {bs(r.priceUSD * API.rate())} hoy</dd>
-        <dt>Números</dt><dd>{num(r.total)} (del {N.list[0].k} al {N.list[N.total - 1].k})</dd><dt>Descripción</dt><dd>{info.data.description || '—'}</dd>
-        <dt>Reglas</dt><dd>{info.data.rules.filter(Boolean).length ? <ol style={{ margin: 0, paddingLeft: 18 }}>{info.data.rules.filter(Boolean).map((x, i) => <li key={i}>{x}</li>)}</ol> : '—'}</dd>
-        <dt>Solvencia</dt><dd>{info.data.solvencyDoc || <span className="err-text">Falta</span>}</dd></dl></Card>
-      <div className="stack">
-        {info.data.images.length > 0 && <Card title="Imágenes"><div style={{ display: 'grid', gap: 8 }}>{info.data.images.map((src, i) => <Thumb key={i} raffle={{ title: r.title, images: [src] }} lg />)}</div></Card>}
-        <Card title="Ediciones del superadministrador" body={false}>{info.changes.length ? info.changes.map((ch, i) => <div key={i} className="list-row" style={{ alignItems: 'flex-start' }}><History size={15} className="subtle" style={{ marginTop: 2 }} aria-hidden="true" /><span className="grow"><b style={{ fontSize: 13 }}>{dateTime(ch.at)}</b><small>{ch.diff.join('; ')}</small><small>Motivo: {ch.reason}</small></span></div>) : <Empty title="Sin ediciones" />}</Card>
+    {tab === 'config' && <div className="rsum">
+      <RaffleFacts r={r} closeMinutes={info.data.closeMinutes} originalDrawAt={info.originalDrawAt} closesAt={r.drawAt && new Date(Date.parse(r.drawAt) - (info.data.closeMinutes || 10) * 60e3).toISOString()} />
+      <div className="grid grid--2">
+        <Card title="Premios"><PrizeList prizes={info.data.prizes} /></Card>
+        <Card title="Descripción y reglas"><RulesBlock rules={info.data.rules} description={info.data.description} solvencyDoc={info.data.solvencyDoc} /></Card>
       </div>
+      {info.data.images.length > 1 && <Card title="Más fotos"><div className="rsum__gallery">{info.data.images.slice(1).map((src, i) => <Thumb key={i} raffle={{ title: r.title, images: [src] }} lg />)}</div></Card>}
+      <Card title="Ediciones del superadministrador" body={false}>{info.changes.length ? info.changes.map((ch, i) => <div key={i} className="list-row" style={{ alignItems: 'flex-start' }}><History size={15} className="subtle" style={{ marginTop: 2 }} aria-hidden="true" /><span className="grow"><b style={{ fontSize: 13 }}>{dateTime(ch.at)}</b><small>{ch.diff.join('; ')}</small><small>Motivo: {ch.reason}</small></span></div>) : <Empty title="Sin ediciones" />}</Card>
     </div>}
     {rej && <Modal title={`Rechazar ${r.title}`} onClose={() => setRej(false)} footer={<><Button onClick={() => setRej(false)}>Cancelar</Button><Button variant="danger-solid" onClick={() => decide(false)}>Rechazar rifa</Button></>}><Field label="Motivo" required><Textarea data-autofocus rows={3} value={reason} onChange={e => setReason(e.target.value)} /></Field></Modal>}
   </>;

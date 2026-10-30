@@ -1,25 +1,25 @@
 // Estructura del panel: barra superior con 6 secciones, subnavegación, buscador Ctrl K, tasa vigente,
 // ayuda, notificaciones, cuenta; en el teléfono, barra inferior con las cinco tareas del día.
 import { Component, useMemo, useState, useRef, useEffect } from 'react';
-import { Search, HelpCircle, Bell, Home, Store, CreditCard, MessageSquare, Menu, FlaskConical, ExternalLink, RotateCcw, Trophy, Plug, Users, AlertTriangle, ChevronRight, Ticket, User, FileText, LogOut, Sun, Moon, Building2, Flag } from 'lucide-react';
+import { Search, HelpCircle, Bell, Home, Store, CreditCard, MessageSquare, Menu, FlaskConical, ExternalLink, RotateCcw, Trophy, Plug, Users, AlertTriangle, ChevronRight, Ticket, User, FileText, LogOut, Sun, Moon, Building2, Flag, Settings, Receipt, ChevronDown } from 'lucide-react';
 import { API, useDB, useRoute, go, dec, num, time, cedFmt, pendingTasks, useHotkey, useToasts, toast, attempt, raffleState, date, ago, initials } from './lib.js';
 import { Modal, Button, Drawer, Note, Badge, Confirm, LogoMark } from './ui.jsx';
 
 export const SECTIONS = [
-  { key: 'inicio', label: 'Inicio', base: '/', pages: [['/', 'Resumen'], ['/actividad', 'Actividad']] },
-  { key: 'rifas', label: 'Rifas', base: '/rifas', pages: [['/rifas', 'Todas las rifas'], ['/rifas/nueva', 'Nueva rifa'], ['/rifas/ganadores', 'Ganadores por reportar', 'ganadores']] },
-  { key: 'ventas', label: 'Ventas', base: '/ventas', badge: 'pagos', pages: [['/ventas/pagos', 'Pagos por verificar', 'pagos'], ['/ventas/taquilla', 'Taquilla'], ['/ventas/verificador', 'Verificador'], ['/ventas/reportes', 'Reportes']] },
-  { key: 'clientes', label: 'Clientes', base: '/clientes', pages: [['/clientes', 'Clientes'], ['/clientes/influencers', 'Influencers']] },
-  { key: 'mensajeria', label: 'Mensajería', base: '/mensajeria', badge: 'bandeja', pages: [['/mensajeria/bandeja', 'Bandeja', 'bandeja'], ['/mensajeria/resumen', 'Resumen'], ['/mensajeria/campanas', 'Campañas'], ['/mensajeria/automatizaciones', 'Automatizaciones'], ['/mensajeria/historial', 'Historial'], ['/mensajeria/contactos', 'Contactos'], ['/mensajeria/agentes', 'Agentes'], ['/mensajeria/bot', 'Bot'], ['/mensajeria/conexion', 'Conexión']] },
-  { key: 'ajustes', label: 'Ajustes', base: '/ajustes', pages: [['/ajustes/empresa', 'Empresa'], ['/ajustes/usuarios', 'Usuarios'], ['/ajustes/cajas', 'Cajas'], ['/ajustes/metodos', 'Métodos de pago'], ['/ajustes/monedas', 'Monedas y tasas'], ['/ajustes/pasarelas', 'Pasarelas'], ['/ajustes/sitio', 'Sitio web'], ['/ajustes/dominios', 'Dominios'], ['/ajustes/seguridad', 'Seguridad']] }
+  { key: 'inicio', label: 'Inicio', icon: Home, base: '/', pages: [['/', 'Resumen'], ['/actividad', 'Actividad']] },
+  { key: 'rifas', label: 'Rifas', icon: Ticket, base: '/rifas', pages: [['/rifas', 'Todas las rifas'], ['/rifas/nueva', 'Nueva rifa'], ['/rifas/ganadores', 'Ganadores por reportar', 'ganadores']] },
+  { key: 'ventas', label: 'Ventas', icon: Store, base: '/ventas', badge: 'pagos', pages: [['/ventas/pagos', 'Pagos por verificar', 'pagos'], ['/ventas/taquilla', 'Taquilla'], ['/ventas/verificador', 'Verificador'], ['/ventas/reportes', 'Reportes']] },
+  { key: 'clientes', label: 'Clientes', icon: Users, base: '/clientes', pages: [['/clientes', 'Clientes'], ['/clientes/influencers', 'Influencers']] },
+  { key: 'mensajeria', label: 'Mensajería', icon: MessageSquare, base: '/mensajeria', badge: 'bandeja', show: 3, pages: [['/mensajeria/bandeja', 'Bandeja', 'bandeja'], ['/mensajeria/campanas', 'Campañas'], ['/mensajeria/automatizaciones', 'Automatizaciones'], ['/mensajeria/resumen', 'Resumen'], ['/mensajeria/historial', 'Historial'], ['/mensajeria/contactos', 'Contactos'], ['/mensajeria/agentes', 'Agentes'], ['/mensajeria/bot', 'Bot'], ['/mensajeria/conexion', 'Conexión']] },
+  { key: 'ajustes', label: 'Ajustes', icon: Settings, base: '/ajustes', show: 4, pages: [['/ajustes/empresa', 'Empresa'], ['/ajustes/metodos', 'Métodos de pago'], ['/ajustes/monedas', 'Monedas y tasas'], ['/ajustes/sitio', 'Sitio web'], ['/ajustes/usuarios', 'Usuarios'], ['/ajustes/cajas', 'Cajas'], ['/ajustes/pasarelas', 'Pasarelas'], ['/ajustes/dominios', 'Dominios'], ['/ajustes/seguridad', 'Seguridad']] }
 ];
 export const ADMIN_SECTIONS = [
-  { key: 'a-inicio', label: 'Inicio', base: '/admin', pages: [['/admin', 'Resumen'], ['/admin/sala', 'Sala situacional'], ['/admin/actividad', 'Actividad']] },
-  { key: 'a-empresas', label: 'Empresas', base: '/admin/empresas', badge: 'empresas', pages: [['/admin/empresas', 'Empresas', 'empresas'], ['/admin/empresas/nueva', 'Registrar empresa']] },
-  { key: 'a-rifas', label: 'Rifas', base: '/admin/rifas', badge: 'rifas', pages: [['/admin/rifas', 'Supervisor de rifas', 'rifas'], ['/admin/rifas/verificador', 'Verificador'], ['/admin/rifas/extensiones', 'Extensiones de fecha', 'ext']] },
-  { key: 'a-denuncias', label: 'Denuncias', base: '/admin/denuncias', badge: 'denuncias', pages: [['/admin/denuncias', 'Denuncias', 'denuncias']] },
-  { key: 'a-fact', label: 'Facturación', base: '/admin/facturacion', pages: [['/admin/facturacion', 'Cobros'], ['/admin/facturacion/planes', 'Planes']] },
-  { key: 'a-ajustes', label: 'Ajustes', base: '/admin/ajustes', pages: [['/admin/ajustes', 'Plataforma'], ['/admin/ajustes/loterias', 'Loterías'], ['/admin/ajustes/usuarios', 'Usuarios'], ['/admin/ajustes/notas', 'Notas de versión'], ['/admin/ajustes/seguridad', 'Seguridad']] }
+  { key: 'a-inicio', label: 'Inicio', icon: Home, base: '/admin', pages: [['/admin', 'Resumen'], ['/admin/sala', 'Sala situacional'], ['/admin/actividad', 'Actividad']] },
+  { key: 'a-empresas', label: 'Empresas', icon: Building2, base: '/admin/empresas', badge: 'empresas', pages: [['/admin/empresas', 'Empresas', 'empresas'], ['/admin/empresas/nueva', 'Registrar empresa']] },
+  { key: 'a-rifas', label: 'Rifas', icon: Ticket, base: '/admin/rifas', badge: 'rifas', pages: [['/admin/rifas', 'Supervisor de rifas', 'rifas'], ['/admin/rifas/verificador', 'Verificador'], ['/admin/rifas/extensiones', 'Extensiones de fecha', 'ext']] },
+  { key: 'a-denuncias', label: 'Denuncias', icon: Flag, base: '/admin/denuncias', badge: 'denuncias', pages: [['/admin/denuncias', 'Denuncias', 'denuncias']] },
+  { key: 'a-fact', label: 'Facturación', icon: Receipt, base: '/admin/facturacion', pages: [['/admin/facturacion', 'Cobros'], ['/admin/facturacion/planes', 'Planes']] },
+  { key: 'a-ajustes', label: 'Ajustes', icon: Settings, base: '/admin/ajustes', show: 3, pages: [['/admin/ajustes', 'Plataforma'], ['/admin/ajustes/loterias', 'Loterías'], ['/admin/ajustes/usuarios', 'Usuarios'], ['/admin/ajustes/notas', 'Notas de versión'], ['/admin/ajustes/seguridad', 'Seguridad']] }
 ];
 const adminSectionOf = path => ['/admin', '/admin/sala', '/admin/actividad'].includes(path) ? ADMIN_SECTIONS[0] : ADMIN_SECTIONS.slice(1).find(s => path === s.base || path.startsWith(s.base + '/')) || ADMIN_SECTIONS[0];
 const adminCounts = db => ({
@@ -58,7 +58,7 @@ export function Shell({ children, admin, session }) {
     <header className="top">
       <div className="top__row">
         <a className="brand" href={'#' + home}><LogoMark /><b>Lotto<em>GE</em></b><span>· {admin ? 'Superadministrador' : db.company.name}</span></a>
-        <nav className="nav" aria-label="Secciones">{SECS.map(s => <a key={s.key} href={'#' + s.pages[0][0]} aria-current={sec.key === s.key ? 'page' : undefined}>{s.label}{s.badge && c[s.badge] > 0 && <span className="count" aria-label={`${c[s.badge]} pendientes`}>{c[s.badge]}</span>}</a>)}</nav>
+        <nav className="nav" aria-label="Secciones">{SECS.map(s => <a key={s.key} href={'#' + s.pages[0][0]} aria-current={sec.key === s.key ? 'page' : undefined}>{s.icon && <s.icon size={16} aria-hidden="true" />}{s.label}{s.badge && c[s.badge] > 0 && <span className="count" aria-label={`${c[s.badge]} pendientes`}>{c[s.badge]}</span>}</a>)}</nav>
         <div className="top__tools">
           <button type="button" className="search-btn" onClick={() => setPalette(true)} aria-label={admin ? 'Buscar empresa, rifa o denuncia (Ctrl K)' : 'Buscar cliente, boleto o rifa (Ctrl K)'}><Search size={15} aria-hidden="true" /><span>{admin ? 'Buscar empresa, rifa o denuncia' : 'Buscar cliente, boleto o rifa'}</span><kbd>Ctrl K</kbd></button>
           <a className="rate-pill" href={admin ? '#/admin/ajustes' : '#/ajustes/monedas'} title={`Tasa vigente · ${ves.source} · actualizada ${ago(ves.updatedAt)}`}><span className="dot" aria-hidden="true" /><span className="rate-label">Bs/US$</span><b>{dec(ves.rate)}</b><span className="hide-mobile">· {time(ves.updatedAt)}</span></a>
@@ -68,7 +68,7 @@ export function Shell({ children, admin, session }) {
           <button type="button" className="btn btn--sm logout-btn hide-mobile" onClick={logout}><LogOut size={14} aria-hidden="true" />Salir</button>
         </div>
       </div>
-      <nav className="subnav" aria-label={sec.label}>{sec.pages.map(([href, label, badge]) => <a key={href} href={'#' + href} aria-current={cur === href ? 'page' : undefined}>{label}{badge && c[badge] > 0 && <span className={'count' + (badge === 'ganadores' ? ' count--soft' : '')}>{c[badge]}</span>}</a>)}</nav>
+      <SubNav sec={sec} cur={cur} c={c} />
     </header>
     <main id="main" className="main" tabIndex={-1} style={{ outline: 'none' }}><ErrorBoundary key={path}>{children}</ErrorBoundary></main>
     {admin ? <nav className="mbar" aria-label="Tareas del día">
@@ -93,6 +93,18 @@ export function Shell({ children, admin, session }) {
     {tools && <Tools db={db} onClose={() => setTools(false)} />}
     <Toasts />
   </>;
+}
+
+// Subnavegación corta: las pantallas de todos los días a la vista y el resto en "Más".
+function SubNav({ sec, cur, c }) {
+  const [open, setOpen] = useState(false), ref = useOutside(open, setOpen);
+  const n = sec.show || sec.pages.length, main = sec.pages.slice(0, n), rest = sec.pages.slice(n), inRest = rest.find(p => p[0] === cur);
+  const link = ([href, label, badge]) => <a key={href} href={'#' + href} aria-current={cur === href ? 'page' : undefined}>{label}{badge && c[badge] > 0 && <span className={'count' + (badge === 'ganadores' ? ' count--soft' : '')}>{c[badge]}</span>}</a>;
+  if (sec.pages.length < 2) return null;
+  return <nav className="subnav" aria-label={sec.label}>{main.map(link)}
+    {rest.length > 0 && <div className="subnav__more" ref={ref}><button type="button" aria-expanded={open} aria-current={inRest ? 'page' : undefined} onClick={() => setOpen(!open)}>{inRest ? inRest[1] : 'Más'}<ChevronDown size={14} aria-hidden="true" /></button>
+      {open && <div className="menu menu--left">{rest.map(([href, label]) => <a key={href} href={'#' + href} onClick={() => setOpen(false)} aria-current={cur === href ? 'page' : undefined}>{label}</a>)}</div>}</div>}
+  </nav>;
 }
 
 function useOutside(open, setOpen) {

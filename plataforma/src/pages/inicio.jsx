@@ -1,91 +1,50 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Plus, Store, Trophy, CreditCard, Plug, Users, AlertTriangle, ChevronRight, Search, Megaphone } from 'lucide-react';
-import { API, useDB, usd, bs, num, plural, greeting, longDate, date, dateTime, shortDate, firstName, raffleState, pendingTasks, daysLeft, methodName, initials, ago, compact } from '../lib.js';
-import { PageHead, Card, Stat, Seg, LinkButton, Bar, Thumb, Empty, Badge, Avatar, Input, Count, FloatBg, Note } from '../ui.jsx';
+import { API, useDB, usd, bs, plural, greeting, longDate, dateTime, raffleState, pendingTasks } from '../lib.js';
+import { PageHead, Card, LinkButton, Empty, Badge, Input, Count, FloatBg, Note } from '../ui.jsx';
+import { RaffleCard } from '../rifa-ui.jsx';
 
-const DAY = 864e5;
 const TICON = { trophy: Trophy, card: CreditCard, plug: Plug, users: Users, alert: AlertTriangle };
 const startOfDay = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
 
+// Inicio sencillo: saludo, lo que toca hacer hoy, cuatro accesos grandes, tres cifras y las rifas en venta.
+// Los gráficos y el detalle de ventas viven en Ventas › Reportes.
 export function Inicio() {
   const db = useDB();
-  const [period, setPeriod] = useState('30');
   const now = Date.now(), today = startOfDay(now);
   const monthStart = new Date(now); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
-  const prevStart = new Date(monthStart); prevStart.setMonth(prevStart.getMonth() - 1);
   const ok = db.orders.filter(o => o.status === 'aprobada' || o.status === 'abono');
   const paidOf = o => o.status === 'aprobada' ? o.amountUSD : o.paidUSD;
   const sum = (list, f = paidOf) => list.reduce((a, o) => a + f(o), 0);
   const todayList = ok.filter(o => Date.parse(o.createdAt) >= today);
   const month = ok.filter(o => Date.parse(o.createdAt) >= monthStart.getTime());
-  const prevSameDays = ok.filter(o => { const t = Date.parse(o.createdAt); return t >= prevStart.getTime() && t < prevStart.getTime() + (now - monthStart.getTime()); });
-  const growth = sum(prevSameDays) ? Math.round((sum(month) / sum(prevSameDays) - 1) * 100) : null;
   const pend = db.orders.filter(o => o.status === 'pendiente'), abonos = db.orders.filter(o => o.status === 'abono');
   const owed = sum(pend, o => o.amountUSD) + sum(abonos, o => o.amountUSD - o.paidUSD);
   const live = db.raffles.filter(r => raffleState(r) === 'venta');
-  const main = live.find(r => r.id === db.sitePublished.raffleId) || live[0];
-  const mainStats = main && API.raffleStats(main.id);
-  const tasks = pendingTasks(db);
-  const rate = API.rate();
-  const days = { '30': 30, '90': 90, 'año': 365 }[period];
-  const series = useMemo(() => {
-    const buckets = period === 'año' ? 12 : days, out = [];
-    if (period === 'año') {
-      for (let i = 11; i >= 0; i--) { const d = new Date(now); d.setDate(1); d.setHours(0, 0, 0, 0); d.setMonth(d.getMonth() - i); const e = new Date(d); e.setMonth(e.getMonth() + 1); out.push({ label: d.toLocaleDateString('es-VE', { month: 'short' }).replace('.', ''), from: d.getTime(), to: e.getTime() }); }
-    } else for (let i = buckets - 1; i >= 0; i--) { const from = today - i * DAY; out.push({ label: shortDate(from), from, to: from + DAY }); }
-    out.forEach(b => { const l = ok.filter(o => { const t = Date.parse(o.createdAt); return t >= b.from && t < b.to; }); b.usd = sum(l); b.count = l.length; b.bs = l.reduce((a, o) => a + paidOf(o) * o.rate, 0); });
-    return out;
-  }, [db, period]);
-  const max = Math.max(1, ...series.map(s => s.usd));
-  const [tip, setTip] = useState(null);
-  const latest = db.orders.filter(o => o.status === 'aprobada' || o.status === 'abono').slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 4);
-  const pendTotal = tasks.length;
+  const winners = db.raffles.filter(r => raffleState(r) === 'falta-ganador').length;
+  // Pagos y ganadores ya salen con su número en los accesos grandes; aquí va el resto.
+  const tasks = pendingTasks(db), other = tasks.filter(t => t.id !== 'pagos' && t.id !== 'ganadores');
   return <>
-    <div className="hello"><FloatBg /><PageHead title={<>{greeting()}, <em>{db.me.short}</em></>} sub={<>{longDate(now).replace(/^\w/, c => c.toUpperCase())} · {plural(live.length, 'rifa en venta', 'rifas en venta')} · {plural(pendTotal, 'tarea pendiente', 'tareas pendientes')}</>}
-      actions={<LinkButton href="#/rifas/nueva" variant="primary" icon={Plus}>Nueva rifa</LinkButton>} /></div>
+    <div className="hello"><FloatBg /><PageHead title={<>{greeting()}, <em>{db.me.short}</em></>} sub={<>{longDate(now).replace(/^\w/, c => c.toUpperCase())} · {tasks.length ? plural(tasks.length, 'cosa pendiente', 'cosas pendientes') : 'estás al día'}</>}
+      actions={<LinkButton href="#/ventas/taquilla" variant="primary" size="lg" icon={Store}>Vender boletos</LinkButton>} /></div>
     {db.releaseNotes && db.releaseNotes[0] && Date.now() - Date.parse(db.releaseNotes[0].at) < 7 * 864e5 && <div style={{ marginBottom: 16 }}><Note tone="info" icon={Megaphone}><b>Novedad de LottoGE: {db.releaseNotes[0].title}.</b> {db.releaseNotes[0].body}</Note></div>}
+    {other.length > 0 && <section className="todo" aria-label="Pendiente de ti"><h2 className="sec-title">Pendiente de ti</h2>
+      <div className="todo__list">{other.slice(0, 3).map(t => { const I = TICON[t.icon]; return <a key={t.id + t.title} className={'todo__item todo__item--' + t.tone} href={'#' + t.to}><i><I size={20} aria-hidden="true" /></i><span className="grow"><b>{t.title}</b><small>{t.sub}</small></span><span className="todo__go">{t.action}<ChevronRight size={15} aria-hidden="true" /></span></a>; })}</div></section>}
     <div className="quick">
       <a className="q1" href="#/ventas/taquilla"><i><Store size={22} /></i><b>Vender boletos</b><small>En la taquilla, en 4 pasos</small></a>
       <a className="q2" href="#/ventas/pagos"><i><CreditCard size={22} /></i><b>Revisar pagos{pend.length > 0 && <em>{pend.length}</em>}</b><small>Aprobar o rechazar comprobantes</small></a>
       <a className="q3" href="#/ventas/verificador"><i><Search size={22} /></i><b>Buscar boletos</b><small>Por la cédula del cliente</small></a>
-      <a className="q4" href="#/rifas/ganadores"><i><Trophy size={22} /></i><b>Reportar ganador{db.raffles.filter(r => API.raffleState(r) === 'falta-ganador').length > 0 && <em>{db.raffles.filter(r => API.raffleState(r) === 'falta-ganador').length}</em>}</b><small>De las rifas que ya cerraron</small></a>
+      <a className="q4" href="#/rifas/ganadores"><i><Trophy size={22} /></i><b>Reportar ganador{winners > 0 && <em>{winners}</em>}</b><small>De las rifas que ya cerraron</small></a>
     </div>
-    <div className="grid grid--side">
-      <div className="stack">
-        <div className="stats">
-          <Stat label="Vendido hoy" value={<Count to={sum(todayList)} format={v => usd(Math.round(v), true)} />} unit={bs(sum(todayList, o => paidOf(o) * o.rate), true)} sub={todayList.length ? `${plural(todayList.length, 'venta', 'ventas')} · ${todayList.filter(o => o.channel === 'taquilla').length} en taquilla` : 'Sin ventas todavía'} subTone={todayList.length ? 'ok' : ''} />
-          <Stat label={`Vendido en ${new Date(now).toLocaleDateString('es-VE', { month: 'long' })}`} value={<Count to={sum(month)} format={v => usd(Math.round(v), true)} />} unit={bs(sum(month, o => paidOf(o) * o.rate), true)} sub={growth == null ? 'Primer mes con ventas' : `${growth >= 0 ? '+' : ''}${growth} % vs. mismo tramo del mes anterior`} subTone={growth >= 0 ? 'ok' : 'err'} />
-          <Stat label="Por cobrar" value={<Count to={owed} format={v => usd(Math.round(v), true)} />} unit={plural(pend.length + abonos.length, 'venta', 'ventas')} sub={`${pend.length} por verificar · ${abonos.length} abonos`} />
-          {main ? <Stat label="Boletos disponibles" value={<Count to={mainStats.available} format={v => num(v)} />} unit={`de ${num(main.total)}`} sub={main.title} /> : <Stat label="Boletos disponibles" value="—" sub="No hay rifas en venta" />}
-        </div>
-        <Card title="Ventas" actions={<><span className="subtle hide-mobile">US$ · cada venta con la tasa de su día</span><Seg label="Periodo" value={period} onChange={setPeriod} options={[{ key: '30', label: '30 días' }, { key: '90', label: '90 días' }, { key: 'año', label: 'Año' }]} /></>}>
-          <div className="chart" role="img" aria-label={`Ventas de los últimos ${period === 'año' ? '12 meses' : days + ' días'}: total ${usd(series.reduce((a, s) => a + s.usd, 0))}`}>
-            {series.map((s, i) => <button key={i} type="button" className={s.usd ? '' : 'is-zero'} style={{ height: Math.max(3, s.usd / max * 100) + '%' }} aria-label={`${s.label}: ${usd(s.usd)}`} onMouseEnter={() => setTip(i)} onMouseLeave={() => setTip(null)} onFocus={() => setTip(i)} onBlur={() => setTip(null)}>
-              {tip === i && <span className="chart-tip">{s.label} · {usd(s.usd)} · {bs(s.bs, true)} · {plural(s.count, 'venta', 'ventas')}</span>}
-            </button>)}
-          </div>
-          <div className="chart-axis"><span>{series[0].label}</span><span>{series[Math.floor(series.length / 3)].label}</span><span>{series[Math.floor(series.length * 2 / 3)].label}</span><span>{series[series.length - 1].label}</span></div>
-        </Card>
-        <Card title={live.length > 1 ? 'Rifas en venta' : 'Rifa en venta'} body={false}>
-          {live.length ? live.map(r => { const st = API.raffleStats(r.id); return <div key={r.id} className="list-row" style={{ alignItems: 'center' }}>
-            <div style={{ width: 92 }}><Thumb raffle={r} lg /></div>
-            <div className="grow"><b>{r.title}</b><small>{plural(r.prizes.length, 'premio', 'premios')} · {r.lottery} · {usd(r.priceUSD, true)} por boleto · sorteo {dateTime(r.drawAt)}</small>
-              <div style={{ margin: '8px 0 4px', maxWidth: 360 }}><Bar value={st.sold} max={r.total} label="Vendidos" /></div><small>{num(st.sold)} de {num(r.total)} vendidos · faltan {plural(daysLeft(r.drawAt), 'día', 'días')}</small></div>
-            <LinkButton size="sm" href={`#/ventas/taquilla?rifa=${r.id}`} icon={Store}>Vender</LinkButton><LinkButton size="sm" href={'#/rifas/' + r.id}>Ver rifa</LinkButton>
-          </div>; }) : <Empty title="No hay rifas en venta" text="Crea una rifa y envíala a CONALOT." action={<LinkButton href="#/rifas/nueva" variant="primary">Nueva rifa</LinkButton>} />}
-        </Card>
-      </div>
-      <div className="stack">
-        <Card title="Pendiente de ti" body={false}>
-          {tasks.length ? tasks.map(t => { const I = TICON[t.icon]; return <div className="list-row" key={t.id}><I size={17} aria-hidden="true" className={t.tone + '-text'} /><span className="grow"><b>{t.title}</b><small>{t.sub}</small></span><LinkButton size="sm" href={'#' + t.to}>{t.action}</LinkButton></div>; })
-            : <Empty title="Nada pendiente" text="Estás al día." />}
-        </Card>
-        <Card title="Últimas ventas" actions={<a className="subtle" href="#/ventas/reportes">Ver todas</a>} body={false}>
-          {latest.map(o => <div className="list-row" key={o.id}><Avatar name={o.name} /><span className="grow"><b>{o.name}</b><small>{o.numbers.length === 1 ? 'Boleto ' + o.numbers[0] : plural(o.qty, 'boleto', 'boletos')} · {o.channel === 'taquilla' ? 'Taquilla · ' : ''}{o.status === 'abono' ? 'Abono ' + Math.round(o.paidUSD / o.amountUSD * 100) + ' %' : methodName(o.method)}</small></span><b className="num">{usd(o.status === 'abono' ? o.paidUSD : o.amountUSD, true)}</b></div>)}
-        </Card>
-        <p className="subtle">Tasa vigente Bs {num(rate)},00 por US$. Los montos en Bs usan la tasa del día de cada venta.</p>
-      </div>
+    <div className="kpis">
+      <div className="kpi kpi--coral"><small>Vendido hoy</small><b className="num"><Count to={sum(todayList)} format={v => usd(Math.round(v), true)} /></b><span>{todayList.length ? plural(todayList.length, 'venta', 'ventas') : 'Todavía sin ventas'}</span></div>
+      <div className="kpi kpi--teal"><small>Vendido en {new Date(now).toLocaleDateString('es-VE', { month: 'long' })}</small><b className="num"><Count to={sum(month)} format={v => usd(Math.round(v), true)} /></b><span>{bs(sum(month, o => paidOf(o) * o.rate), true)}</span></div>
+      <a className="kpi kpi--sun" href="#/ventas/pagos"><small>Por cobrar</small><b className="num"><Count to={owed} format={v => usd(Math.round(v), true)} /></b><span>{pend.length} por verificar · {abonos.length} abonos</span></a>
     </div>
+    <div className="sec-head"><h2 className="sec-title">{live.length === 1 ? 'Tu rifa en venta' : 'Tus rifas en venta'}</h2><a className="link" href="#/rifas">Ver todas tus rifas</a></div>
+    {live.length ? <div className="rgrid">{live.map(r => <RaffleCard key={r.id} r={r} state="venta" sold={API.raffleStats(r.id).sold} href={'#/rifas/' + r.id} action={<LinkButton size="sm" variant="primary" icon={Store} href={`#/ventas/taquilla?rifa=${r.id}`}>Vender</LinkButton>} />)}</div>
+      : <Card><Empty title="No hay rifas en venta" text="Crea una rifa y envíala a revisión." action={<LinkButton href="#/rifas/nueva" variant="primary" icon={Plus}>Nueva rifa</LinkButton>} /></Card>}
+    <p className="subtle" style={{ marginTop: 18 }}>¿Buscas gráficos y el detalle de cada venta? Están en <a className="link" href="#/ventas/reportes">Ventas › Reportes</a>.</p>
   </>;
 }
 

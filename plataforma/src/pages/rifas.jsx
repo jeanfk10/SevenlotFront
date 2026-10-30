@@ -3,42 +3,31 @@ import { Plus, List, LayoutGrid, Search, Download, Trophy, Check, Clock, AlertTr
 import { API, useDB, go, usd, bs, num, plural, date, dateTime, raffleState, STATE_LABEL, RAFFLE_TONE, LOTTERIES, attempt, toast, readImage, downloadCSV, toLocalInput, fromLocalInput, cedFmt, ORDER_STATUS, daysLeft, methodName, confetti, ago } from '../lib.js';
 import { PageHead, Card, Seg, Button, LinkButton, Badge, Bar, Thumb, Empty, Field, Input, Select, Textarea, Steps, Note, FileDrop, Check2, Tabs, Modal, Pager, Stat, Confirm } from '../ui.jsx';
 import { publicUrl } from '../shell.jsx';
+import { RaffleCard, NewRaffleCard, RaffleHero, RaffleFacts, PrizeList, RulesBlock } from '../rifa-ui.jsx';
 
 const nextAction = (r) => {
   const s = raffleState(r);
-  if (s === 'venta') return <LinkButton size="sm" href={`#/ventas/taquilla?rifa=${r.id}`}>Vender</LinkButton>;
+  if (s === 'venta') return <LinkButton size="sm" variant="primary" icon={Store} href={`#/ventas/taquilla?rifa=${r.id}`}>Vender</LinkButton>;
   if (s === 'falta-ganador') return <LinkButton size="sm" variant="brand" href={`#/rifas/ganadores?rifa=${r.id}`}>Reportar ganador</LinkButton>;
-  if (s === 'rechazada' || s === 'borrador') return <LinkButton size="sm" href={`#/rifas/${r.id}/editar`}>{s === 'rechazada' ? 'Corregir' : 'Continuar'}</LinkButton>;
-  return <LinkButton size="sm" href={'#/rifas/' + r.id}>Ver</LinkButton>;
+  if (s === 'rechazada' || s === 'borrador') return <LinkButton size="sm" variant="primary" icon={Pencil} href={`#/rifas/${r.id}/editar`}>{s === 'rechazada' ? 'Corregir' : 'Continuar'}</LinkButton>;
+  return null;
 };
 
+const ORDER = ['venta', 'falta-ganador', 'revision', 'borrador', 'rechazada', 'finalizada'];
 export function Rifas({ query }) {
   const db = useDB();
-  const [f, setF] = useState(query.estado || 'todas'), [q, setQ] = useState(''), [view, setView] = useState('lista');
+  const [f, setF] = useState(query.estado || 'todas'), [q, setQ] = useState('');
   const st = r => raffleState(r);
   const cnt = k => db.raffles.filter(r => st(r) === k).length;
-  const filters = [{ key: 'todas', label: 'Todas', count: db.raffles.length }, { key: 'venta', label: 'En venta', count: cnt('venta') }, { key: 'revision', label: 'En revisión', count: cnt('revision') }, { key: 'falta-ganador', label: 'Falta ganador', count: cnt('falta-ganador') }, { key: 'borrador', label: 'Borradores', count: cnt('borrador') }, { key: 'rechazada', label: 'Rechazadas', count: cnt('rechazada') }, { key: 'finalizada', label: 'Finalizadas', count: cnt('finalizada') }];
-  const list = db.raffles.filter(r => (f === 'todas' || st(r) === f) && (!q || (r.title + r.prize).toLowerCase().includes(q.toLowerCase())));
+  // Solo se muestran los estados que tienen rifas: menos botones que leer.
+  const filters = [{ key: 'todas', label: 'Todas', count: db.raffles.length }, ...ORDER.filter(k => cnt(k)).map(k => ({ key: k, label: { venta: 'En venta', revision: 'En revisión', 'falta-ganador': 'Falta ganador', borrador: 'Borradores', rechazada: 'Rechazadas', finalizada: 'Finalizadas' }[k], count: cnt(k) }))];
+  const list = db.raffles.filter(r => (f === 'todas' || st(r) === f) && (!q || (r.title + r.prize).toLowerCase().includes(q.toLowerCase()))).sort((a, b) => ORDER.indexOf(st(a)) - ORDER.indexOf(st(b)));
   return <>
-    <PageHead title="Rifas" sub={`${plural(db.raffles.length, 'rifa', 'rifas')} · ${cnt('venta')} en venta, ${cnt('revision')} en revisión, ${cnt('falta-ganador')} esperan ganador`} actions={<LinkButton href="#/rifas/nueva" variant="primary" icon={Plus}>Nueva rifa</LinkButton>} />
-    <Card body={false}>
-      <div className="toolbar"><Seg label="Filtrar por estado" options={filters} value={f} onChange={setF} />
-        <div className="input-icon" style={{ marginLeft: 'auto', width: 240 }}><Search size={15} /><Input placeholder="Buscar rifa o premio" value={q} onChange={e => setQ(e.target.value)} aria-label="Buscar rifa o premio" /></div>
-        <Seg label="Vista" value={view} onChange={setView} options={[{ key: 'lista', label: <><List size={15} aria-hidden="true" /><span className="sr-only">Lista</span></> }, { key: 'tarjetas', label: <><LayoutGrid size={15} aria-hidden="true" /><span className="sr-only">Tarjetas</span></> }]} />
-      </div>
-      {!list.length ? <Empty title={q ? `Sin resultados para «${q}»` : 'No hay rifas en este estado'} action={q && <Button onClick={() => setQ('')}>Limpiar búsqueda</Button>} /> : view === 'lista' ?
-        <div className="tbl-wrap"><table className="tbl tbl--cards"><thead><tr><th>Rifa</th><th>Estado</th><th>Sorteo</th><th>Precio</th><th>Vendidos</th><th><span className="sr-only">Acción</span></th></tr></thead>
-          <tbody>{list.map(r => { const s = API.raffleStats(r.id), state = st(r); return <tr key={r.id} className="clickable" onClick={e => e.target.closest('a,button') || go('/rifas/' + r.id)}>
-            <td><div className="cell-main"><Thumb raffle={r} /><div><b>{r.title}</b><small>{plural(r.prizes.length, 'premio', 'premios')} · {r.lottery || 'Sin lotería'}</small></div></div></td>
-            <td><Badge tone={RAFFLE_TONE[state]}>{STATE_LABEL[state]}</Badge></td>
-            <td className="num">{state === 'rechazada' ? '—' : date(r.drawAt)}</td><td className="num">{usd(r.priceUSD, true)}</td>
-            <td>{state === 'rechazada' ? <span className="subtle">Motivo: {r.rejectReason}</span> : s.sold ? <div style={{ maxWidth: 130 }}><Bar value={s.sold} max={r.total} label="Vendidos" /><small className="num">{num(s.sold)} / {num(r.total)}</small></div> : <span className="subtle">Sin ventas</span>}</td>
-            <td className="r">{nextAction(r)}</td></tr>; })}</tbody></table></div>
-        : <div className="grid grid--3" style={{ padding: 16, gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>{list.map(r => { const s = API.raffleStats(r.id), state = st(r); return <div key={r.id} className="card" style={{ padding: 14, display: 'grid', gap: 8 }}>
-          <Thumb raffle={r} lg /><div className="row row--between"><b>{r.title}</b><Badge tone={RAFFLE_TONE[state]}>{STATE_LABEL[state]}</Badge></div>
-          <small className="subtle">{r.prize} · {usd(r.priceUSD, true)} · sorteo {date(r.drawAt)}</small><Bar value={s.sold} max={r.total} label="Vendidos" /><small className="subtle num">{num(s.sold)} de {num(r.total)} vendidos</small>
-          <div className="row"><LinkButton size="sm" href={'#/rifas/' + r.id}>Ver</LinkButton>{nextAction(r)}</div></div>; })}</div>}
-    </Card>
+    <PageHead title="Tus rifas" sub={`${plural(cnt('venta'), 'rifa en venta', 'rifas en venta')}${cnt('falta-ganador') ? ` · ${plural(cnt('falta-ganador'), 'espera', 'esperan')} ganador` : ''}`} actions={<LinkButton href="#/rifas/nueva" variant="primary" icon={Plus}>Nueva rifa</LinkButton>} />
+    <div className="toolbar toolbar--bare"><Seg label="Filtrar por estado" options={filters} value={f} onChange={setF} />
+      {db.raffles.length > 6 && <div className="input-icon" style={{ marginLeft: 'auto', width: 220 }}><Search size={15} /><Input placeholder="Buscar rifa" value={q} onChange={e => setQ(e.target.value)} aria-label="Buscar rifa o premio" /></div>}</div>
+    {!list.length ? <Card><Empty title={q ? `Sin resultados para «${q}»` : 'No hay rifas en este estado'} action={q && <Button onClick={() => setQ('')}>Limpiar búsqueda</Button>} /></Card>
+      : <div className="rgrid">{list.map(r => <RaffleCard key={r.id} r={r} state={st(r)} sold={API.raffleStats(r.id).sold} href={'#/rifas/' + r.id} action={nextAction(r)} />)}{f === 'todas' && !q && <NewRaffleCard />}</div>}
   </>;
 }
 
@@ -170,13 +159,16 @@ export function RifaDetalle({ id, query }) {
   if (!r) return <Card><Empty title="Esta rifa no existe" action={<LinkButton href="#/rifas">Ver rifas</LinkButton>} /></Card>;
   const state = raffleState(r), s = API.raffleStats(id), editable = API.editable(r);
   const exts = db.extensions.filter(e => e.raffleId === id), pendingExt = exts.find(e => e.status === 'pendiente'), lastExt = exts.find(e => e.status !== 'pendiente');
+  const actions = <>
+    {state === 'venta' && <LinkButton variant="primary" size="lg" icon={Store} href={`#/ventas/taquilla?rifa=${r.id}`}>Vender boletos</LinkButton>}
+    {state === 'falta-ganador' && <LinkButton variant="primary" size="lg" icon={Trophy} href={`#/rifas/ganadores?rifa=${r.id}`}>Reportar ganador</LinkButton>}
+    {editable && <LinkButton variant="primary" size="lg" icon={Pencil} href={`#/rifas/${r.id}/editar`}>{r.status === 'rechazada' ? 'Corregir y reenviar' : 'Continuar borrador'}</LinkButton>}
+    {state === 'venta' && <a className="btn btn--lg" href={`./fronts/${db.sitePublished.template}/?rifa=${r.id}`} target="_blank" rel="noopener"><ExternalLink size={15} />Página de venta</a>}
+    {state === 'venta' && <Button size="lg" variant="ghost" icon={Clock} onClick={() => setExt(true)} disabled={!!pendingExt}>{pendingExt ? 'Extensión en revisión' : 'Pedir más tiempo'}</Button>}
+  </>;
+  const figures = ['venta', 'falta-ganador', 'finalizada'].includes(state) ? [['Recaudado', usd(s.revenueUSD, true), 'teal'], ['Por verificar', num(s.reserved), s.reserved ? 'sun' : ''], ['Compradores', num(s.buyers), 'sky']] : [];
   return <>
-    <PageHead crumbs={<><a href="#/rifas">Rifas</a><span aria-hidden="true">›</span><span>{r.id}</span></>} title={<span className="row" style={{ gap: 12 }}>{r.title}<Badge tone={RAFFLE_TONE[state]}>{STATE_LABEL[state]}</Badge></span>}
-      sub={`${r.prize} · ${r.lottery || 'sin lotería'} · sorteo ${r.drawAt ? dateTime(r.drawAt) : 'sin fecha'}`}
-      actions={<>{state === 'venta' && <><a className="btn" href={`./fronts/${db.sitePublished.template}/?rifa=${r.id}`} target="_blank" rel="noopener"><ExternalLink size={15} />Página de venta</a><LinkButton variant="primary" icon={Store} href={`#/ventas/taquilla?rifa=${r.id}`}>Vender</LinkButton></>}
-        {state === 'venta' && <Button icon={Clock} onClick={() => setExt(true)} disabled={!!pendingExt}>{pendingExt ? 'Extensión en revisión' : 'Pedir más tiempo'}</Button>}
-        {state === 'falta-ganador' && <LinkButton variant="brand" icon={Trophy} href={`#/rifas/ganadores?rifa=${r.id}`}>Reportar ganador</LinkButton>}
-        {editable && <LinkButton variant="primary" icon={Pencil} href={`#/rifas/${r.id}/editar`}>{r.status === 'rechazada' ? 'Corregir y reenviar' : 'Editar borrador'}</LinkButton>}</>} />
+    <nav className="crumbs crumbs--top" aria-label="Ruta"><a href="#/rifas">Tus rifas</a><span aria-hidden="true">›</span><span>{r.title}</span></nav>
     {r.status === 'revision' && <div style={{ marginBottom: 16 }}><Note tone="info" icon={FlaskConical}><b>En revisión.</b> La revisa el superadministrador de LottoGE (entra con su usuario y ve a Rifas). Mientras tanto no se puede editar ni vender. Atajo de prueba:{' '}
       <button className="link" type="button" onClick={() => attempt(() => API.conalotDecide(r.id, true), 'CONALOT aprobó: la rifa ya está en venta')}>Aprobar</button> ·{' '}
       <button className="link" type="button" onClick={() => attempt(() => API.conalotDecide(r.id, false, 'Falta el documento de solvencia del premio.'), 'CONALOT rechazó la rifa')}>Rechazar</button></Note></div>}
@@ -184,32 +176,25 @@ export function RifaDetalle({ id, query }) {
     {(r.changes || []).length > 0 && Date.now() - Date.parse(r.changes[0].at) < 7 * 864e5 && <div style={{ marginBottom: 16 }}><Note tone="info" icon={Info}><b>El superadministrador de LottoGE modificó esta rifa {ago(r.changes[0].at)}:</b> {r.changes[0].diff.join('; ')}. Motivo: {r.changes[0].reason}</Note></div>}
     {pendingExt && <div style={{ marginBottom: 16 }}><Note tone="info" icon={Clock}><b>Pediste mover el sorteo al {dateTime(pendingExt.requestedDate)}</b> · lo revisa el superadministrador; mientras tanto la fecha sigue siendo {dateTime(r.drawAt)}.</Note></div>}
     {!pendingExt && lastExt && Date.now() - Date.parse(lastExt.decidedAt) < 3 * 864e5 && <div style={{ marginBottom: 16 }}><Note tone={lastExt.status === 'aprobada' ? 'ok' : 'err'} icon={Clock}><b>Extensión {lastExt.status}.</b> {lastExt.status === 'aprobada' ? `El sorteo ahora es el ${dateTime(r.drawAt)} (original: ${date(r.originalDrawAt || lastExt.originalDate)}).` : lastExt.note}</Note></div>}
-    {ext && <ExtensionModal r={r} onClose={() => setExt(false)} />}
     {r.winner && <div style={{ marginBottom: 16 }}><Note tone="ok" icon={Trophy}><b>Ganador: número {r.winner.number}</b> · {r.winner.sold ? `${r.winner.name} (${cedFmt(r.winner.cedula)})` : 'no vendido'} · reportado el {date(r.winner.reportedAt)} · evidencia: {r.winner.evidence}</Note></div>}
-    <div className="stats" style={{ marginBottom: 18 }}>
-      <Stat label="Vendidos" value={num(s.sold)} unit={`de ${num(r.total)}`} sub={`${Math.round(s.sold / r.total * 100)} %`} />
-      <Stat label="Reservados" value={num(s.reserved)} sub="Pagos por verificar y abonos" />
-      <Stat label="Recaudado" value={usd(s.revenueUSD, true)} sub={`de ${usd(r.priceUSD * r.total, true)} posibles`} />
-      <Stat label="Compradores" value={num(s.buyers)} sub={state === 'venta' ? `Faltan ${plural(daysLeft(r.drawAt), 'día', 'días')}` : ''} />
-    </div>
-    <Tabs label="Secciones de la rifa" value={tab} onChange={setTab} options={[{ key: 'config', label: 'Configuración' }, { key: 'promos', label: 'Promociones' }, { key: 'boletos', label: 'Boletos' }]} />
-    {tab === 'config' && <RaffleConfig r={r} editable={editable} />}
+    {ext && <ExtensionModal r={r} onClose={() => setExt(false)} />}
+    <RaffleHero r={r} state={state} sold={s.sold} figures={figures} actions={actions} />
+    <Tabs label="Secciones de la rifa" value={tab} onChange={setTab} options={[{ key: 'config', label: 'Resumen' }, { key: 'boletos', label: `Boletos vendidos (${num(s.sold + s.reserved)})` }, { key: 'promos', label: `Promociones (${r.promotions.length})` }]} />
+    {tab === 'config' && <RaffleSummary r={r} closesAt={API.closesAt(r)} />}
     {tab === 'promos' && <Promos r={r} />}
     {tab === 'boletos' && <Boletos r={r} />}
   </>;
 }
-function RaffleConfig({ r, editable }) {
-  return <div className="grid grid--side">
-    <Card title="Información" actions={!editable && <span className="subtle">Solo lectura en este estado</span>}>
-      <dl className="kv kv--left" style={{ gridTemplateColumns: '170px 1fr' }}>
-        <dt>Premios</dt><dd>{r.prizes.map((p, i) => <div key={i}>{i + 1}º · {p}</div>)}</dd><dt>Lotería</dt><dd>{r.lottery} · {r.lotteryTime}</dd>
-        <dt>Sorteo</dt><dd>{dateTime(r.drawAt)}{r.originalDrawAt && <small className="subtle"> (original: {dateTime(r.originalDrawAt)})</small>}</dd><dt>Cierre de ventas</dt><dd>{dateTime(API.closesAt(r))} ({r.closeMinutes} min antes)</dd>
-        <dt>Precio</dt><dd>{usd(r.priceUSD)} · {bs(r.priceUSD * API.rate())} hoy</dd><dt>Números</dt><dd>{num(r.total)} (del {API.pad(r, 0)} al {API.pad(r, r.total - 1)})</dd>
-        <dt>Descripción</dt><dd>{r.description || '—'}</dd><dt>Solvencia</dt><dd>{r.solvencyDoc || <span className="err-text">Falta</span>}</dd>
-        <dt>Reglas</dt><dd>{r.rules.length ? <ol style={{ margin: 0, paddingLeft: 18 }}>{r.rules.map((x, i) => <li key={i}>{x}</li>)}</ol> : <span className="err-text">Sin reglas</span>}</dd>
-      </dl>
-    </Card>
-    <Card title="Imagen promocional"><div style={{ display: 'grid', gap: 8 }}>{r.images.length ? r.images.map((src, i) => <Thumb key={i} raffle={{ ...r, images: [src] }} lg />) : <Thumb raffle={r} lg />}</div></Card>
+// Resumen de la rifa: datos clave en mosaicos, premios en podio, y reglas y fotos aparte.
+export function RaffleSummary({ r, closesAt, side }) {
+  return <div className="rsum">
+    <RaffleFacts r={r} closesAt={closesAt} originalDrawAt={r.originalDrawAt} closeMinutes={r.closeMinutes} />
+    <div className="grid grid--2">
+      <Card title="Premios"><PrizeList prizes={r.prizes && r.prizes.length ? r.prizes : [r.prize]} /></Card>
+      <Card title="Descripción y reglas"><RulesBlock rules={r.rules} description={r.description} solvencyDoc={r.solvencyDoc} /></Card>
+    </div>
+    {r.images && r.images.length > 1 && <Card title="Más fotos"><div className="rsum__gallery">{r.images.slice(1).map((src, i) => <Thumb key={i} raffle={{ ...r, images: [src] }} lg />)}</div></Card>}
+    {side}
   </div>;
 }
 function Promos({ r }) {

@@ -115,6 +115,18 @@ El panel usa directamente las funciones de `window.LottoAPI`. Al integrarlo con 
 5. Las rutas marcadas *por confirmar* hay que validarlas con el backend de LottoX.
 6. El código QR de *Ajustes › Empresa* es una muestra visual, no se puede escanear.
 
+## Versión simplificada (a prueba)
+
+Después de que el equipo probó el panel, se simplificó en un solo commit para poder deshacerlo si no convence:
+
+- **Navegación**: cada sección con icono; la subnavegación muestra solo las pantallas de todos los días y el resto queda en "Más" (Mensajería y Ajustes).
+- **Inicio**: saludo con "Vender boletos", los avisos que no tienen acceso propio, cuatro accesos grandes, tres cifras y las rifas en venta. Los gráficos pasaron a Ventas › Reportes.
+- **Rifas**: tarjetas con el flyer, el estado, cuánto falta, un anillo con el porcentaje vendido y una sola acción principal. Lo mismo en el Supervisor de rifas del superadministrador.
+- **Detalle de la rifa**: arriba el flyer, el avance y los botones; abajo, en "Resumen", los datos en mosaicos, los premios en podio y las reglas. Igual en el detalle del superadministrador.
+- **Botones** con más color y sombra: los principales en degradado coral, los pequeños en azul suave.
+
+Para volver a la versión anterior: `git revert <commit de la versión simplificada>` (o `git checkout ace7a30 -- plataforma/src`).
+
 ## Movimiento
 
 Mismo lenguaje que la página principal: entrada escalonada de cada pantalla, bolitas de lotería y boletos flotando en el saludo, cifras que cuentan hasta su valor, barras que crecen, botones con resorte, números que saltan al elegirlos en la taquilla, confeti al aprobar un pago, vender, publicar un ganador, aprobar una rifa o una empresa, y una marca de "listo" que se dibuja en el recibo. Todo se apaga si el sistema pide reducir el movimiento.
