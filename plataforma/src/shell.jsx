@@ -62,9 +62,10 @@ export function Shell({ children, admin, session }) {
         <div className="top__tools">
           <button type="button" className="search-btn" onClick={() => setPalette(true)} aria-label={admin ? 'Buscar empresa, rifa o denuncia (Ctrl K)' : 'Buscar cliente, boleto o rifa (Ctrl K)'}><Search size={15} aria-hidden="true" /><span>{admin ? 'Buscar empresa, rifa o denuncia' : 'Buscar cliente, boleto o rifa'}</span><kbd>Ctrl K</kbd></button>
           <a className="rate-pill" href={admin ? '#/admin/ajustes' : '#/ajustes/monedas'} title={`Tasa vigente · ${ves.source} · actualizada ${ago(ves.updatedAt)}`}><span className="dot" aria-hidden="true" /><span className="rate-label">Bs/US$</span><b>{dec(ves.rate)}</b><span className="hide-mobile">· {time(ves.updatedAt)}</span></a>
-          <button type="button" className="icon-btn hide-m" onClick={() => setHelp(true)} aria-label="Ayuda"><HelpCircle size={18} /></button>
+          <button type="button" className="icon-btn hide-m help-btn" onClick={() => setHelp(true)} aria-label="Ayuda"><HelpCircle size={18} /></button>
           {admin ? <AdminNotifications db={db} c={c} /> : <Notifications db={db} />}
-          <Account db={db} admin={admin} session={session} />
+          <Account db={db} admin={admin} session={session} onHelp={() => setHelp(true)} />
+          <button type="button" className="btn btn--sm logout-btn hide-mobile" onClick={logout}><LogOut size={14} aria-hidden="true" />Salir</button>
         </div>
       </div>
       <nav className="subnav" aria-label={sec.label}>{sec.pages.map(([href, label, badge]) => <a key={href} href={'#' + href} aria-current={cur === href ? 'page' : undefined}>{label}{badge && c[badge] > 0 && <span className={'count' + (badge === 'ganadores' ? ' count--soft' : '')}>{c[badge]}</span>}</a>)}</nav>
@@ -85,7 +86,7 @@ export function Shell({ children, admin, session }) {
     </nav>}
     {more && <><div className="scrim" onClick={() => setMore(false)} /><div className="sheet" role="dialog" aria-label="Todas las secciones">
       {SECS.map(s => <div key={s.key}><h3>{s.label}</h3>{s.pages.map(([h, l]) => <a key={h} href={'#' + h}>{l}</a>)}</div>)}
-      <h3>Más</h3><a href="#/" onClick={e => { e.preventDefault(); setMore(false); setHelp(true); }}>Ayuda</a><a href="#/" onClick={e => { e.preventDefault(); setMore(false); setTools(true); }}>Herramientas de prueba</a>
+      <h3>Más</h3><a href="#/" onClick={e => { e.preventDefault(); setMore(false); setHelp(true); }}>Ayuda</a><a href="#/" onClick={e => { e.preventDefault(); setMore(false); setTools(true); }}>Herramientas de prueba</a><a href="#/" onClick={e => { e.preventDefault(); logout(); }} style={{ color: 'var(--err)', fontWeight: 600 }}>Cerrar sesión</a>
     </div></>}
     {palette && <Palette db={db} admin={admin} onClose={() => setPalette(false)} />}
     {help && <Help onClose={() => setHelp(false)} />}
@@ -127,7 +128,7 @@ function AdminNotifications({ db, c }) {
       {items.length ? items.map(i => <a key={i.id} href={'#' + i.to} onClick={() => setOpen(false)}><i.icon size={16} aria-hidden="true" style={{ marginTop: 2, flex: 'none' }} /><b style={{ fontWeight: 600 }}>{i.title}</b></a>) : <p className="subtle" style={{ padding: 16 }}>Estás al día.</p>}</div>}
   </div>;
 }
-function Account({ db, admin, session }) {
+function Account({ db, admin, session, onHelp }) {
   const [open, setOpen] = useState(false), ref = useOutside(open, setOpen);
   const [theme, setTheme] = useState(() => { try { return localStorage.getItem('lottox-theme') || ''; } catch (e) { return ''; } });
   const setT = t => { setTheme(t); if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; try { localStorage.setItem('lottox-theme', t); } catch (e) {} };
@@ -139,6 +140,7 @@ function Account({ db, admin, session }) {
       <a href="./pagina-principal/" ><Home size={16} aria-hidden="true" />Página principal de LottoGE</a>
       {!admin && <a href={publicUrl(db)} target="_blank" rel="noopener"><ExternalLink size={16} aria-hidden="true" />Ver mi página de venta</a>}
       <a href={admin ? '#/admin/ajustes/seguridad' : '#/ajustes/seguridad'} onClick={() => setOpen(false)}><User size={16} aria-hidden="true" />Seguridad{admin ? '' : ' y sesiones'}</a>
+      <button type="button" className="menu__item" onClick={() => { setOpen(false); onHelp(); }}><HelpCircle size={16} aria-hidden="true" />Ayuda</button>
       <button type="button" className="menu__item" onClick={() => setT(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}{theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}</button>
       <button type="button" className="menu__item" onClick={logout}><LogOut size={16} aria-hidden="true" />Cerrar sesión</button>
     </div>}
