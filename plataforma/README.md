@@ -46,7 +46,7 @@ Abre **http://localhost:5173**: sale la página principal de LottoGE. Toca *Inic
 | Sección | Pantallas |
 |---|---|
 | Inicio | Resumen (accesos rápidos, cifras, ventas del mes por empresa, *Pendiente de ti*) · Sala situacional (en vivo, con pausa; cédulas y teléfonos enmascarados; alertas) · Actividad (bitácora de toda la plataforma) |
-| Empresas | Pendientes, activas, suspendidas y rechazadas; búsqueda por nombre, RIF, RUN/LOT o correo; aprobar, rechazar o suspender con motivo; reactivar; cambiar plan; documentos que faltan |
+| Empresas | **Registrar empresa**: planilla en 4 pasos basada en el registro de la plataforma original (plan; datos de la empresa con tipo de persona, RIF, RUN/LOT, contacto, estado y municipio, dirección, subdominio, Acta Constitutiva y RIF en PDF; administrador, que recibe una invitación por correo para crear su contraseña; revisión, términos y opción de aprobarla de una vez), con validación en cada campo y sin repetir RIF, correo, RUN/LOT ni subdominio · Pendientes, activas, suspendidas y rechazadas; búsqueda por nombre, RIF, RUN/LOT o correo; aprobar, rechazar o suspender con motivo; reactivar; cambiar plan; documentos que faltan |
 | Rifas | Supervisor de rifas (revisión con requisitos, aprobar o rechazar) · **Editar rifa**: cualquier rifa en venta o esperando aprobación, de cualquier empresa, con todos sus datos (título, premios, lotería, fecha, cierre, precio, números, descripción, reglas, promociones, imágenes y solvencia) · Extensiones de fecha |
 | Denuncias | Las de la página principal: revisión, notas, resolver o descartar con motivo |
 | Facturación | Cobros (mantenimiento y licencias, registrar pago) · Planes (los mismos precios de la página principal) |

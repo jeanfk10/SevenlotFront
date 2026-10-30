@@ -15,7 +15,7 @@ export const SECTIONS = [
 ];
 export const ADMIN_SECTIONS = [
   { key: 'a-inicio', label: 'Inicio', base: '/admin', pages: [['/admin', 'Resumen'], ['/admin/sala', 'Sala situacional'], ['/admin/actividad', 'Actividad']] },
-  { key: 'a-empresas', label: 'Empresas', base: '/admin/empresas', badge: 'empresas', pages: [['/admin/empresas', 'Empresas', 'empresas']] },
+  { key: 'a-empresas', label: 'Empresas', base: '/admin/empresas', badge: 'empresas', pages: [['/admin/empresas', 'Empresas', 'empresas'], ['/admin/empresas/nueva', 'Registrar empresa']] },
   { key: 'a-rifas', label: 'Rifas', base: '/admin/rifas', badge: 'rifas', pages: [['/admin/rifas', 'Supervisor de rifas', 'rifas'], ['/admin/rifas/extensiones', 'Extensiones de fecha', 'ext']] },
   { key: 'a-denuncias', label: 'Denuncias', base: '/admin/denuncias', badge: 'denuncias', pages: [['/admin/denuncias', 'Denuncias', 'denuncias']] },
   { key: 'a-fact', label: 'Facturación', base: '/admin/facturacion', pages: [['/admin/facturacion', 'Cobros'], ['/admin/facturacion/planes', 'Planes']] },

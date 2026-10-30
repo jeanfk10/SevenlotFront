@@ -911,6 +911,61 @@
     viewAs(companyId) { const s = A.session(); if (!s || s.role !== 'superadmin') throw err(403, 'Solo el superadministrador'); s.viewAs = companyId || null; try { localStorage.setItem('lottox-session', JSON.stringify(s)); } catch (e) { window.__lottoxSession = s; } if (companyId) audit('Entró al panel de un operador', (db.companies.find(c => c.id === companyId) || {}).name, 'Superadministrador'); commit(); },
 
     /* ---------- Superadministrador ---------- */
+    /* Registro de empresas (la planilla del superadministrador). Valida cada campo y que no se repitan RIF, correo, RUN/LOT ni subdominio. */
+    slug(name) { return String(name || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30); },
+    validateCompany(d, step) {
+      const e = {}, mail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v || '').trim()), phone = v => /^0(2\d{2}|4(12|14|16|22|24|26))-?\d{3}-?\d{4}$/.test(String(v || '').replace(/\s/g, ''));
+      const others = db.companies.filter(c => c.id !== d.id);
+      const rif = `${d.rifType || 'J'}-${String(d.rifNumber || '').replace(/\D/g, '')}-${String(d.rifCheck || '').replace(/\D/g, '')}`;
+      if (!step || step === 1) { if (!db.plans.some(p => p.key === d.plan)) e.plan = 'Elige un plan.'; }
+      if (!step || step === 2) {
+        if (!['juridica', 'natural', 'gubernamental'].includes(d.personType)) e.personType = 'Elige el tipo de persona.';
+        if (String(d.name || '').trim().length < 3) e.name = 'Escribe el nombre comercial (mínimo 3 letras).';
+        else if (others.some(c => c.name.toLowerCase() === d.name.trim().toLowerCase())) e.name = 'Ya hay una empresa con ese nombre.';
+        if (d.personType === 'juridica' && String(d.legalName || '').trim().length < 3) e.legalName = 'Escribe la razón social, como aparece en el acta.';
+        if (!/^\d{8}$/.test(String(d.rifNumber || '').replace(/\D/g, '')) || !/^\d$/.test(String(d.rifCheck || ''))) e.rif = 'El RIF son 8 números y 1 dígito final: J-50123456-7.';
+        else if (d.personType === 'juridica' && d.rifType !== 'J') e.rif = 'Una persona jurídica usa RIF con J.';
+        else if (d.personType === 'natural' && !['V', 'E'].includes(d.rifType)) e.rif = 'Una persona natural usa RIF con V o E.';
+        else if (d.personType === 'gubernamental' && d.rifType !== 'G') e.rif = 'Un ente gubernamental usa RIF con G.';
+        else if (others.some(c => c.rif === rif)) e.rif = 'Ese RIF ya está registrado.';
+        if (d.runlot && !/^CNL-ORF-\d{4}-\d{6}$/.test(String(d.runlot).toUpperCase())) e.runlot = 'Formato: CNL-ORF-2026-000123 (o déjalo vacío si aún no lo tiene).';
+        else if (d.runlot && others.some(c => c.runlot === d.runlot.toUpperCase())) e.runlot = 'Ese RUN/LOT ya está registrado.';
+        if (!phone(d.phone)) e.phone = 'Teléfono venezolano: 0274-555-0142 o 0412-555-0199.';
+        if (!mail(d.email)) e.email = 'Escribe un correo completo: empresa@correo.com.';
+        else if (others.some(c => c.email.toLowerCase() === d.email.trim().toLowerCase())) e.email = 'Ese correo ya lo usa otra empresa.';
+        if (!STATES[d.state]) e.state = 'Elige el estado.';
+        if (!STATES[d.state] || !STATES[d.state].includes(d.municipality)) e.municipality = 'Elige el municipio.';
+        if (String(d.address || '').trim().length < 8) e.address = 'Escribe la dirección (calle, edificio o local).';
+        if (!/^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/.test(d.subdomain || '')) e.subdomain = 'Solo minúsculas, números y guiones (3 a 30).';
+        else if (others.some(c => (c.subdomain || A.slug(c.name)) === d.subdomain) || d.subdomain === db.company.subdomain) e.subdomain = 'Ese subdominio ya está en uso.';
+        if (!d.docs || !d.docs.acta) e.acta = 'El Acta Constitutiva es obligatoria (PDF).';
+        if (!d.docs || !d.docs.rif) e.rifDoc = 'Sube el RIF de la empresa (PDF).';
+      }
+      if (!step || step === 3) {
+        if (String(d.adminName || '').trim().split(/\s+/).length < 2) e.adminName = 'Escribe nombre y apellido.';
+        if (!/^\d{6,8}$/.test(String(d.adminCedula || ''))) e.adminCedula = 'Solo números, de 6 a 8 dígitos.';
+        if (!mail(d.adminEmail)) e.adminEmail = 'Escribe un correo completo.';
+        else if (db.staff.some(u => u.email === d.adminEmail.trim().toLowerCase()) || db.users.some(u => u.email.toLowerCase() === d.adminEmail.trim().toLowerCase()) || others.some(c => c.admin && c.admin.email === d.adminEmail.trim().toLowerCase())) e.adminEmail = 'Ese correo ya tiene una cuenta en LottoGE.';
+        if (d.adminPhone && !phone(d.adminPhone)) e.adminPhone = 'Teléfono venezolano: 0412-555-0199.';
+      }
+      if (!step || step === 4) { if (!d.terms) e.terms = 'Acepta los términos y condiciones para registrar.'; }
+      return e;
+    },
+    registerCompany(d) {
+      const e = A.validateCompany(d); if (Object.keys(e).length) throw Object.assign(err(400, 'Revisa los campos marcados'), { fields: e });
+      const rif = `${d.rifType}-${String(d.rifNumber).replace(/\D/g, '')}-${d.rifCheck}`;
+      const c = { id: uid('c'), name: d.name.trim(), legalName: (d.legalName || '').trim() || d.name.trim(), personType: d.personType, rif, runlot: (d.runlot || '').toUpperCase(), state: d.state, municipality: d.municipality,
+        address: d.address.trim(), description: (d.description || '').trim(), email: d.email.trim().toLowerCase(), phone: d.phone.trim(), subdomain: d.subdomain, plan: d.plan, status: 'pendiente', billing: '',
+        rafflesActive: 0, monthSalesUSD: 0, createdAt: iso(now()), approvedAt: null, docs: { acta: !!d.docs.acta, rif: !!d.docs.rif, socios: !!d.docs.socios }, docNames: { ...d.docs }, reason: '', registeredBy: 'Superadministrador',
+        admin: { name: d.adminName.trim(), cedula: (d.adminIdType || 'V') + d.adminCedula, email: d.adminEmail.trim().toLowerCase(), phone: (d.adminPhone || '').trim(), status: 'invitado', invitedAt: iso(now()) } };
+      db.companies.unshift(c);
+      audit('Empresa registrada', `${c.name} · ${c.rif} · plan ${c.plan}`, 'Superadministrador');
+      audit('Invitación enviada', `${c.admin.name} (${c.admin.email}) · administrador de ${c.name}`, 'Superadministrador');
+      commit();
+      if (d.approveNow) A.companyAction(c.id, 'aprobar');
+      return c;
+    },
+    resendInvite(id) { const c = db.companies.find(x => x.id === id); if (!c || !c.admin) throw err(404, 'No existe'); c.admin.invitedAt = iso(now()); audit('Invitación reenviada', `${c.admin.email} · ${c.name}`, 'Superadministrador'); commit(); },
     companyStats(c) {
       if (!c.live) return { rafflesActive: c.rafflesActive || 0, monthSalesUSD: c.monthSalesUSD || 0, users: 1 + (c.id.length % 3) };
       const ms = new Date(); ms.setDate(1); ms.setHours(0, 0, 0, 0);
@@ -922,7 +977,7 @@
       if (need && !String(reason || '').trim()) throw err(400, 'Escribe el motivo: le llega a la empresa');
       const ok = { aprobar: ['pendiente'], rechazar: ['pendiente'], suspender: ['activa'], reactivar: ['suspendida', 'rechazada'], plan: ['activa', 'pendiente', 'suspendida'] }[action];
       if (!ok || !ok.includes(c.status)) throw err(409, 'Esa acción no aplica en el estado actual');
-      if (action === 'aprobar') { if (!c.docs.acta) throw err(409, 'Falta el acta constitutiva: no se puede aprobar'); c.status = 'activa'; c.approvedAt = iso(now()); c.runlot = c.runlot || `CNL-ORF-2026-000${700 + db.companies.indexOf(c)}`; c.billing = 'pendiente'; c.reason = ''; db.invoices.push({ id: 'F-' + Date.now().toString().slice(-7), companyId: c.id, concept: `Licencia plan ${c.plan}`, amountUSD: (db.plans.find(p => p.key === c.plan) || {}).price || 0, dueAt: iso(now() + 7 * DAY), status: 'pendiente', paidAt: null, method: '', reference: '' }); }
+      if (action === 'aprobar') { if (!c.docs.acta) throw err(409, 'Falta el acta constitutiva: no se puede aprobar'); c.status = 'activa'; c.approvedAt = iso(now()); c.runlot = c.runlot || `CNL-ORF-2026-${String(1 + Math.max(0, ...db.companies.map(x => +String(x.runlot || '').slice(-6) || 0))).padStart(6, '0')}`; c.billing = 'pendiente'; c.reason = ''; db.invoices.push({ id: 'F-' + Date.now().toString().slice(-7), companyId: c.id, concept: `Licencia plan ${c.plan}`, amountUSD: (db.plans.find(p => p.key === c.plan) || {}).price || 0, dueAt: iso(now() + 7 * DAY), status: 'pendiente', paidAt: null, method: '', reference: '' }); }
       if (action === 'rechazar') { c.status = 'rechazada'; c.reason = reason; }
       if (action === 'suspender') { c.status = 'suspendida'; c.reason = reason; }
       if (action === 'reactivar') { c.status = c.status === 'rechazada' ? 'pendiente' : 'activa'; c.reason = ''; }
