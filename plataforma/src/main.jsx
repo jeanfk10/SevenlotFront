@@ -10,7 +10,7 @@ import { Pagos, Taquilla, Verificador, Reportes } from './pages/ventas.jsx';
 import { Clientes, Influencers } from './pages/clientes.jsx';
 import { Bandeja, ResumenMsj, Campanas, Automatizaciones, Historial, Contactos, Agentes, Bot, Conexion } from './pages/mensajeria.jsx';
 import { Empresa, Usuarios, Cajas, Metodos, Monedas, Pasarelas, Sitio, Dominios, Seguridad } from './pages/ajustes.jsx';
-import { AdminInicio, Sala, AdminActividad, Empresas, SupervisorRifas, Extensiones, Denuncias, Cobros, Planes, Plataforma, Loterias, AdminUsuarios, Notas, AdminSeguridad, EditarRifa, RegistrarEmpresa } from './pages/admin.jsx';
+import { AdminInicio, Sala, AdminActividad, Empresas, SupervisorRifas, Extensiones, Denuncias, Cobros, Planes, Plataforma, Loterias, AdminUsuarios, Notas, AdminSeguridad, EditarRifa, RegistrarEmpresa, AdminRifaDetalle } from './pages/admin.jsx';
 
 const ROUTES = {
   '/': Inicio, '/actividad': Actividad,
@@ -23,7 +23,7 @@ const ROUTES = {
   '/ajustes/pasarelas': Pasarelas, '/ajustes/sitio': Sitio, '/ajustes/dominios': Dominios, '/ajustes/seguridad': Seguridad
 };
 const ADMIN = {
-  '/admin': AdminInicio, '/admin/sala': Sala, '/admin/actividad': AdminActividad, '/admin/empresas': Empresas, '/admin/empresas/nueva': RegistrarEmpresa, '/admin/rifas': SupervisorRifas, '/admin/rifas/extensiones': Extensiones, '/admin/rifas/editar': EditarRifa,
+  '/admin': AdminInicio, '/admin/sala': Sala, '/admin/actividad': AdminActividad, '/admin/empresas': Empresas, '/admin/empresas/nueva': RegistrarEmpresa, '/admin/rifas': SupervisorRifas, '/admin/rifas/extensiones': Extensiones, '/admin/rifas/editar': EditarRifa, '/admin/rifas/detalle': AdminRifaDetalle,
   '/admin/denuncias': Denuncias, '/admin/facturacion': Cobros, '/admin/facturacion/planes': Planes, '/admin/ajustes': Plataforma, '/admin/ajustes/loterias': Loterias,
   '/admin/ajustes/usuarios': AdminUsuarios, '/admin/ajustes/notas': Notas, '/admin/ajustes/seguridad': AdminSeguridad
 };
@@ -40,7 +40,7 @@ function App() {
   const p = ALIAS[path] || path;
   let page;
   const m = p.match(/^\/rifas\/(R-[\w-]+)(\/editar)?$/);
-  if (admin) { const P = ADMIN[p]; page = P ? <P query={query} /> : null; }
+  if (admin) { const P = ADMIN[p]; page = P ? <P key={['/admin/rifas/detalle', '/admin/rifas/editar'].includes(p) ? query.r : undefined} query={query} /> : null; }
   else if (ROUTES[p]) { const P = ROUTES[p]; page = <P query={query} />; }
   else if (m) page = m[2] ? <NuevaRifa id={m[1]} query={query} /> : <RifaDetalle id={m[1]} query={query} />;
   if (!page) page = <div className="card"><Empty title="Esta pantalla no existe" text="Revisa la dirección o vuelve al Inicio." action={<LinkButton href={admin ? '#/admin' : '#/'} variant="primary">Ir al Inicio</LinkButton>} /></div>;

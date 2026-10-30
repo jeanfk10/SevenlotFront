@@ -427,12 +427,18 @@
   const onSale = r => r.status === 'venta' && closesAt(r) > now();
   function takenMap(rid) {
     const r = raffle(rid), map = new Map();
+    if (!r) { const x = db.extRaffles.find(e => e.id === rid); if (x) for (let n = 0; n < x.total; n++) { const st = extStatus(x, n); if (st !== 'disponible') map.set(n, st === 'apartado' ? 'reservado' : 'vendido'); } return map; }
     db.orders.forEach(o => {
       if (o.raffleId !== rid) return;
       const st = o.status === 'aprobada' ? 'vendido' : (o.status === 'pendiente' || o.status === 'abono') ? 'reservado' : null;
       if (st) o.numbers.forEach(n => map.set(+n, st));
     });
     return map;
+  }
+  // Rifas de otras empresas (de ejemplo): los vendidos salen del % vendido; lo que cambia el superadministrador se guarda aparte.
+  function extStatus(x, n) {
+    const o = (x.numberOverrides || {})[n]; if (o) return o.status;
+    return (hash(x.id + ':' + n) % 1000) < (x.soldPct || 0) * 10 ? 'vendido' : 'disponible';
   }
   function raffleStats(rid) {
     const r = raffle(rid), os = db.orders.filter(o => o.raffleId === rid);
@@ -912,6 +918,11 @@
 
     /* ---------- Superadministrador ---------- */
     /* Registro de empresas (la planilla del superadministrador). Valida cada campo y que no se repitan RIF, correo, RUN/LOT ni subdominio. */
+    // El subdominio se arma solo con el nombre; si ya existe, se le agrega un número.
+    freeSubdomain(name, exceptId) {
+      const base = A.slug(name) || 'empresa', used = new Set([db.company.subdomain, ...db.companies.filter(c => c.id !== exceptId).map(c => c.subdomain || A.slug(c.name))]);
+      let sub = base, i = 2; while (used.has(sub)) sub = `${base.slice(0, 26)}-${i++}`; return sub;
+    },
     slug(name) { return String(name || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30); },
     validateCompany(d, step) {
       const e = {}, mail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v || '').trim()), phone = v => /^0(2\d{2}|4(12|14|16|22|24|26))-?\d{3}-?\d{4}$/.test(String(v || '').replace(/\s/g, ''));
@@ -936,10 +947,9 @@
         if (!STATES[d.state]) e.state = 'Elige el estado.';
         if (!STATES[d.state] || !STATES[d.state].includes(d.municipality)) e.municipality = 'Elige el municipio.';
         if (String(d.address || '').trim().length < 8) e.address = 'Escribe la dirección (calle, edificio o local).';
-        if (!/^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/.test(d.subdomain || '')) e.subdomain = 'Solo minúsculas, números y guiones (3 a 30).';
-        else if (others.some(c => (c.subdomain || A.slug(c.name)) === d.subdomain) || d.subdomain === db.company.subdomain) e.subdomain = 'Ese subdominio ya está en uso.';
-        if (!d.docs || !d.docs.acta) e.acta = 'El Acta Constitutiva es obligatoria (PDF).';
-        if (!d.docs || !d.docs.rif) e.rifDoc = 'Sube el RIF de la empresa (PDF).';
+        if (!d.docs || !d.docs.cedula) e.cedulaDoc = 'Sube la cédula de identidad del representante.';
+        if (!d.docs || !d.docs.rif) e.rifDoc = 'Sube el RIF.';
+        if (d.personType === 'juridica' && (!d.docs || !d.docs.acta)) e.acta = 'Una persona jurídica debe subir el Acta Constitutiva.';
       }
       if (!step || step === 3) {
         if (String(d.adminName || '').trim().split(/\s+/).length < 2) e.adminName = 'Escribe nombre y apellido.';
@@ -955,8 +965,8 @@
       const e = A.validateCompany(d); if (Object.keys(e).length) throw Object.assign(err(400, 'Revisa los campos marcados'), { fields: e });
       const rif = `${d.rifType}-${String(d.rifNumber).replace(/\D/g, '')}-${d.rifCheck}`;
       const c = { id: uid('c'), name: d.name.trim(), legalName: (d.legalName || '').trim() || d.name.trim(), personType: d.personType, rif, runlot: (d.runlot || '').toUpperCase(), state: d.state, municipality: d.municipality,
-        address: d.address.trim(), description: (d.description || '').trim(), email: d.email.trim().toLowerCase(), phone: d.phone.trim(), subdomain: d.subdomain, plan: d.plan, status: 'pendiente', billing: '',
-        rafflesActive: 0, monthSalesUSD: 0, createdAt: iso(now()), approvedAt: null, docs: { acta: !!d.docs.acta, rif: !!d.docs.rif, socios: !!d.docs.socios }, docNames: { ...d.docs }, reason: '', registeredBy: 'Superadministrador',
+        address: d.address.trim(), description: (d.description || '').trim(), email: d.email.trim().toLowerCase(), phone: d.phone.trim(), subdomain: A.freeSubdomain(d.name), plan: d.plan, status: 'pendiente', billing: '',
+        rafflesActive: 0, monthSalesUSD: 0, createdAt: iso(now()), approvedAt: null, docs: { cedula: !!d.docs.cedula, rif: !!d.docs.rif, acta: d.personType === 'juridica' && !!d.docs.acta }, docNames: { ...d.docs }, reason: '', registeredBy: 'Superadministrador',
         admin: { name: d.adminName.trim(), cedula: (d.adminIdType || 'V') + d.adminCedula, email: d.adminEmail.trim().toLowerCase(), phone: (d.adminPhone || '').trim(), status: 'invitado', invitedAt: iso(now()) } };
       db.companies.unshift(c);
       audit('Empresa registrada', `${c.name} · ${c.rif} · plan ${c.plan}`, 'Superadministrador');
@@ -977,7 +987,7 @@
       if (need && !String(reason || '').trim()) throw err(400, 'Escribe el motivo: le llega a la empresa');
       const ok = { aprobar: ['pendiente'], rechazar: ['pendiente'], suspender: ['activa'], reactivar: ['suspendida', 'rechazada'], plan: ['activa', 'pendiente', 'suspendida'] }[action];
       if (!ok || !ok.includes(c.status)) throw err(409, 'Esa acción no aplica en el estado actual');
-      if (action === 'aprobar') { if (!c.docs.acta) throw err(409, 'Falta el acta constitutiva: no se puede aprobar'); c.status = 'activa'; c.approvedAt = iso(now()); c.runlot = c.runlot || `CNL-ORF-2026-${String(1 + Math.max(0, ...db.companies.map(x => +String(x.runlot || '').slice(-6) || 0))).padStart(6, '0')}`; c.billing = 'pendiente'; c.reason = ''; db.invoices.push({ id: 'F-' + Date.now().toString().slice(-7), companyId: c.id, concept: `Licencia plan ${c.plan}`, amountUSD: (db.plans.find(p => p.key === c.plan) || {}).price || 0, dueAt: iso(now() + 7 * DAY), status: 'pendiente', paidAt: null, method: '', reference: '' }); }
+      if (action === 'aprobar') { if ((c.personType || 'juridica') === 'juridica' && !c.docs.acta) throw err(409, 'Falta el Acta Constitutiva: no se puede aprobar'); if (c.docs.cedula === false || !c.docs.rif) throw err(409, 'Faltan la cédula o el RIF: no se puede aprobar'); c.status = 'activa'; c.approvedAt = iso(now()); c.runlot = c.runlot || `CNL-ORF-2026-${String(1 + Math.max(0, ...db.companies.map(x => +String(x.runlot || '').slice(-6) || 0))).padStart(6, '0')}`; c.billing = 'pendiente'; c.reason = ''; db.invoices.push({ id: 'F-' + Date.now().toString().slice(-7), companyId: c.id, concept: `Licencia plan ${c.plan}`, amountUSD: (db.plans.find(p => p.key === c.plan) || {}).price || 0, dueAt: iso(now() + 7 * DAY), status: 'pendiente', paidAt: null, method: '', reference: '' }); }
       if (action === 'rechazar') { c.status = 'rechazada'; c.reason = reason; }
       if (action === 'suspender') { c.status = 'suspendida'; c.reason = reason; }
       if (action === 'reactivar') { c.status = c.status === 'rechazada' ? 'pendiente' : 'activa'; c.reason = ''; }
@@ -987,6 +997,68 @@
     allRaffles() {
       const mine = db.raffles.filter(r => r.status !== 'borrador').map(r => ({ id: r.id, companyId: db.company.id, title: r.title, prize: r.prize, status: raffleState(r), drawAt: r.drawAt, priceUSD: r.priceUSD, total: r.total, soldPct: Math.round(raffleStats(r.id).sold / r.total * 100), lottery: r.lottery, createdAt: r.createdAt, solvencyDoc: r.solvencyDoc, rules: r.rules, rejectReason: r.rejectReason, images: r.images, prizes: r.prizes, description: r.description, promotions: r.promotions, closeMinutes: r.closeMinutes, changes: r.changes || [], originalDrawAt: r.originalDrawAt || '', live: true }));
       return mine.concat(db.extRaffles.map(r => ({ ...r, status: r.status === 'venta' && Date.parse(r.drawAt) <= now() ? 'falta-ganador' : r.status })));
+    },
+    /* Boletos de una rifa para el superadministrador: cada número con su estado y quién lo tiene. */
+    numbersOf(id) {
+      const live = raffle(id), x = live || db.extRaffles.find(r => r.id === id); if (!x) return null;
+      const total = x.total, dg = String(total - 1).length, list = new Array(total);
+      for (let n = 0; n < total; n++) list[n] = { n, k: String(n).padStart(dg, '0'), status: 'disponible' };
+      if (live) {
+        db.orders.forEach(o => {
+          if (o.raffleId !== id) return;
+          const st = o.status === 'aprobada' ? 'vendido' : (o.status === 'pendiente' || o.status === 'abono') ? 'apartado' : null;
+          if (st) o.numbers.forEach(k => { const it = list[+k]; if (it) Object.assign(it, { status: st, orderId: o.id, cedula: o.cedula, name: o.name, method: o.method, channel: o.channel, at: o.createdAt, orderStatus: o.status }); });
+        });
+      } else for (let n = 0; n < total; n++) { const st = extStatus(x, n), ov = (x.numberOverrides || {})[n]; list[n].status = st; if (ov) Object.assign(list[n], { cedula: ov.cedula, name: ov.name, at: ov.at }); else if (st !== 'disponible') list[n].name = 'Comprador de ejemplo'; }
+      return { live: !!live, total, digits: dg, list, log: x.numberLog || [] };
+    },
+    setNumberStatus(id, n, to, { reason, cedula, name } = {}) {
+      const live = raffle(id), x = live || db.extRaffles.find(r => r.id === id); if (!x) throw err(404, 'La rifa no existe');
+      const st = live ? raffleState(live) : (x.status === 'venta' && Date.parse(x.drawAt) <= now() ? 'falta-ganador' : x.status);
+      if (st !== 'venta') throw err(409, st === 'falta-ganador' ? 'La venta ya cerró: después del cierre los números no se cambian' : 'Solo se cambian números de rifas en venta');
+      if (!['vendido', 'apartado', 'disponible'].includes(to)) throw err(400, 'Elige el nuevo estado');
+      if (String(reason || '').trim().length < 5) throw Object.assign(err(400, 'Escribe el motivo del cambio (mínimo 5 caracteres)'), { fields: { reason: 'Escribe el motivo del cambio.' } });
+      n = +n; if (!(n >= 0 && n < x.total)) throw err(400, 'Ese número no existe en esta rifa');
+      const info = A.numbersOf(id).list[n], from = info.status, k = info.k;
+      if (from === to) throw err(400, `El ${k} ya está ${to}`);
+      let c = null;
+      if (from === 'disponible') {
+        const key = cedKey(cedula); if (!key) throw Object.assign(err(400, 'Escribe la cédula del cliente'), { fields: { cedula: 'Escribe la cédula del cliente (6 a 8 números).' } });
+        c = client(key);
+        if (!c && String(name || '').trim().split(/\s+/).length < 2) throw Object.assign(err(400, 'Es un cliente nuevo: escribe su nombre y apellido'), { fields: { name: 'Escribe nombre y apellido.' } });
+        if (live) c = upsertClient({ cedula: key, name: c ? c.name : name });
+      }
+      const why = reason.trim(), by = 'Superadministrador', stamp = iso(now());
+      if (!live) {
+        x.numberOverrides = x.numberOverrides || {};
+        x.numberOverrides[n] = { status: to, cedula: from === 'disponible' ? cedKey(cedula) : (info.cedula || ''), name: from === 'disponible' ? (c ? c.name : name.trim()) : (info.name || ''), at: stamp };
+      } else {
+        const r = live, unit = r.priceUSD, rt = rate();
+        const extract = o => { // saca el número de su orden; si era el único, la orden queda anulada
+          if (o.numbers.length === 1) { o.status = 'anulada'; o.history.push({ at: stamp, text: `Número ${k} liberado por el superadministrador. Motivo: ${why}`, by }); return; }
+          const share = r2(o.amountUSD / o.qty); o.numbers = o.numbers.filter(x => x !== k); o.qty--; o.amountUSD = r2(o.amountUSD - share); o.amountBs = r2(o.amountUSD * o.rate); o.paidUSD = Math.min(o.paidUSD, o.amountUSD);
+          o.history.push({ at: stamp, text: `Número ${k} sacado de esta compra por el superadministrador. Motivo: ${why}`, by });
+        };
+        const newOrder = (cl, status) => {
+          const o = { id: 'LG-' + (++db.seq), raffleId: r.id, cedula: cl.cedula, name: cl.name, qty: 1, random: false, numbers: [k], amountUSD: unit, rate: rt, amountBs: r2(unit * rt), method: '', currency: 'USD', reference: '', bank: '', payerPhone: '', proof: null, channel: 'admin', cajaId: '', sellerId: '', influencer: '',
+            status, paidUSD: status === 'aprobada' ? unit : 0, createdAt: stamp, decidedAt: status === 'aprobada' ? stamp : null, decidedBy: status === 'aprobada' ? by : '', rejectReason: '', history: [{ at: stamp, text: `Número ${k} ${status === 'aprobada' ? 'marcado como vendido' : 'apartado'} por el superadministrador. Motivo: ${why}`, by }] };
+          db.orders.unshift(o); return o;
+        };
+        const ord = info.orderId && db.orders.find(o => o.id === info.orderId);
+        if (to === 'disponible') extract(ord);
+        else if (from === 'disponible') { const o = newOrder(c, to === 'vendido' ? 'aprobada' : 'pendiente'); if (to === 'vendido') notify('compra_confirmada', o); }
+        else { // vendido ↔ apartado: el número sigue con el mismo cliente
+          const cl = client(ord.cedula) || { cedula: ord.cedula, name: ord.name };
+          if (ord.numbers.length === 1) {
+            if (to === 'vendido') { ord.status = 'aprobada'; ord.paidUSD = ord.amountUSD; ord.decidedAt = stamp; ord.decidedBy = by; }
+            else { ord.status = 'pendiente'; ord.paidUSD = 0; ord.decidedAt = null; ord.decidedBy = ''; }
+            ord.history.push({ at: stamp, text: `Número ${k} pasado a ${to} por el superadministrador. Motivo: ${why}`, by });
+          } else { extract(ord); newOrder(cl, to === 'vendido' ? 'aprobada' : 'pendiente'); }
+        }
+      }
+      x.numberLog = [{ at: stamp, number: k, from, to, reason: why, who: from === 'disponible' ? (c ? c.name : name) : (info.name || ''), by }, ...(x.numberLog || [])].slice(0, 300);
+      audit('Número editado por el superadministrador', `${x.title} · ${k}: ${from} → ${to} · Motivo: ${why}`, 'Superadministrador'); commit();
+      return { number: k, from, to };
     },
     /* Edición de rifas por el superadministrador: en venta o esperando aprobación, de cualquier empresa. */
     raffleForEdit(id) {

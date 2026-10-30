@@ -134,7 +134,8 @@ export function Empresas({ query }) {
 function CompanyDrawer({ c, onClose }) {
   const db = useDB(), s = API.companyStats(c), [ask, setAsk] = useState(null), [reason, setReason] = useState(''), [plan, setPlan] = useState(c.plan);
   const act = (action, extra) => { const ok = attempt(() => API.companyAction(c.id, action, extra), { aprobar: `${c.name} aprobada: ya puede vender`, rechazar: 'Empresa rechazada', suspender: 'Empresa suspendida', reactivar: 'Empresa reactivada', plan: 'Plan cambiado' }[action]); if (ok) { if (action === 'aprobar') confetti(); setAsk(null); setReason(''); } };
-  const docs = [['acta', 'Acta constitutiva', true], ['rif', 'RIF de la empresa', true], ['socios', 'RIF de los socios', false]];
+  const docs = [['cedula', 'Cédula de identidad', true], ['rif', 'RIF', true], ...((c.personType || 'juridica') === 'juridica' ? [['acta', 'Acta Constitutiva', true]] : [])];
+  const hasDoc = k => k === 'cedula' ? c.docs.cedula !== false : !!c.docs[k];
   const foot = <>{c.status === 'pendiente' && <><Button variant="danger" onClick={() => setAsk('rechazar')}>Rechazar…</Button><Button variant="success" icon={Check} onClick={() => setAsk('aprobar')}>Aprobar empresa</Button></>}
     {c.status === 'activa' && <><Button variant="danger" onClick={() => setAsk('suspender')}>Suspender…</Button>{c.live ? <Button variant="dark" icon={Eye} onClick={() => { API.viewAs(c.id); location.hash = '/'; location.reload(); }}>Ver su panel</Button> : <span />}</>}
     {(c.status === 'suspendida' || c.status === 'rechazada') && <><span /><Button variant="primary" onClick={() => setAsk('reactivar')}>{c.status === 'rechazada' ? 'Volver a revisar' : 'Reactivar'}</Button></>}</>;
@@ -143,7 +144,7 @@ function CompanyDrawer({ c, onClose }) {
     <dl className="kv kv--left" style={{ gridTemplateColumns: '130px 1fr' }}><dt>RIF</dt><dd>{c.rif}</dd><dt>RUN/LOT</dt><dd>{c.runlot || 'Se asigna al aprobar'}</dd><dt>Estado</dt><dd>{c.state}</dd><dt>Correo</dt><dd>{c.email}</dd><dt>Teléfono</dt><dd>{c.phone}</dd>{c.address && <><dt>Dirección</dt><dd>{c.address}{c.municipality ? `, ${c.municipality}` : ''}</dd></>}{c.subdomain && <><dt>Página</dt><dd className="mono">{c.subdomain}.lottoge.net</dd></>}<dt>Registro</dt><dd>{date(c.createdAt)}{c.registeredBy ? ' · por el superadministrador' : ''}{c.approvedAt ? ` · aprobada el ${date(c.approvedAt)}` : ''}</dd></dl>
     {c.admin && <div className="card" style={{ padding: 14, display: 'grid', gap: 6 }}><div className="row row--between"><b>Administrador de la empresa</b><Badge tone={c.admin.status === 'invitado' ? 'warn' : 'ok'}>{c.admin.status === 'invitado' ? 'Invitación enviada' : 'Activo'}</Badge></div><span>{c.admin.name} · {cedFmt(c.admin.cedula)}</span><span className="subtle">{c.admin.email}{c.admin.phone ? ' · ' + c.admin.phone : ''}</span>{c.admin.status === 'invitado' && <div><Button size="sm" icon={Mail} onClick={() => attempt(() => API.resendInvite(c.id), `Invitación reenviada a ${c.admin.email}`)}>Reenviar invitación</Button></div>}</div>}
     <div className="stats"><Stat label="Rifas en venta" value={s.rafflesActive} /><Stat label="Ventas del mes" value={usd(s.monthSalesUSD, true)} /></div>
-    <div><p className="field__label" style={{ marginBottom: 6 }}>Documentos</p>{docs.map(([k, l, req]) => <div key={k} className="row" style={{ padding: '4px 0' }}>{c.docs[k] ? <Check size={15} className="ok-text" aria-label="Recibido" /> : <X size={15} className={req ? 'err-text' : 'subtle'} aria-label="Falta" />}<span>{l}</span>{!c.docs[k] && <Badge tone={req ? 'err' : undefined} plain>{req ? 'Falta (obligatorio)' : 'Falta (opcional)'}</Badge>}</div>)}</div>
+    <div><p className="field__label" style={{ marginBottom: 6 }}>Documentos</p>{docs.map(([k, l, req]) => <div key={k} className="row" style={{ padding: '4px 0' }}>{hasDoc(k) ? <Check size={15} className="ok-text" aria-label="Recibido" /> : <X size={15} className={req ? 'err-text' : 'subtle'} aria-label="Falta" />}<span>{l}</span>{!hasDoc(k) && <Badge tone={req ? 'err' : undefined} plain>{req ? 'Falta (obligatorio)' : 'Falta (opcional)'}</Badge>}</div>)}</div>
     {c.status !== 'rechazada' && <div className="row" style={{ alignItems: 'flex-end' }}><div className="grow"><Field label="Plan"><Select value={plan} onChange={e => setPlan(e.target.value)} options={db.plans.map(p => [p.key, `${p.key} · ${p.priceLabel}`])} /></Field></div><Button disabled={plan === c.plan} onClick={() => act('plan', { plan })}>Cambiar plan</Button></div>}
     {ask && <Modal title={{ aprobar: `¿Aprobar ${c.name}?`, rechazar: `Rechazar ${c.name}`, suspender: `Suspender ${c.name}`, reactivar: c.status === 'rechazada' ? 'Volver a revisar' : `Reactivar ${c.name}` }[ask]} onClose={() => setAsk(null)}
       footer={<><Button onClick={() => setAsk(null)}>Cancelar</Button><Button variant={['rechazar', 'suspender'].includes(ask) ? 'danger-solid' : 'primary'} onClick={() => act(ask, { reason })}>{{ aprobar: 'Aprobar', rechazar: 'Rechazar', suspender: 'Suspender', reactivar: 'Confirmar' }[ask]}</Button></>}>
@@ -166,9 +167,9 @@ export function SupervisorRifas({ query }) {
         <div className="input-icon" style={{ marginLeft: 'auto', width: 240 }}><Search size={15} /><Input placeholder="Rifa o empresa" value={q} onChange={e => setQ(e.target.value)} aria-label="Buscar rifas" /></div></div>
       {!list.length ? <Empty icon={Ticket} title={tab === 'revision' ? 'No hay rifas por revisar' : 'No hay rifas en este estado'} text={tab === 'revision' ? 'Cuando un operador envíe una rifa, aparece aquí.' : ''} /> :
         <div className="tbl-wrap"><table className="tbl tbl--cards"><thead><tr><th>Rifa</th><th>Empresa</th><th>Estado</th><th>Sorteo</th><th className="r">Precio</th><th>Vendido</th><th><span className="sr-only">Acción</span></th></tr></thead>
-          <tbody>{list.map(r => <tr key={r.id} className="clickable" onClick={e => e.target.closest('button') || setQuery({ r: r.id })}><td><b>{r.title}</b><small>{r.prize}</small></td><td>{coName(db, r.companyId)}</td><td><Badge tone={RAFFLE_TONE[r.status]}>{STATE_LABEL[r.status]}</Badge></td><td className="num">{date(r.drawAt)}<small>{r.lottery}</small></td><td className="r num">{usd(r.priceUSD, true)}</td>
+          <tbody>{list.map(r => <tr key={r.id} className="clickable" onClick={e => e.target.closest('button,a') || go('/admin/rifas/detalle', { r: r.id })}><td><b>{r.title}</b><small>{r.prize}</small></td><td>{coName(db, r.companyId)}</td><td><Badge tone={RAFFLE_TONE[r.status]}>{STATE_LABEL[r.status]}</Badge></td><td className="num">{date(r.drawAt)}<small>{r.lottery}</small></td><td className="r num">{usd(r.priceUSD, true)}</td>
             <td style={{ minWidth: 110 }}>{r.status === 'revision' ? <span className="subtle">—</span> : <><Bar value={r.soldPct} max={100} label="Vendido" /><small className="num">{r.soldPct} %</small></>}</td>
-            <td className="r"><div className="row" style={{ justifyContent: 'flex-end', flexWrap: 'nowrap' }}>{['venta', 'revision'].includes(r.status) && <LinkButton size="sm" icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`} aria-label={`Editar ${r.title}`}>Editar</LinkButton>}<Button size="sm" variant={r.status === 'revision' ? 'primary' : undefined} onClick={() => setQuery({ r: r.id })}>{r.status === 'revision' ? 'Revisar' : 'Ver'}</Button></div></td></tr>)}</tbody></table></div>}
+            <td className="r"><div className="row" style={{ justifyContent: 'flex-end', flexWrap: 'nowrap' }}>{['venta', 'revision'].includes(r.status) && <LinkButton size="sm" icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`} aria-label={`Editar ${r.title}`}>Editar</LinkButton>}{r.status === 'revision' ? <Button size="sm" variant="primary" onClick={() => setQuery({ r: r.id })}>Revisar</Button> : <LinkButton size="sm" href={`#/admin/rifas/detalle?r=${r.id}`}>Ver</LinkButton>}</div></td></tr>)}</tbody></table></div>}
     </Card>
     {open && <RaffleDrawer r={open} onClose={() => setQuery({ r: '' })} />}
   </>;
@@ -178,8 +179,8 @@ function RaffleDrawer({ r, onClose }) {
   const checks = [['Documento de solvencia', !!r.solvencyDoc], ['Al menos una regla', (r.rules || []).length > 0], ['Fecha del sorteo futura', Date.parse(r.drawAt) > Date.now()], ['Empresa activa', (db.companies.find(c => c.id === r.companyId) || {}).status === 'activa']];
   const okAll = checks.every(c => c[1]);
   const decide = (ok) => { if (attempt(() => API.superRaffleDecide(r.id, ok, reason), ok ? 'Rifa aprobada: ya está en venta' : 'Rifa rechazada: el operador recibe el motivo')) { if (ok) confetti(); onClose(); } };
-  const editBtn = <LinkButton icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`}>Editar rifa</LinkButton>;
-  return <Drawer kicker={`${coName(db, r.companyId)} · ${STATE_LABEL[r.status]}`} title={r.title} onClose={onClose} footer={r.status === 'revision' ? <><Button variant="danger" onClick={() => setRej(true)}>Rechazar…</Button><div className="row">{editBtn}<Button variant="success" icon={Check} disabled={!okAll} onClick={() => decide(true)}>Aprobar rifa</Button></div></> : r.status === 'venta' ? <><span className="subtle">En venta: puedes corregir cualquier dato.</span>{editBtn}</> : null}>
+  const editBtn = <div className="row"><LinkButton href={`#/admin/rifas/detalle?r=${r.id}`}>Detalle y boletos</LinkButton><LinkButton icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`}>Editar rifa</LinkButton></div>;
+  return <Drawer kicker={`${coName(db, r.companyId)} · ${STATE_LABEL[r.status]}`} title={r.title} onClose={onClose} footer={r.status === 'revision' ? <><Button variant="danger" onClick={() => setRej(true)}>Rechazar…</Button><div className="row">{editBtn}<Button variant="success" icon={Check} disabled={!okAll} onClick={() => decide(true)}>Aprobar rifa</Button></div></> : r.status === 'venta' ? <><span />{editBtn}</> : <><span /><LinkButton href={`#/admin/rifas/detalle?r=${r.id}`}>Detalle y boletos</LinkButton></>}>
     {r.status === 'revision' && <Note tone="info" icon={ShieldCheck}>Si falta algo menor, corrígelo con "Editar rifa" y apruébala; si no, recházala con el motivo.</Note>}
     {(r.changes || []).length > 0 && <Note icon={History}><b>Editada por el superadministrador {ago(r.changes[0].at)}:</b> {r.changes[0].diff.join('; ')}.</Note>}
     {r.rejectReason && <Note tone="err"><b>Rechazada:</b> {r.rejectReason}</Note>}
@@ -370,7 +371,7 @@ export function EditarRifa({ query }) {
   const [d, setD] = useState(() => info && JSON.parse(JSON.stringify(info.data)));
   const [reason, setReason] = useState(''), [errors, setErrors] = useState({}), [confirm, setConfirm] = useState(false);
   if (!info) return <Card><Empty title="Esta rifa no existe" action={<LinkButton href="#/admin/rifas">Volver a las rifas</LinkButton>} /></Card>;
-  const back = `#/admin/rifas?r=${info.id}&tab=${info.status === 'revision' ? 'revision' : info.status}`;
+  const back = `#/admin/rifas/detalle?r=${info.id}`;
   if (!info.editable) return <><PageHead crumbs={<><a href="#/admin/rifas">Rifas</a><span aria-hidden="true">›</span><span>{info.data.title}</span></>} title={info.data.title} /><Note tone="warn">Esta rifa está {STATE_LABEL[info.status].toLowerCase()}: solo se editan las rifas en venta o esperando aprobación.</Note></>;
   const set = (k, v) => setD(x => ({ ...x, [k]: v }));
   const validDate = !isNaN(Date.parse(d.drawAt));
@@ -378,7 +379,7 @@ export function EditarRifa({ query }) {
   const priceChanged = +d.priceUSD !== +info.data.priceUSD, dateChanged = validDate && Date.parse(d.drawAt) !== Date.parse(info.data.drawAt);
   const closeAt = validDate ? new Date(Date.parse(d.drawAt) - (+d.closeMinutes || 10) * 60e3) : null;
   const save = () => {
-    try { const out = API.superEditRaffle(info.id, d, reason); setConfirm(false); toast(`Rifa actualizada: ${plural(out.length, 'cambio', 'cambios')}. La empresa ya lo ve.`); go('/admin/rifas', { r: info.id, tab: info.status }); }
+    try { const out = API.superEditRaffle(info.id, d, reason); setConfirm(false); toast(`Rifa actualizada: ${plural(out.length, 'cambio', 'cambios')}. La empresa ya lo ve.`); go('/admin/rifas/detalle', { r: info.id }); }
     catch (e) { setConfirm(false); if (e.fields) { setErrors(e.fields); setTimeout(() => document.querySelector('[aria-invalid="true"]')?.focus(), 0); } toast(e.message, 'err'); }
   };
   const errList = Object.keys(errors);
@@ -441,14 +442,15 @@ export function EditarRifa({ query }) {
 
 /* ---------- Registrar empresa (la planilla de registro, basada en /register-company de la plataforma original) ---------- */
 const REG_STEPS = ['Plan', 'Datos de la empresa', 'Administrador', 'Revisar y registrar'];
-const REG_BLANK = { plan: 'Basic', personType: 'juridica', name: '', legalName: '', rifType: 'J', rifNumber: '', rifCheck: '', runlot: '', phone: '', email: '', state: '', municipality: '', address: '', description: '', subdomain: '', docs: {}, adminName: '', adminIdType: 'V', adminCedula: '', adminEmail: '', adminPhone: '', terms: false, approveNow: false };
-const REG_LABEL = { plan: 'Plan', personType: 'Tipo de persona', name: 'Nombre comercial', legalName: 'Razón social', rif: 'RIF', runlot: 'RUN/LOT', phone: 'Teléfono', email: 'Correo', state: 'Estado', municipality: 'Municipio', address: 'Dirección', subdomain: 'Subdominio', acta: 'Acta Constitutiva', rifDoc: 'RIF de la empresa', adminName: 'Nombre del administrador', adminCedula: 'Cédula', adminEmail: 'Correo del administrador', adminPhone: 'Teléfono del administrador', terms: 'Términos' };
+const REG_BLANK = { plan: 'Basic', personType: 'juridica', name: '', legalName: '', rifType: 'J', rifNumber: '', rifCheck: '', runlot: '', phone: '', email: '', state: '', municipality: '', address: '', description: '', docs: {}, adminName: '', adminIdType: 'V', adminCedula: '', adminEmail: '', adminPhone: '', terms: false, approveNow: false };
+const REG_LABEL = { plan: 'Plan', personType: 'Tipo de persona', name: 'Nombre comercial', legalName: 'Razón social', rif: 'RIF', runlot: 'RUN/LOT', phone: 'Teléfono', email: 'Correo', state: 'Estado', municipality: 'Municipio', address: 'Dirección', cedulaDoc: 'Cédula de identidad', rifDoc: 'RIF', acta: 'Acta Constitutiva', adminName: 'Nombre del administrador', adminCedula: 'Cédula', adminEmail: 'Correo del administrador', adminPhone: 'Teléfono del administrador', terms: 'Términos' };
 const RIF_FOR = { juridica: ['J'], natural: ['V', 'E'], gubernamental: ['G'] };
 export function RegistrarEmpresa() {
-  const db = useDB(), [d, setD] = useState({ ...REG_BLANK }), [step, setStep] = useState(0), [touched, setTouched] = useState({}), [shown, setShown] = useState({}), [slugEdited, setSlugEdited] = useState(false);
+  const db = useDB(), [d, setD] = useState({ ...REG_BLANK }), [step, setStep] = useState(0), [touched, setTouched] = useState({}), [shown, setShown] = useState({});
   const live = API.validateCompany(d, step + 1);
   const err = k => (shown[k] || touched[k]) ? live[k] : undefined;
-  const set = (k, v) => setD(x => { const n = { ...x, [k]: v }; if (k === 'name' && !slugEdited) n.subdomain = API.slug(v); if (k === 'personType') n.rifType = RIF_FOR[v][0]; if (k === 'state') n.municipality = ''; return n; });
+  const set = (k, v) => setD(x => { const n = { ...x, [k]: v }; if (k === 'personType') { n.rifType = RIF_FOR[v][0]; if (v !== 'juridica') n.docs = { ...n.docs, acta: '' }; } if (k === 'state') n.municipality = ''; return n; });
+  const sub = API.freeSubdomain(d.name);
   const blur = k => () => setTouched(t => ({ ...t, [k]: true }));
   const next = () => {
     const e = API.validateCompany(d, step + 1);
@@ -457,14 +459,15 @@ export function RegistrarEmpresa() {
   };
   const submit = () => {
     try { const c = API.registerCompany(d); confetti(); toast(c.status === 'activa' ? `${c.name} registrada y aprobada. Invitación enviada a ${c.admin.email}` : `${c.name} registrada: queda pendiente de revisión. Invitación enviada a ${c.admin.email}`); go('/admin/empresas', { e: c.id }); }
-    catch (e) { if (e.fields) { const order = [['plan'], ['personType', 'name', 'legalName', 'rif', 'runlot', 'phone', 'email', 'state', 'municipality', 'address', 'subdomain', 'acta', 'rifDoc'], ['adminName', 'adminCedula', 'adminEmail', 'adminPhone'], ['terms']]; const st = order.findIndex(g => g.some(k => e.fields[k])); setShown(Object.fromEntries(Object.keys(e.fields).map(k => [k, true]))); if (st >= 0) setStep(st); } toast(e.message, 'err'); }
+    catch (e) { if (e.fields) { const order = [['plan'], ['personType', 'name', 'legalName', 'rif', 'runlot', 'phone', 'email', 'state', 'municipality', 'address', 'cedulaDoc', 'rifDoc', 'acta'], ['adminName', 'adminCedula', 'adminEmail', 'adminPhone'], ['terms']]; const st = order.findIndex(g => g.some(k => e.fields[k])); setShown(Object.fromEntries(Object.keys(e.fields).map(k => [k, true]))); if (st >= 0) setStep(st); } toast(e.message, 'err'); }
   };
   const errs = Object.keys(live).filter(k => shown[k]);
   const plan = db.plans.find(p => p.key === d.plan);
-  const docField = (key, label, req, hint, drop) => <div className="field"><span className="field__label">{label}{req && <span className="req">*</span>}</span>
+  const DOC_ERR = { cedula: 'cedulaDoc', rif: 'rifDoc', acta: 'acta' };
+  const docField = (key, label, hint, drop, pdfOnly) => <div className="field"><span className="field__label">{label}<span className="req">*</span></span>
     {d.docs[key] ? <div className="row"><Badge tone="ok">{d.docs[key]}</Badge><Button size="sm" variant="ghost" onClick={() => set('docs', { ...d.docs, [key]: '' })}>Cambiar</Button></div>
-      : <FileDrop accept="application/pdf" error={err(key === 'rif' ? 'rifDoc' : key)} label={`Sube ${drop} (PDF)`} hint={hint} onFile={f => { if (!/pdf$/i.test(f.type) && !/\.pdf$/i.test(f.name)) return toast('Solo se aceptan archivos PDF', 'err'); if (f.size > 10 * 1024 * 1024) return toast('El PDF pesa más de 10 MB', 'err'); set('docs', { ...d.docs, [key]: f.name }); }} />}
-    {err(key === 'rif' ? 'rifDoc' : key) && <p className="error"><AlertTriangle size={13} />{err(key === 'rif' ? 'rifDoc' : key)}</p>}</div>;
+      : <FileDrop accept={pdfOnly ? 'application/pdf' : 'application/pdf,image/jpeg,image/png'} error={err(DOC_ERR[key])} label={`Sube ${drop}`} hint={hint} onFile={f => { const okType = /\.pdf$/i.test(f.name) || (!pdfOnly && /\.(jpe?g|png)$/i.test(f.name)); if (!okType) return toast(pdfOnly ? 'Solo se acepta PDF' : 'Usa PDF, JPG o PNG', 'err'); if (f.size > 10 * 1024 * 1024) return toast('El archivo pesa más de 10 MB', 'err'); set('docs', { ...d.docs, [key]: f.name }); }} />}
+    {err(DOC_ERR[key]) && <p className="error"><AlertTriangle size={13} />{err(DOC_ERR[key])}</p>}</div>;
   return <>
     <PageHead crumbs={<><a href="#/admin/empresas">Empresas</a><span aria-hidden="true">›</span><span>Registrar empresa</span></>} title="Registrar empresa" sub="Planilla de registro de operadores de rifas. Al registrarla queda pendiente de revisión, salvo que la apruebes en el último paso." />
     <Steps steps={REG_STEPS} current={step} />
@@ -489,9 +492,9 @@ export function RegistrarEmpresa() {
               <Field label="Municipio" required error={err('municipality')}><Select value={d.municipality} disabled={!d.state} onChange={e => set('municipality', e.target.value)} onBlur={blur('municipality')} placeholder={d.state ? 'Elige el municipio' : 'Primero elige el estado'} options={STATES[d.state] || []} /></Field>
               <Field label="Dirección" required error={err('address')} className="full"><Input value={d.address} onChange={e => set('address', e.target.value)} onBlur={blur('address')} placeholder="Av. Los Próceres, C.C. Las Tapias, local 4" /></Field>
               <Field label="Descripción (opcional)" className="full"><Textarea rows={2} value={d.description} onChange={e => set('description', e.target.value)} placeholder="Qué rifas hace y dónde opera" /></Field>
-              <Field label="Subdominio de su página" required error={err('subdomain')} hint={d.subdomain ? `Su página: ${d.subdomain}.lottoge.net` : 'Se arma solo con el nombre.'}><div className="input-affix"><Input value={d.subdomain} onChange={e => { setSlugEdited(true); set('subdomain', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')); }} onBlur={blur('subdomain')} style={{ paddingRight: 110 }} /><span>.lottoge.net</span></div></Field>
+              <p className="hint full" style={{ margin: 0 }}>Su página será <b className="mono">{sub}.lottoge.net</b> (se genera sola con el nombre).</p>
             </div>
-            <div className="form-grid">{docField('acta', 'Acta Constitutiva', true, 'Obligatoria · PDF de hasta 10 MB', 'el Acta Constitutiva')}{docField('rif', 'RIF de la empresa', true, 'PDF de hasta 10 MB', 'el RIF de la empresa')}{docField('socios', 'RIF de los socios', false, 'Opcional · PDF', 'el RIF de los socios')}</div>
+            <div className="form-grid">{docField('cedula', d.personType === 'juridica' ? 'Cédula de identidad del representante' : 'Cédula de identidad', 'PDF, JPG o PNG · hasta 10 MB', 'la cédula de identidad')}{docField('rif', 'RIF', 'PDF, JPG o PNG · hasta 10 MB', 'el RIF')}{d.personType === 'juridica' && docField('acta', 'Acta Constitutiva', 'Obligatoria para persona jurídica · PDF de hasta 10 MB', 'el Acta Constitutiva (PDF)', true)}</div>
           </>}
           {step === 2 && <>
             <Note tone="info" icon={Mail}>A esta persona le llega una invitación por correo para crear su propia contraseña y entrar al panel del operador. Nadie escribe la contraseña por ella.</Note>
@@ -508,8 +511,8 @@ export function RegistrarEmpresa() {
               <dt>Empresa</dt><dd>{d.name}{d.legalName ? ` · ${d.legalName}` : ''}</dd>
               <dt>RIF</dt><dd>{d.rifType}-{d.rifNumber}-{d.rifCheck}</dd><dt>RUN/LOT</dt><dd>{d.runlot || 'Se asigna al aprobar'}</dd>
               <dt>Contacto</dt><dd>{d.phone} · {d.email}</dd><dt>Ubicación</dt><dd>{d.address}, {d.municipality}, {d.state}</dd>
-              <dt>Página</dt><dd className="mono">{d.subdomain}.lottoge.net</dd>
-              <dt>Documentos</dt><dd>{['acta', 'rif', 'socios'].filter(k => d.docs[k]).map(k => d.docs[k]).join(' · ')}</dd>
+              <dt>Página</dt><dd className="mono">{sub}.lottoge.net</dd>
+              <dt>Documentos</dt><dd>{['cedula', 'rif', 'acta'].filter(k => d.docs[k]).map(k => d.docs[k]).join(' · ')}</dd>
               <dt>Administrador</dt><dd>{d.adminName} · {d.adminIdType}-{d.adminCedula} · {d.adminEmail}</dd>
             </dl>
             <Check2 checked={d.terms} onChange={v => set('terms', v)}>La empresa acepta los <a href="./pagina-principal/" target="_blank" rel="noopener">términos y condiciones de LottoGE</a> y declara que los datos son ciertos.</Check2>
@@ -523,9 +526,103 @@ export function RegistrarEmpresa() {
         </form>
       </Card>
       <Card title="Lo que se pide" body={false}>
-        {[['Plan elegido', !!d.plan], ['Nombre y RIF válidos', d.name.trim().length >= 3 && /^\d{8}$/.test(d.rifNumber) && /^\d$/.test(d.rifCheck)], ['Contacto y ubicación', !!(d.phone && d.email && d.municipality && d.address)], ['Acta Constitutiva', !!d.docs.acta], ['RIF de la empresa', !!d.docs.rif], ['Administrador', !!(d.adminName && d.adminCedula && d.adminEmail)], ['Términos aceptados', d.terms]].map(([l, ok]) => <div key={l} className="list-row" style={{ padding: '10px 18px' }}>{ok ? <Check size={15} className="ok-text" aria-label="Listo" /> : <Clock size={15} className="subtle" aria-label="Pendiente" />}<span className={ok ? 'ok-text' : 'muted'}>{l}</span></div>)}
-        <div className="card__body"><p className="subtle">Los datos se validan al salir de cada campo y otra vez al registrar. No se repiten RIF, correo, RUN/LOT ni subdominio.</p></div>
+        {[['Plan elegido', !!d.plan], ['Nombre y RIF válidos', d.name.trim().length >= 3 && /^\d{8}$/.test(d.rifNumber) && /^\d$/.test(d.rifCheck)], ['Contacto y ubicación', !!(d.phone && d.email && d.municipality && d.address)], ['Cédula de identidad', !!d.docs.cedula], ['RIF', !!d.docs.rif], ...(d.personType === 'juridica' ? [['Acta Constitutiva', !!d.docs.acta]] : []), ['Administrador', !!(d.adminName && d.adminCedula && d.adminEmail)], ['Términos aceptados', d.terms]].map(([l, ok]) => <div key={l} className="list-row" style={{ padding: '10px 18px' }}>{ok ? <Check size={15} className="ok-text" aria-label="Listo" /> : <Clock size={15} className="subtle" aria-label="Pendiente" />}<span className={ok ? 'ok-text' : 'muted'}>{l}</span></div>)}
+        <div className="card__body"><p className="subtle">Los datos se validan al salir de cada campo y otra vez al registrar. No se repiten RIF, correo ni RUN/LOT; el subdominio se genera solo y nunca se repite.</p></div>
       </Card>
     </div>
   </>;
+}
+
+/* ---------- Detalle de la rifa: configuración, promociones y cada boleto ---------- */
+const NUM_STATUS = { vendido: ['Vendido', 'ok'], apartado: ['Apartado', 'warn'], disponible: ['Disponible', 'muted'] };
+export function AdminRifaDetalle({ query }) {
+  const db = useDB(), all = API.allRaffles(), r = all.find(x => x.id === query.r), tab = query.tab || 'boletos';
+  const [rej, setRej] = useState(false), [reason, setReason] = useState('');
+  if (!r) return <Card><Empty title="Esta rifa no existe" action={<LinkButton href="#/admin/rifas">Volver a las rifas</LinkButton>} /></Card>;
+  const info = API.raffleForEdit(r.id), N = API.numbersOf(r.id);
+  const c = { vendido: 0, apartado: 0, disponible: 0 }; N.list.forEach(x => c[x.status]++);
+  const st = r.live ? API.raffleStats(r.id) : null, randomPend = st ? st.reserved - c.apartado : 0;
+  const decide = ok => { if (attempt(() => API.superRaffleDecide(r.id, ok, reason), ok ? 'Rifa aprobada: ya está en venta' : 'Rifa rechazada')) { if (ok) confetti(); setRej(false); } };
+  return <>
+    <PageHead crumbs={<><a href="#/admin/rifas">Rifas</a><span aria-hidden="true">›</span><span>{r.id}</span></>}
+      title={<span className="row" style={{ gap: 12 }}>{r.title}<Badge tone={RAFFLE_TONE[r.status]}>{STATE_LABEL[r.status]}</Badge></span>}
+      sub={`${coName(db, r.companyId)} · ${r.prize} · ${r.lottery} · sorteo ${dateTime(r.drawAt)}`}
+      actions={<>{info.editable && <LinkButton icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`}>Editar rifa</LinkButton>}{r.status === 'revision' && <><Button variant="danger" onClick={() => setRej(true)}>Rechazar…</Button><Button variant="success" icon={Check} onClick={() => decide(true)}>Aprobar rifa</Button></>}</>} />
+    <div className="stats" style={{ marginBottom: 18 }}>
+      <Stat label="Vendidos" value={num(c.vendido)} unit={`de ${num(r.total)}`} sub={`${Math.round(c.vendido / r.total * 100)} %`} />
+      <Stat label="Apartados" value={num(c.apartado)} sub={randomPend > 0 ? `+ ${plural(randomPend, 'boleto al azar', 'boletos al azar')} sin número aún` : 'Esperan pago o verificación'} />
+      <Stat label="Disponibles" value={num(c.disponible)} />
+      <Stat label="Precio" value={usd(r.priceUSD, true)} sub={st ? `Recaudado ${usd(st.revenueUSD, true)}` : 'Empresa de ejemplo'} />
+    </div>
+    <div className="tabs" role="tablist" aria-label="Secciones de la rifa">{[['boletos', `Boletos (${num(r.total)})`], ['promos', `Promociones (${(info.data.promotions || []).length})`], ['config', 'Configuración']].map(([k, l]) => <button key={k} role="tab" type="button" aria-selected={tab === k} onClick={() => setQuery({ tab: k })}>{l}</button>)}</div>
+    {tab === 'boletos' && <TicketBoard key={r.id} r={r} N={N} counts={c} />}
+    {tab === 'promos' && <Card title="Promociones por volumen" actions={info.editable && <LinkButton size="sm" icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`}>Editar promociones</LinkButton>} body={false}>
+      {(info.data.promotions || []).length ? <div className="tbl-wrap"><table className="tbl"><thead><tr><th>Promoción</th><th className="r">Precio</th><th className="r">Sueltos costarían</th><th className="r">Ahorro</th></tr></thead>
+        <tbody>{info.data.promotions.map((p, i) => <tr key={i}><td><b>{p.qty} boletos</b></td><td className="r num">{usd(p.priceUSD)}</td><td className="r num">{usd(p.qty * r.priceUSD)}</td><td className="r num ok-text">{usd(p.qty * r.priceUSD - p.priceUSD)} ({Math.round((1 - p.priceUSD / (p.qty * r.priceUSD)) * 100)} %)</td></tr>)}</tbody></table></div>
+        : <Empty title="Esta rifa no tiene promociones" text={info.editable ? 'Puedes agregarlas desde "Editar promociones".' : ''} />}
+    </Card>}
+    {tab === 'config' && <div className="grid grid--side">
+      <Card title="Información"><dl className="kv kv--left" style={{ gridTemplateColumns: '160px 1fr' }}>
+        <dt>Premios</dt><dd>{info.data.prizes.filter(Boolean).map((p, i) => <div key={i}>{i + 1}º · {p}</div>)}</dd><dt>Lotería</dt><dd>{r.lottery}</dd>
+        <dt>Sorteo</dt><dd>{dateTime(r.drawAt)}{info.originalDrawAt && <small className="subtle"> (original: {dateTime(info.originalDrawAt)})</small>}</dd>
+        <dt>Cierre de ventas</dt><dd>{info.data.closeMinutes} min antes del sorteo</dd><dt>Precio</dt><dd>{usd(r.priceUSD)} · {bs(r.priceUSD * API.rate())} hoy</dd>
+        <dt>Números</dt><dd>{num(r.total)} (del {N.list[0].k} al {N.list[N.total - 1].k})</dd><dt>Descripción</dt><dd>{info.data.description || '—'}</dd>
+        <dt>Reglas</dt><dd>{info.data.rules.filter(Boolean).length ? <ol style={{ margin: 0, paddingLeft: 18 }}>{info.data.rules.filter(Boolean).map((x, i) => <li key={i}>{x}</li>)}</ol> : '—'}</dd>
+        <dt>Solvencia</dt><dd>{info.data.solvencyDoc || <span className="err-text">Falta</span>}</dd></dl></Card>
+      <div className="stack">
+        {info.data.images.length > 0 && <Card title="Imágenes"><div style={{ display: 'grid', gap: 8 }}>{info.data.images.map((src, i) => <Thumb key={i} raffle={{ title: r.title, images: [src] }} lg />)}</div></Card>}
+        <Card title="Ediciones del superadministrador" body={false}>{info.changes.length ? info.changes.map((ch, i) => <div key={i} className="list-row" style={{ alignItems: 'flex-start' }}><History size={15} className="subtle" style={{ marginTop: 2 }} aria-hidden="true" /><span className="grow"><b style={{ fontSize: 13 }}>{dateTime(ch.at)}</b><small>{ch.diff.join('; ')}</small><small>Motivo: {ch.reason}</small></span></div>) : <Empty title="Sin ediciones" />}</Card>
+      </div>
+    </div>}
+    {rej && <Modal title={`Rechazar ${r.title}`} onClose={() => setRej(false)} footer={<><Button onClick={() => setRej(false)}>Cancelar</Button><Button variant="danger-solid" onClick={() => decide(false)}>Rechazar rifa</Button></>}><Field label="Motivo" required><Textarea data-autofocus rows={3} value={reason} onChange={e => setReason(e.target.value)} /></Field></Modal>}
+  </>;
+}
+function TicketBoard({ r, N, counts }) {
+  const [f, setF] = useState('todos'), [page, setPage] = useState(0), [jump, setJump] = useState(''), [hit, setHit] = useState(null), [open, setOpen] = useState(null);
+  const per = 100, list = f === 'todos' ? N.list : N.list.filter(x => x.status === f), pages = Math.max(1, Math.ceil(list.length / per)), pg = Math.min(page, pages - 1);
+  const shown = list.slice(pg * per, pg * per + per);
+  const goNum = e => { e.preventDefault(); const n = parseInt(jump, 10); if (isNaN(n) || n < 0 || n >= N.total) return toast(`Escribe un número del ${N.list[0].k} al ${N.list[N.total - 1].k}`, 'err'); setF('todos'); setPage(Math.floor(n / per)); setHit(n); setOpen(n); };
+  const exp = () => downloadCSV(`boletos-${r.id}.csv`, [['Número', 'Estado', 'Cliente', 'Cédula', 'Orden', 'Fecha'], ...N.list.map(x => [x.k, NUM_STATUS[x.status][0], x.name || '', x.cedula ? cedFmt(x.cedula) : '', x.orderId || '', x.at ? dateTime(x.at) : ''])]);
+  const editable = r.status === 'venta';
+  return <>
+    {!editable && <div style={{ marginBottom: 14 }}><Note tone="info" icon={Lock}>{r.status === 'revision' ? 'La rifa todavía no está en venta: todos los números están disponibles.' : 'La venta cerró: puedes ver cada número, pero ya no se cambian.'}</Note></div>}
+    <Card body={false}>
+      <div className="toolbar">
+        <Seg label="Estado del número" value={f} onChange={v => { setF(v); setPage(0); }} options={[{ key: 'todos', label: 'Todos', count: N.total }, { key: 'vendido', label: 'Vendidos', count: counts.vendido }, { key: 'apartado', label: 'Apartados', count: counts.apartado }, { key: 'disponible', label: 'Disponibles', count: counts.disponible }]} />
+        <form className="input-icon" style={{ width: 170 }} onSubmit={goNum}><Search size={15} /><Input inputMode="numeric" placeholder="Ir al número…" aria-label="Ir al número" value={jump} onChange={e => setJump(e.target.value.replace(/\D/g, ''))} /></form>
+        <div className="legend" style={{ marginLeft: 'auto' }}><span><i className="l-sold-a" />Vendido</span><span><i className="l-res" />Apartado</span><span><i />Disponible</span></div>
+        <Button size="sm" icon={Download} onClick={exp}>Exportar</Button>
+      </div>
+      <div className="card__body">{shown.length ? <div className="nums" role="group" aria-label="Números de la rifa">{shown.map(x => <button key={x.n} type="button" className={'nadm nadm--' + x.status + (hit === x.n ? ' is-hit' : '')} aria-label={`${x.k}, ${NUM_STATUS[x.status][0].toLowerCase()}${x.name ? ', ' + x.name : ''}`} title={x.name ? `${x.k} · ${x.name}` : x.k} onClick={() => { setHit(x.n); setOpen(x.n); }}>{x.k}</button>)}</div> : <Empty title="No hay números con ese estado" />}</div>
+      <div className="card__foot"><span>{shown.length ? `${shown[0].k}–${shown[shown.length - 1].k}` : ''} · toca un número para ver quién lo tiene{editable ? ' o cambiar su estado' : ''}</span>
+        {pages > 1 && <div className="row"><Button size="sm" disabled={!pg} onClick={() => setPage(pg - 1)}>Anterior</Button><select className="select" style={{ height: 32, width: 'auto' }} aria-label="Página" value={pg} onChange={e => setPage(+e.target.value)}>{Array.from({ length: pages }, (_, i) => <option key={i} value={i}>{list[i * per].k}–{list[Math.min(list.length, (i + 1) * per) - 1].k}</option>)}</select><Button size="sm" disabled={pg >= pages - 1} onClick={() => setPage(pg + 1)}>Siguiente</Button></div>}</div>
+    </Card>
+    {N.log.length > 0 && <div style={{ marginTop: 18 }}><Card title="Cambios de números" body={false}>{N.log.slice(0, 12).map((l, i) => <div key={i} className="list-row" style={{ alignItems: 'flex-start' }}><History size={15} className="subtle" style={{ marginTop: 2 }} aria-hidden="true" /><span className="grow"><b>{l.number}: {NUM_STATUS[l.from][0]} → {NUM_STATUS[l.to][0]}</b>{l.who ? ` · ${l.who}` : ''}<small>{dateTime(l.at)} · Motivo: {l.reason}</small></span></div>)}</Card></div>}
+    {open != null && <NumberModal r={r} x={N.list[open]} editable={editable} onClose={() => setOpen(null)} />}
+  </>;
+}
+function NumberModal({ r, x, editable, onClose }) {
+  const db = useDB(), [to, setTo] = useState(''), [reason, setReason] = useState(''), [ced, setCed] = useState(''), [name, setName] = useState(''), [errs, setErrs] = useState({});
+  const ord = x.orderId && db.orders.find(o => o.id === x.orderId);
+  const known = ced.length >= 6 && API.client('V' + ced);
+  const save = () => { try { API.setNumberStatus(r.id, x.n, to, { reason, cedula: ced, name }); toast(`Número ${x.k}: ${NUM_STATUS[x.status][0].toLowerCase()} → ${NUM_STATUS[to][0].toLowerCase()}`); onClose(); } catch (e) { setErrs(e.fields || {}); toast(e.message, 'err'); } };
+  const options = ['vendido', 'apartado', 'disponible'].filter(s => s !== x.status);
+  return <Modal title={<span className="row" style={{ gap: 10 }}>Número <span className="mono" style={{ fontSize: 22 }}>{x.k}</span><Badge tone={NUM_STATUS[x.status][1]}>{NUM_STATUS[x.status][0]}</Badge></span>} sub={`${r.title} · ${coName(db, r.companyId)}`} onClose={onClose}
+    footer={editable ? <><Button onClick={onClose}>Cerrar</Button><Button variant="primary" disabled={!to} onClick={save}>{to ? `Cambiar a ${NUM_STATUS[to][0].toLowerCase()}` : 'Elige el nuevo estado'}</Button></> : <Button onClick={onClose}>Cerrar</Button>}>
+    {x.status !== 'disponible' ? <dl className="kv kv--left" style={{ gridTemplateColumns: '110px 1fr' }}><dt>Cliente</dt><dd>{x.name || '—'}{x.cedula ? ` · ${cedFmt(x.cedula)}` : ''}</dd>
+      {ord && <><dt>Compra</dt><dd className="mono">{ord.id} · {plural(ord.qty, 'boleto', 'boletos')} · {usd(ord.amountUSD)}</dd><dt>Pago</dt><dd>{ord.channel === 'admin' ? 'Asignado por el superadministrador' : (API.method(ord.method) || {}).name || (ord.channel === 'taquilla' ? 'Taquilla' : 'Sin método')}{ord.status === 'abono' ? ` · abono de ${usd(ord.paidUSD)}` : ''}</dd></>}
+      {x.at && <><dt>Fecha</dt><dd>{dateTime(x.at)}</dd></>}</dl> : <p className="muted">Nadie tiene este número todavía.</p>}
+    {editable && <>
+      <fieldset style={{ border: 0, padding: 0, margin: 0 }}><legend className="field__label" style={{ marginBottom: 8 }}>Cambiar el estado a<span className="req">*</span></legend>
+        <div className="row">{options.map(o => <button key={o} type="button" className="tpl" style={{ width: 'auto', padding: '9px 14px' }} aria-pressed={to === o} onClick={() => setTo(o)}><b>{NUM_STATUS[o][0]}</b></button>)}</div></fieldset>
+      {x.status === 'disponible' && to && <div className="form-grid">
+        <Field label="Cédula del cliente" required error={errs.cedula} hint={known ? `Cliente registrado: ${known.name}` : 'Si es nuevo, escribe también su nombre.'}><Input inputMode="numeric" autoComplete="off" data-autofocus value={ced} onChange={e => setCed(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="18456732" /></Field>
+        {!known && <Field label="Nombre y apellido" required error={errs.name}><Input autoComplete="off" value={name} onChange={e => setName(e.target.value)} /></Field>}
+      </div>}
+      {to === 'disponible' && ord && <Note tone="warn">{ord.qty > 1 ? `Se saca el ${x.k} de la compra ${ord.id} de ${ord.name}: le ${ord.qty - 1 === 1 ? 'queda 1 boleto' : `quedan ${ord.qty - 1} boletos`} y el monto baja ${usd(ord.amountUSD / ord.qty)}.` : `Se anula la compra ${ord.id} de ${ord.name} (era su único boleto).`} El número queda libre para la venta.</Note>}
+      {to === 'vendido' && x.status === 'apartado' && <Note tone="info" icon={Info}>Queda vendido a {x.name}, sin pasar por la verificación del pago.</Note>}
+      {to === 'apartado' && x.status === 'vendido' && <Note tone="warn">El boleto deja de estar pagado y vuelve a esperar el pago de {x.name}.</Note>}
+      {to && <Field label="Motivo del cambio" required error={errs.reason} hint="Queda registrado con tu usuario en la Actividad y en el historial del número."><Textarea rows={2} value={reason} onChange={e => setReason(e.target.value)} placeholder="Ej.: el cliente pagó en efectivo en la oficina" /></Field>}
+    </>}
+  </Modal>;
 }

@@ -649,3 +649,12 @@ h1, h2, h3 { letter-spacing: -0.025em; text-wrap: balance; }
 
 /* campos compuestos (RIF, cédula): el error marca sus cuadros */
 .row[aria-invalid="true"] > .input, .row[aria-invalid="true"] > .select, .input-affix[aria-invalid="true"] > .input { border-color: var(--err); background: var(--err-soft); }
+
+/* boletos de una rifa en el superadministrador */
+.nadm { height: 38px; border-radius: 10px; border: 1.5px solid transparent; font: 600 13px var(--font); font-variant-numeric: tabular-nums; cursor: pointer; transition: transform .25s var(--pop), box-shadow .2s; }
+.nadm:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(29, 35, 64, .1); }
+.nadm--vendido { background: var(--teal-soft); color: var(--ok); }
+.nadm--apartado { background: var(--sun-soft); color: var(--warn); }
+.nadm--disponible { background: var(--surface); color: var(--ink-2); border-color: var(--line-2); }
+.nadm.is-hit { outline: 2.5px solid var(--coral); outline-offset: 1px; }
+.legend .l-sold-a { background: var(--teal-soft); border-color: transparent; }
