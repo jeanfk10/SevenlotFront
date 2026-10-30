@@ -36,6 +36,7 @@ Abre **http://localhost:5173**: sale la página principal de LottoGE. Toca *Inic
 - **Denuncias.** Lo que se envía en *Denuncias* de la página principal llega al superadministrador (*Denuncias*), con su número de referencia, para revisarla, anotarla y resolverla.
 - **Rifas activas.** La lista de la página principal muestra las rifas en venta de las empresas activas. Las de Rifas Mérida abren su front de venta.
 - **Rifas nuevas.** Cuando el operador envía una rifa, queda *En revisión* hasta que el superadministrador la aprueba o la rechaza con motivo (*Rifas › Supervisor de rifas*).
+- **Edición por el superadministrador.** Cada edición pide un motivo y muestra los cambios campo por campo (antes → después) antes de guardar. Si la rifa ya tiene boletos vendidos o reservados, la cantidad de números queda bloqueada; un cambio de precio solo aplica a las compras nuevas; si cambia la fecha, la original queda guardada. El operador ve un aviso en su rifa con lo que se cambió y por qué, y la página de venta muestra los datos nuevos.
 - **Extensiones de fecha.** El operador pide más tiempo desde el detalle de una rifa en venta; el superadministrador la aprueba y la fecha del sorteo cambia, guardando la original.
 - **Ver como operador.** Desde *Empresas › Rifas Mérida › Ver su panel*, el superadministrador entra al panel del operador con una franja para volver.
 - **Notas de versión.** Las que publica el superadministrador le salen al operador en su Inicio.
@@ -46,7 +47,7 @@ Abre **http://localhost:5173**: sale la página principal de LottoGE. Toca *Inic
 |---|---|
 | Inicio | Resumen (accesos rápidos, cifras, ventas del mes por empresa, *Pendiente de ti*) · Sala situacional (en vivo, con pausa; cédulas y teléfonos enmascarados; alertas) · Actividad (bitácora de toda la plataforma) |
 | Empresas | Pendientes, activas, suspendidas y rechazadas; búsqueda por nombre, RIF, RUN/LOT o correo; aprobar, rechazar o suspender con motivo; reactivar; cambiar plan; documentos que faltan |
-| Rifas | Supervisor de rifas (revisión de solo lectura con requisitos) · Extensiones de fecha |
+| Rifas | Supervisor de rifas (revisión con requisitos, aprobar o rechazar) · **Editar rifa**: cualquier rifa en venta o esperando aprobación, de cualquier empresa, con todos sus datos (título, premios, lotería, fecha, cierre, precio, números, descripción, reglas, promociones, imágenes y solvencia) · Extensiones de fecha |
 | Denuncias | Las de la página principal: revisión, notas, resolver o descartar con motivo |
 | Facturación | Cobros (mantenimiento y licencias, registrar pago) · Planes (los mismos precios de la página principal) |
 | Ajustes | Plataforma (un solo nombre y contacto, reglas generales) · Loterías · Usuarios · Notas de versión · Seguridad |

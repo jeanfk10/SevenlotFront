@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Plus, List, LayoutGrid, Search, Download, Trophy, Check, Clock, AlertTriangle, Store, ExternalLink, Pencil, Trash2, FlaskConical, Info } from 'lucide-react';
-import { API, useDB, go, usd, bs, num, plural, date, dateTime, raffleState, STATE_LABEL, RAFFLE_TONE, LOTTERIES, attempt, toast, readImage, downloadCSV, toLocalInput, fromLocalInput, cedFmt, ORDER_STATUS, daysLeft, methodName, confetti } from '../lib.js';
+import { API, useDB, go, usd, bs, num, plural, date, dateTime, raffleState, STATE_LABEL, RAFFLE_TONE, LOTTERIES, attempt, toast, readImage, downloadCSV, toLocalInput, fromLocalInput, cedFmt, ORDER_STATUS, daysLeft, methodName, confetti, ago } from '../lib.js';
 import { PageHead, Card, Seg, Button, LinkButton, Badge, Bar, Thumb, Empty, Field, Input, Select, Textarea, Steps, Note, FileDrop, Check2, Tabs, Modal, Pager, Stat, Confirm } from '../ui.jsx';
 import { publicUrl } from '../shell.jsx';
 
@@ -83,7 +83,7 @@ export function NuevaRifa({ id }) {
             <Field label="Título de la rifa" required error={errors.title}><Input value={r.title} onChange={e => set('title', e.target.value)} placeholder="Gran Rifa Moto Bera 2027" maxLength={80} /></Field>
             <div className="form-grid">
               <Field label="Fecha y hora del sorteo" required error={errors.drawAt} hint="Hora de Venezuela."><Input type="datetime-local" value={toLocalInput(r.drawAt)} min={toLocalInput(new Date(Date.now() + 864e5).toISOString())} onChange={e => set('drawAt', fromLocalInput(e.target.value))} /></Field>
-              <Field label="Cierre de ventas" hint={closeAt ? `Se calcula solo: cierra el ${dateTime(closeAt)}.` : 'Se calcula solo a partir de la fecha del sorteo.'}><Select value={r.closeMinutes} onChange={e => set('closeMinutes', +e.target.value)} options={[[10, '10 minutos antes del sorteo'], [30, '30 minutos antes'], [60, '1 hora antes'], [180, '3 horas antes']]} /></Field>
+              <Field label="Cierre de ventas" hint={closeAt ? `Se calcula solo: cierra el ${dateTime(closeAt)}` : 'Se calcula solo a partir de la fecha del sorteo.'}><Select value={r.closeMinutes} onChange={e => set('closeMinutes', +e.target.value)} options={[[10, '10 minutos antes del sorteo'], [30, '30 minutos antes'], [60, '1 hora antes'], [180, '3 horas antes']]} /></Field>
               <Field label="Premio principal" required error={errors.prize}><Input value={r.prizes[0] || ''} onChange={e => { const p = [...r.prizes]; p[0] = e.target.value; setR({ ...r, prizes: p, prize: e.target.value }); }} placeholder="Moto Bera SBR 2027 0 km" /></Field>
               <Field label="Lotería que define el ganador" required error={errors.lottery}><Select value={r.lottery} onChange={e => set('lottery', e.target.value)} placeholder="Elige la lotería" options={LOTTERIES.map(([n, t]) => [n, `${n} · ${t}`])} /></Field>
               {[1, 2].map(i => <Field key={i} label={`${i + 1}º premio (opcional)`}><Input value={r.prizes[i] || ''} onChange={e => { const p = [...r.prizes]; p[i] = e.target.value; setR({ ...r, prizes: p }); }} placeholder={i === 1 ? 'US$ 500' : 'US$ 200'} /></Field>)}
@@ -181,6 +181,7 @@ export function RifaDetalle({ id, query }) {
       <button className="link" type="button" onClick={() => attempt(() => API.conalotDecide(r.id, true), 'CONALOT aprobó: la rifa ya está en venta')}>Aprobar</button> ·{' '}
       <button className="link" type="button" onClick={() => attempt(() => API.conalotDecide(r.id, false, 'Falta el documento de solvencia del premio.'), 'CONALOT rechazó la rifa')}>Rechazar</button></Note></div>}
     {r.status === 'rechazada' && <div style={{ marginBottom: 16 }}><Note tone="err"><b>Rechazada:</b> {r.rejectReason}</Note></div>}
+    {(r.changes || []).length > 0 && Date.now() - Date.parse(r.changes[0].at) < 7 * 864e5 && <div style={{ marginBottom: 16 }}><Note tone="info" icon={Info}><b>El superadministrador de LottoGE modificó esta rifa {ago(r.changes[0].at)}:</b> {r.changes[0].diff.join('; ')}. Motivo: {r.changes[0].reason}</Note></div>}
     {pendingExt && <div style={{ marginBottom: 16 }}><Note tone="info" icon={Clock}><b>Pediste mover el sorteo al {dateTime(pendingExt.requestedDate)}</b> · lo revisa el superadministrador; mientras tanto la fecha sigue siendo {dateTime(r.drawAt)}.</Note></div>}
     {!pendingExt && lastExt && Date.now() - Date.parse(lastExt.decidedAt) < 3 * 864e5 && <div style={{ marginBottom: 16 }}><Note tone={lastExt.status === 'aprobada' ? 'ok' : 'err'} icon={Clock}><b>Extensión {lastExt.status}.</b> {lastExt.status === 'aprobada' ? `El sorteo ahora es el ${dateTime(r.drawAt)} (original: ${date(r.originalDrawAt || lastExt.originalDate)}).` : lastExt.note}</Note></div>}
     {ext && <ExtensionModal r={r} onClose={() => setExt(false)} />}
@@ -202,7 +203,7 @@ function RaffleConfig({ r, editable }) {
     <Card title="Información" actions={!editable && <span className="subtle">Solo lectura en este estado</span>}>
       <dl className="kv kv--left" style={{ gridTemplateColumns: '170px 1fr' }}>
         <dt>Premios</dt><dd>{r.prizes.map((p, i) => <div key={i}>{i + 1}º · {p}</div>)}</dd><dt>Lotería</dt><dd>{r.lottery} · {r.lotteryTime}</dd>
-        <dt>Sorteo</dt><dd>{dateTime(r.drawAt)}</dd><dt>Cierre de ventas</dt><dd>{dateTime(API.closesAt(r))} ({r.closeMinutes} min antes)</dd>
+        <dt>Sorteo</dt><dd>{dateTime(r.drawAt)}{r.originalDrawAt && <small className="subtle"> (original: {dateTime(r.originalDrawAt)})</small>}</dd><dt>Cierre de ventas</dt><dd>{dateTime(API.closesAt(r))} ({r.closeMinutes} min antes)</dd>
         <dt>Precio</dt><dd>{usd(r.priceUSD)} · {bs(r.priceUSD * API.rate())} hoy</dd><dt>Números</dt><dd>{num(r.total)} (del {API.pad(r, 0)} al {API.pad(r, r.total - 1)})</dd>
         <dt>Descripción</dt><dd>{r.description || '—'}</dd><dt>Solvencia</dt><dd>{r.solvencyDoc || <span className="err-text">Falta</span>}</dd>
         <dt>Reglas</dt><dd>{r.rules.length ? <ol style={{ margin: 0, paddingLeft: 18 }}>{r.rules.map((x, i) => <li key={i}>{x}</li>)}</ol> : <span className="err-text">Sin reglas</span>}</dd>

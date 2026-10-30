@@ -930,8 +930,73 @@
       audit({ aprobar: 'Empresa aprobada', rechazar: 'Empresa rechazada', suspender: 'Empresa suspendida', reactivar: 'Empresa reactivada', plan: 'Plan cambiado' }[action], c.name + (reason ? ' · ' + reason : '') + (plan ? ' · ' + plan : ''), 'Superadministrador'); commit();
     },
     allRaffles() {
-      const mine = db.raffles.filter(r => r.status !== 'borrador').map(r => ({ id: r.id, companyId: db.company.id, title: r.title, prize: r.prize, status: raffleState(r), drawAt: r.drawAt, priceUSD: r.priceUSD, total: r.total, soldPct: Math.round(raffleStats(r.id).sold / r.total * 100), lottery: r.lottery, createdAt: r.createdAt, solvencyDoc: r.solvencyDoc, rules: r.rules, rejectReason: r.rejectReason, images: r.images, live: true }));
+      const mine = db.raffles.filter(r => r.status !== 'borrador').map(r => ({ id: r.id, companyId: db.company.id, title: r.title, prize: r.prize, status: raffleState(r), drawAt: r.drawAt, priceUSD: r.priceUSD, total: r.total, soldPct: Math.round(raffleStats(r.id).sold / r.total * 100), lottery: r.lottery, createdAt: r.createdAt, solvencyDoc: r.solvencyDoc, rules: r.rules, rejectReason: r.rejectReason, images: r.images, prizes: r.prizes, description: r.description, promotions: r.promotions, closeMinutes: r.closeMinutes, changes: r.changes || [], originalDrawAt: r.originalDrawAt || '', live: true }));
       return mine.concat(db.extRaffles.map(r => ({ ...r, status: r.status === 'venta' && Date.parse(r.drawAt) <= now() ? 'falta-ganador' : r.status })));
+    },
+    /* Edición de rifas por el superadministrador: en venta o esperando aprobación, de cualquier empresa. */
+    raffleForEdit(id) {
+      const live = raffle(id), x = live || db.extRaffles.find(r => r.id === id);
+      if (!x) return null;
+      const status = live ? raffleState(live) : (x.status === 'venta' && Date.parse(x.drawAt) <= now() ? 'falta-ganador' : x.status);
+      const st = live ? raffleStats(id) : null;
+      const sales = live ? st.sold + st.reserved : Math.round((x.soldPct || 0) / 100 * x.total);
+      return {
+        id, live: !!live, companyId: live ? db.company.id : x.companyId, status, editable: ['venta', 'revision'].includes(status), sales,
+        data: { title: x.title, prizes: (x.prizes && x.prizes.length ? x.prizes : [x.prize]).concat(['', '']).slice(0, 3), lottery: x.lottery, drawAt: x.drawAt, closeMinutes: x.closeMinutes || 10,
+          priceUSD: x.priceUSD, total: x.total, description: x.description || '', rules: (x.rules && x.rules.length ? x.rules : ['']).slice(), promotions: (x.promotions || []).map(p => ({ ...p })),
+          images: (x.images || []).slice(), solvencyDoc: x.solvencyDoc || '' },
+        originalDrawAt: x.originalDrawAt || '', changes: x.changes || []
+      };
+    },
+    superEditRaffle(id, d, reason) {
+      const info = A.raffleForEdit(id); if (!info) throw err(404, 'La rifa no existe');
+      if (!info.editable) throw err(409, 'Solo se editan rifas en venta o esperando aprobación');
+      if (String(reason || '').trim().length < 5) throw Object.assign(err(400, 'Escribe el motivo del cambio: lo ve la empresa'), { fields: { reason: 'Escribe el motivo del cambio.' } });
+      const e = {}, prizes = (d.prizes || []).map(x => String(x || '').trim());
+      if (!String(d.title || '').trim()) e.title = 'Escribe el título.';
+      if (!prizes[0]) e.prize = 'Escribe el premio principal.';
+      if (!LOTTERIES.some(l => l[0] === d.lottery)) e.lottery = 'Elige una lotería del catálogo.';
+      const t = Date.parse(d.drawAt);
+      if (!d.drawAt || isNaN(t)) e.drawAt = 'Elige la fecha y hora del sorteo.'; else if (t !== Date.parse(info.data.drawAt) && t < now() + HOUR) e.drawAt = 'La nueva fecha debe ser al menos una hora después de ahora.';
+      if (!(+d.priceUSD > 0)) e.priceUSD = 'El precio debe ser mayor que 0.';
+      if (![100, 1000, 10000].includes(+d.total)) e.total = 'Elige 100, 1.000 o 10.000 números.';
+      else if (+d.total !== +info.data.total && info.sales > 0) e.total = `Ya hay ${info.sales} boletos vendidos o reservados: cambiar la cantidad de números cambiaría los que ya se entregaron.`;
+      if (!(+d.closeMinutes >= 5)) e.closeMinutes = 'El cierre es de al menos 5 minutos antes del sorteo.';
+      const rules = (d.rules || []).map(x => String(x || '').trim()).filter(Boolean);
+      if (!rules.length) e.rules = 'Deja al menos una regla.';
+      if (!d.solvencyDoc) e.solvencyDoc = 'La rifa necesita su documento de solvencia.';
+      const promos = (d.promotions || []).filter(p => p.qty || p.priceUSD).map(p => ({ qty: +p.qty, priceUSD: +p.priceUSD }));
+      promos.forEach((p, i) => { if (!(p.qty > 1) || !(p.priceUSD > 0)) e['promo' + i] = 'Completa la cantidad (desde 2) y el precio.'; else if (p.priceUSD >= p.qty * +d.priceUSD) e['promo' + i] = 'Debe costar menos que los boletos sueltos.'; });
+      if (Object.keys(e).length) throw Object.assign(err(400, 'Revisa los campos marcados'), { fields: e });
+      const next = { title: String(d.title).trim(), prizes: prizes.filter(Boolean), lottery: d.lottery, drawAt: new Date(t).toISOString(), closeMinutes: +d.closeMinutes, priceUSD: +d.priceUSD, total: +d.total,
+        description: String(d.description || '').trim(), rules, promotions: promos.sort((a, b) => a.qty - b.qty), images: (d.images || []).slice(), solvencyDoc: d.solvencyDoc };
+      const diff = A.raffleDiff(info.data, next);
+      if (!diff.length) throw err(400, 'No hay cambios que guardar');
+      const x = info.live ? raffle(id) : db.extRaffles.find(r => r.id === id);
+      if (next.drawAt !== info.data.drawAt) x.originalDrawAt = x.originalDrawAt || info.data.drawAt;
+      Object.assign(x, next, { prize: next.prizes[0], lotteryTime: (LOTTERIES.find(l => l[0] === next.lottery) || [])[1] || '' });
+      x.changes = [{ at: iso(now()), by: 'Superadministrador', reason: reason.trim(), diff }, ...(x.changes || [])];
+      audit('Rifa editada por el superadministrador', `${next.title} · ${diff.join('; ')} · Motivo: ${reason.trim()}`, 'Superadministrador'); commit();
+      return diff;
+    },
+    raffleDiff(a, b) {
+      const fmtD = v => { const d = new Date(Date.parse(v) - 4 * HOUR).toISOString(); return `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)} ${d.slice(11, 16)}`; };
+      const out = [], same = (x, y) => JSON.stringify(x) === JSON.stringify(y);
+      const pa = (a.prizes || []).map(x => String(x || '').trim()).filter(Boolean), pb = (b.prizes || []).map(x => String(x || '').trim()).filter(Boolean);
+      if (a.title.trim() !== b.title.trim()) out.push(`Título: "${a.title}" → "${b.title}"`);
+      ['1º', '2º', '3º'].forEach((n, i) => { if ((pa[i] || '') !== (pb[i] || '')) out.push(`${n} premio: ${pa[i] || '—'} → ${pb[i] || '—'}`); });
+      if (a.lottery !== b.lottery) out.push(`Lotería: ${a.lottery} → ${b.lottery}`);
+      if (Date.parse(a.drawAt) !== Date.parse(b.drawAt)) out.push(`Sorteo: ${fmtD(a.drawAt)} → ${fmtD(b.drawAt)}`);
+      if (+a.closeMinutes !== +b.closeMinutes) out.push(`Cierre: ${a.closeMinutes} → ${b.closeMinutes} min antes`);
+      if (+a.priceUSD !== +b.priceUSD) out.push(`Precio: US$ ${a.priceUSD} → US$ ${b.priceUSD}`);
+      if (+a.total !== +b.total) out.push(`Números: ${a.total} → ${b.total}`);
+      if (String(a.description || '').trim() !== String(b.description || '').trim()) out.push('Descripción actualizada');
+      const ra = (a.rules || []).map(x => String(x).trim()).filter(Boolean); if (!same(ra, b.rules)) out.push(`Reglas: ${ra.length} → ${b.rules.length}`);
+      const fp = ps => ps.filter(p => p.qty || p.priceUSD).map(p => `${+p.qty} por US$ ${+p.priceUSD}`).sort().join(', ') || 'ninguna';
+      if (fp(a.promotions || []) !== fp(b.promotions || [])) out.push(`Promociones: ${fp(a.promotions || [])} → ${fp(b.promotions || [])}`);
+      if (!same(a.images || [], b.images || [])) out.push(`Imágenes: ${(a.images || []).length} → ${(b.images || []).length}`);
+      if ((a.solvencyDoc || '') !== (b.solvencyDoc || '')) out.push(`Solvencia: ${a.solvencyDoc || 'falta'} → ${b.solvencyDoc}`);
+      return out;
     },
     superRaffleDecide(id, ok, reason) {
       if (raffle(id)) { const r = raffle(id); if (r.status !== 'revision') throw err(409, 'La rifa no está en revisión'); if (!ok && !reason) throw err(400, 'Escribe el motivo'); if (ok) { r.status = 'venta'; r.approvedAt = iso(now()); r.rejectReason = ''; } else { r.status = 'rechazada'; r.rejectReason = reason; } audit(ok ? 'Rifa aprobada' : 'Rifa rechazada', r.title + (ok ? '' : ' · ' + reason), 'Superadministrador'); commit(); return; }

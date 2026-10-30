@@ -2,9 +2,9 @@
 // Corrige lo que señaló el informe de revisión: acciones con confirmación y motivo, un solo estado por
 // objeto, datos personales enmascarados en la sala situacional y cifras que salen de la misma fuente.
 import { useState, useEffect, useMemo } from 'react';
-import { Building2, Ticket, Flag, Receipt, Check, X, Search, Eye, Pause, Play, RefreshCw, AlertTriangle, CalendarClock, FileText, ShieldCheck, Plus, Clock, Lock, Download } from 'lucide-react';
-import { API, useDB, go, setQuery, usd, num, plural, date, dateTime, ago, greeting, cedFmt, raffleState, STATE_LABEL, RAFFLE_TONE, attempt, toast, confetti, downloadCSV, daysLeft } from '../lib.js';
-import { PageHead, Card, Seg, Button, LinkButton, Badge, Note, Drawer, Modal, Field, Input, Select, Textarea, Empty, Stat, Toggle, Confirm, Count, FloatBg, Bar, Check2 } from '../ui.jsx';
+import { Building2, Ticket, Flag, Receipt, Check, X, Search, Eye, Pause, Play, RefreshCw, AlertTriangle, CalendarClock, FileText, ShieldCheck, Plus, Clock, Lock, Download, Pencil, Trash2, History, Info } from 'lucide-react';
+import { API, useDB, go, setQuery, usd, bs, num, plural, date, dateTime, ago, greeting, cedFmt, raffleState, STATE_LABEL, RAFFLE_TONE, LOTTERIES, attempt, toast, confetti, downloadCSV, daysLeft, readImage, toLocalInput, fromLocalInput } from '../lib.js';
+import { PageHead, Card, Seg, Button, LinkButton, Badge, Note, Drawer, Modal, Field, Input, Select, Textarea, Empty, Stat, Toggle, Confirm, Count, FloatBg, Bar, Check2, FileDrop, Thumb } from '../ui.jsx';
 
 const COMPANY_STATUS = { pendiente: ['Pendiente', 'warn'], activa: ['Activa', 'ok'], suspendida: ['Suspendida', 'err'], rechazada: ['Rechazada', 'muted'] };
 const BILLING = { pagado: ['Al día', 'ok'], pendiente: ['Pago pendiente', 'warn'], vencido: ['Vencido', 'err'], '': ['Sin cobros', 'muted'] };
@@ -167,7 +167,7 @@ export function SupervisorRifas({ query }) {
         <div className="tbl-wrap"><table className="tbl tbl--cards"><thead><tr><th>Rifa</th><th>Empresa</th><th>Estado</th><th>Sorteo</th><th className="r">Precio</th><th>Vendido</th><th><span className="sr-only">Acción</span></th></tr></thead>
           <tbody>{list.map(r => <tr key={r.id} className="clickable" onClick={e => e.target.closest('button') || setQuery({ r: r.id })}><td><b>{r.title}</b><small>{r.prize}</small></td><td>{coName(db, r.companyId)}</td><td><Badge tone={RAFFLE_TONE[r.status]}>{STATE_LABEL[r.status]}</Badge></td><td className="num">{date(r.drawAt)}<small>{r.lottery}</small></td><td className="r num">{usd(r.priceUSD, true)}</td>
             <td style={{ minWidth: 110 }}>{r.status === 'revision' ? <span className="subtle">—</span> : <><Bar value={r.soldPct} max={100} label="Vendido" /><small className="num">{r.soldPct} %</small></>}</td>
-            <td className="r"><Button size="sm" variant={r.status === 'revision' ? 'primary' : undefined} onClick={() => setQuery({ r: r.id })}>{r.status === 'revision' ? 'Revisar' : 'Ver'}</Button></td></tr>)}</tbody></table></div>}
+            <td className="r"><div className="row" style={{ justifyContent: 'flex-end', flexWrap: 'nowrap' }}>{['venta', 'revision'].includes(r.status) && <LinkButton size="sm" icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`} aria-label={`Editar ${r.title}`}>Editar</LinkButton>}<Button size="sm" variant={r.status === 'revision' ? 'primary' : undefined} onClick={() => setQuery({ r: r.id })}>{r.status === 'revision' ? 'Revisar' : 'Ver'}</Button></div></td></tr>)}</tbody></table></div>}
     </Card>
     {open && <RaffleDrawer r={open} onClose={() => setQuery({ r: '' })} />}
   </>;
@@ -177,8 +177,10 @@ function RaffleDrawer({ r, onClose }) {
   const checks = [['Documento de solvencia', !!r.solvencyDoc], ['Al menos una regla', (r.rules || []).length > 0], ['Fecha del sorteo futura', Date.parse(r.drawAt) > Date.now()], ['Empresa activa', (db.companies.find(c => c.id === r.companyId) || {}).status === 'activa']];
   const okAll = checks.every(c => c[1]);
   const decide = (ok) => { if (attempt(() => API.superRaffleDecide(r.id, ok, reason), ok ? 'Rifa aprobada: ya está en venta' : 'Rifa rechazada: el operador recibe el motivo')) { if (ok) confetti(); onClose(); } };
-  return <Drawer kicker={`${coName(db, r.companyId)} · ${STATE_LABEL[r.status]}`} title={r.title} onClose={onClose} footer={r.status === 'revision' ? <><Button variant="danger" onClick={() => setRej(true)}>Rechazar…</Button><Button variant="success" icon={Check} disabled={!okAll} onClick={() => decide(true)}>Aprobar rifa</Button></> : null}>
-    {r.status === 'revision' && <Note tone="info" icon={ShieldCheck}>Revisión de solo lectura: el superadministrador aprueba o rechaza, no edita la rifa.</Note>}
+  const editBtn = <LinkButton icon={Pencil} href={`#/admin/rifas/editar?r=${r.id}`}>Editar rifa</LinkButton>;
+  return <Drawer kicker={`${coName(db, r.companyId)} · ${STATE_LABEL[r.status]}`} title={r.title} onClose={onClose} footer={r.status === 'revision' ? <><Button variant="danger" onClick={() => setRej(true)}>Rechazar…</Button><div className="row">{editBtn}<Button variant="success" icon={Check} disabled={!okAll} onClick={() => decide(true)}>Aprobar rifa</Button></div></> : r.status === 'venta' ? <><span className="subtle">En venta: puedes corregir cualquier dato.</span>{editBtn}</> : null}>
+    {r.status === 'revision' && <Note tone="info" icon={ShieldCheck}>Si falta algo menor, corrígelo con "Editar rifa" y apruébala; si no, recházala con el motivo.</Note>}
+    {(r.changes || []).length > 0 && <Note icon={History}><b>Editada por el superadministrador {ago(r.changes[0].at)}:</b> {r.changes[0].diff.join('; ')}.</Note>}
     {r.rejectReason && <Note tone="err"><b>Rechazada:</b> {r.rejectReason}</Note>}
     <dl className="kv kv--left" style={{ gridTemplateColumns: '130px 1fr' }}><dt>Premio</dt><dd>{r.prize}</dd><dt>Lotería</dt><dd>{r.lottery}</dd><dt>Sorteo</dt><dd>{dateTime(r.drawAt)}</dd><dt>Precio</dt><dd>{usd(r.priceUSD)} · {num(r.total)} números</dd><dt>Enviada</dt><dd>{date(r.createdAt)}</dd><dt>Reglas</dt><dd>{(r.rules || []).length ? (r.rules || []).join(' · ') : <span className="err-text">Sin reglas</span>}</dd></dl>
     <div><p className="field__label" style={{ marginBottom: 6 }}>Requisitos</p>{checks.map(([l, ok]) => <div key={l} className="row" style={{ padding: '4px 0' }}>{ok ? <Check size={15} className="ok-text" aria-label="Cumple" /> : <X size={15} className="err-text" aria-label="No cumple" />}<span className={ok ? '' : 'err-text'}>{l}</span></div>)}</div>
@@ -356,5 +358,82 @@ export function AdminSeguridad() {
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 4 }}>{rules.map(([t, ok]) => <li key={t} className={ok ? 'ok-text' : 'muted'} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13 }}>{ok ? <Check size={14} /> : <Clock size={14} />}{t}</li>)}</ul>
       <div><Button type="submit" variant="primary" disabled={!rules.every(r => r[1]) || !f.current}>Cambiar contraseña</Button></div>
     </form></Card>
+  </>;
+}
+
+/* ---------- Editar una rifa (en venta o esperando aprobación) ---------- */
+const FIELD_LABEL = { title: 'Título', prize: 'Premio principal', lottery: 'Lotería', drawAt: 'Fecha del sorteo', closeMinutes: 'Cierre de ventas', priceUSD: 'Precio', total: 'Cantidad de números', rules: 'Reglas', solvencyDoc: 'Solvencia', reason: 'Motivo' };
+const normalize = d => ({ ...d, title: String(d.title || ''), prizes: d.prizes.map(x => String(x || '').trim()), rules: d.rules.map(x => String(x || '').trim()).filter(Boolean), promotions: d.promotions.filter(p => p.qty || p.priceUSD).map(p => ({ qty: +p.qty, priceUSD: +p.priceUSD })) });
+export function EditarRifa({ query }) {
+  const db = useDB(), info = API.raffleForEdit(query.r);
+  const [d, setD] = useState(() => info && JSON.parse(JSON.stringify(info.data)));
+  const [reason, setReason] = useState(''), [errors, setErrors] = useState({}), [confirm, setConfirm] = useState(false);
+  if (!info) return <Card><Empty title="Esta rifa no existe" action={<LinkButton href="#/admin/rifas">Volver a las rifas</LinkButton>} /></Card>;
+  const back = `#/admin/rifas?r=${info.id}&tab=${info.status === 'revision' ? 'revision' : info.status}`;
+  if (!info.editable) return <><PageHead crumbs={<><a href="#/admin/rifas">Rifas</a><span aria-hidden="true">›</span><span>{info.data.title}</span></>} title={info.data.title} /><Note tone="warn">Esta rifa está {STATE_LABEL[info.status].toLowerCase()}: solo se editan las rifas en venta o esperando aprobación.</Note></>;
+  const set = (k, v) => setD(x => ({ ...x, [k]: v }));
+  const validDate = !isNaN(Date.parse(d.drawAt));
+  const diff = API.raffleDiff(info.data, normalize({ ...d, drawAt: validDate ? d.drawAt : info.data.drawAt }));
+  const priceChanged = +d.priceUSD !== +info.data.priceUSD, dateChanged = validDate && Date.parse(d.drawAt) !== Date.parse(info.data.drawAt);
+  const closeAt = validDate ? new Date(Date.parse(d.drawAt) - (+d.closeMinutes || 10) * 60e3) : null;
+  const save = () => {
+    try { const out = API.superEditRaffle(info.id, d, reason); setConfirm(false); toast(`Rifa actualizada: ${plural(out.length, 'cambio', 'cambios')}. La empresa ya lo ve.`); go('/admin/rifas', { r: info.id, tab: info.status }); }
+    catch (e) { setConfirm(false); if (e.fields) { setErrors(e.fields); setTimeout(() => document.querySelector('[aria-invalid="true"]')?.focus(), 0); } toast(e.message, 'err'); }
+  };
+  const errList = Object.keys(errors);
+  return <>
+    <PageHead crumbs={<><a href="#/admin/rifas">Rifas</a><span aria-hidden="true">›</span><a href={back}>{info.data.title}</a><span aria-hidden="true">›</span><span>Editar</span></>}
+      title={<span className="row" style={{ gap: 12 }}>Editar rifa<Badge tone={RAFFLE_TONE[info.status]}>{STATE_LABEL[info.status]}</Badge></span>}
+      sub={`${coName(db, info.companyId)} · ${info.id}${info.sales ? ` · ${plural(info.sales, 'boleto vendido o reservado', 'boletos vendidos o reservados')}` : ' · sin ventas todavía'}`}
+      actions={<><LinkButton href={back}>Cancelar</LinkButton><Button variant="primary" icon={Check} disabled={!diff.length} onClick={() => { setErrors({}); setConfirm(true); }}>Guardar cambios</Button></>} />
+    {errList.length > 0 && <div style={{ marginBottom: 16 }}><Note tone="err" role="alert"><b>Revisa {errList.length === 1 ? 'el campo marcado' : 'los campos marcados'}:</b> {errList.map(k => FIELD_LABEL[k] || 'Promoción').join(', ')}.</Note></div>}
+    <div className="grid grid--side">
+      <div className="stack">
+        <Card title="Sorteo y premios"><div className="form-grid">
+          <Field label="Título de la rifa" required error={errors.title} className="full"><Input value={d.title} onChange={e => set('title', e.target.value)} maxLength={80} /></Field>
+          {[0, 1, 2].map(i => <Field key={i} label={`${i + 1}º premio${i ? ' (opcional)' : ''}`} required={!i} error={!i ? errors.prize : undefined}><Input value={d.prizes[i] || ''} onChange={e => set('prizes', d.prizes.map((x, j) => j === i ? e.target.value : x))} /></Field>)}
+          <Field label="Lotería que define el ganador" required error={errors.lottery}><Select value={d.lottery} onChange={e => set('lottery', e.target.value)} options={db.lotteries.filter(l => l.active || l.name === info.data.lottery).map(l => [l.name, `${l.name} · ${l.time}`])} /></Field>
+          <Field label="Fecha y hora del sorteo" required error={errors.drawAt} hint={info.originalDrawAt ? `Hora de Venezuela. Fecha original: ${dateTime(info.originalDrawAt)}.` : 'Hora de Venezuela.'}><Input type="datetime-local" value={toLocalInput(d.drawAt)} onChange={e => set('drawAt', fromLocalInput(e.target.value))} /></Field>
+          <Field label="Cierre de ventas" error={errors.closeMinutes} hint={closeAt ? `Cierra el ${dateTime(closeAt)}` : ''}><Select value={d.closeMinutes} onChange={e => set('closeMinutes', +e.target.value)} options={[[10, '10 minutos antes del sorteo'], [30, '30 minutos antes'], [60, '1 hora antes'], [180, '3 horas antes']]} /></Field>
+          <Field label="Descripción" className="full"><Textarea rows={3} value={d.description} onChange={e => set('description', e.target.value)} /></Field>
+        </div></Card>
+        <Card title="Boletos y precio"><div className="form-grid">
+          <Field label="Precio por boleto" required error={errors.priceUSD} hint={+d.priceUSD > 0 ? `${bs(d.priceUSD * API.rate())} con la tasa de hoy.` : ''}><div className="input-affix"><Input type="number" min="0.5" step="0.5" inputMode="decimal" value={d.priceUSD} onChange={e => set('priceUSD', e.target.value)} /><span>US$</span></div></Field>
+          <Field label="Cantidad de números" required error={errors.total} hint={info.sales ? 'Bloqueado: ya hay boletos vendidos o reservados.' : 'Se puede cambiar porque todavía no hay ventas.'}><Select value={d.total} disabled={info.sales > 0} onChange={e => set('total', +e.target.value)} options={[[100, '100 números (2 cifras)'], [1000, '1.000 números (3 cifras)'], [10000, '10.000 números (4 cifras)']]} /></Field>
+          <div className="full field"><span className="field__label">Promociones por volumen</span>
+            {d.promotions.map((p, i) => <div key={i} className="row"><Input type="number" min="2" style={{ width: 100 }} aria-label="Cantidad de boletos" value={p.qty} onChange={e => set('promotions', d.promotions.map((x, j) => j === i ? { ...x, qty: e.target.value } : x))} /><span>boletos por</span><div className="input-affix" style={{ width: 130 }}><Input type="number" min="1" aria-label="Precio de la promoción" value={p.priceUSD} onChange={e => set('promotions', d.promotions.map((x, j) => j === i ? { ...x, priceUSD: e.target.value } : x))} /><span>US$</span></div><Button size="sm" variant="ghost" icon={Trash2} onClick={() => set('promotions', d.promotions.filter((_, j) => j !== i))}>Quitar</Button>{errors['promo' + i] && <p className="error">{errors['promo' + i]}</p>}</div>)}
+            <div><Button size="sm" icon={Plus} onClick={() => set('promotions', [...d.promotions, { qty: 5, priceUSD: Math.max(1, (+d.priceUSD || 1) * 4.5) }])}>Agregar promoción</Button></div></div>
+          {priceChanged && info.sales > 0 && <div className="full"><Note tone="info" icon={Info}>Las compras ya hechas mantienen el precio con que se pagaron. El nuevo precio aplica a las compras nuevas.</Note></div>}
+        </div></Card>
+        <Card title="Reglas y documentos"><div style={{ display: 'grid', gap: 14 }}>
+          <div className="field"><span className="field__label">Reglas y condiciones<span className="req">*</span></span>
+            {d.rules.map((x, i) => <div key={i} className="row" style={{ flexWrap: 'nowrap' }}><span className="subtle num" style={{ width: 18 }}>{i + 1}.</span><Input style={{ flex: 1 }} aria-label={`Regla ${i + 1}`} aria-invalid={errors.rules ? 'true' : undefined} value={x} onChange={e => set('rules', d.rules.map((y, j) => j === i ? e.target.value : y))} />{d.rules.length > 1 && <Button size="sm" variant="ghost" icon={Trash2} aria-label={`Quitar regla ${i + 1}`} onClick={() => set('rules', d.rules.filter((_, j) => j !== i))} />}</div>)}
+            {errors.rules && <p className="error"><AlertTriangle size={13} />{errors.rules}</p>}
+            <div><Button size="sm" icon={Plus} onClick={() => set('rules', [...d.rules, ''])}>Agregar regla</Button></div></div>
+          <div className="field"><span className="field__label">Documento de solvencia del premio<span className="req">*</span></span>
+            {d.solvencyDoc ? <div className="row"><Badge tone="ok">{d.solvencyDoc}</Badge><Button size="sm" variant="ghost" onClick={() => set('solvencyDoc', '')}>Cambiar</Button></div> : <FileDrop accept="application/pdf,image/*" error={errors.solvencyDoc} label="Sube el documento (PDF o foto)" onFile={f => set('solvencyDoc', f.name)} />}
+            {errors.solvencyDoc && <p className="error"><AlertTriangle size={13} />{errors.solvencyDoc}</p>}</div>
+        </div></Card>
+        <Card title="Imágenes"><div className="row" style={{ alignItems: 'flex-start' }}>
+          {d.images.map((src, i) => <div key={i} style={{ width: 150 }}><Thumb raffle={{ title: d.title, images: [src] }} lg /><Button size="sm" variant="ghost" icon={Trash2} onClick={() => set('images', d.images.filter((_, j) => j !== i))}>Quitar</Button></div>)}
+          {d.images.length < 4 && <div style={{ width: 170 }}><FileDrop label="Agregar foto" hint="JPG, PNG o WebP · máx. 5 MB" onFile={f => readImage(f).then(src => set('images', [...d.images, src]), e => toast(e.message, 'err'))} /></div>}
+        </div>{!d.images.length && <p className="hint" style={{ marginTop: 8 }}>Sin imágenes, la página de venta usa una de muestra.</p>}</Card>
+      </div>
+      <div className="stack" style={{ position: 'sticky', top: 140 }}>
+        <Card title={diff.length ? `Cambios (${diff.length})` : 'Cambios'} body={false}>
+          {diff.length ? diff.map((x, i) => <div key={i} className="list-row" style={{ padding: '9px 18px' }}><Pencil size={14} className="brand-text" aria-hidden="true" /><span className="grow" style={{ fontSize: 13 }}>{x}</span></div>) : <div className="card__body"><p className="subtle">Todavía no cambiaste nada. Lo que modifiques aparece aquí, con el valor anterior y el nuevo.</p></div>}
+          <div className="card__body" style={{ display: 'grid', gap: 12, borderTop: '1px solid var(--line)' }}>
+            {dateChanged && <Note tone="warn" icon={CalendarClock}>Cambias la fecha del sorteo. La empresa y la página de venta muestran la nueva; la original queda guardada.</Note>}
+            <Field label="Motivo del cambio" required error={errors.reason} hint="Le llega a la empresa y queda en la Actividad."><Textarea rows={3} value={reason} onChange={e => setReason(e.target.value)} placeholder="Ej.: corrección pedida por el operador" /></Field>
+            <Button variant="primary" block icon={Check} disabled={!diff.length} onClick={() => { setErrors({}); setConfirm(true); }}>Guardar cambios</Button>
+          </div>
+        </Card>
+        {info.changes.length > 0 && <Card title="Ediciones anteriores" body={false}>{info.changes.slice(0, 4).map((c, i) => <div key={i} className="list-row" style={{ alignItems: 'flex-start' }}><History size={15} className="subtle" aria-hidden="true" style={{ marginTop: 2 }} /><span className="grow"><b style={{ fontSize: 13 }}>{dateTime(c.at)}</b><small>{c.diff.join('; ')}</small><small>Motivo: {c.reason}</small></span></div>)}</Card>}
+      </div>
+    </div>
+    {confirm && <Modal title="¿Guardar los cambios?" sub={`${info.data.title} · ${coName(db, info.companyId)}`} onClose={() => setConfirm(false)} footer={<><Button onClick={() => setConfirm(false)}>Seguir editando</Button><Button variant="primary" onClick={save}>Guardar {plural(diff.length, 'cambio', 'cambios')}</Button></>}>
+      <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 4 }}>{diff.map((x, i) => <li key={i}>{x}</li>)}</ul>
+      {!reason.trim() && <Note tone="warn">Falta el motivo: escríbelo antes de guardar.</Note>}
+    </Modal>}
   </>;
 }
