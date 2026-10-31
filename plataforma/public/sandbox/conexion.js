@@ -89,6 +89,9 @@
       .catch(e => e.status === 404 ? null : Promise.reject(e)),
     numeroVendido: n => vendidos.has(n),
     enviarPago: async orden => {
+      // Llave de "Mis boletos" del equipo donde se compró. En LottoGE la firma el servidor (verifyToken);
+      // en esta simulación es solo la cédula codificada.
+      const llave = 'sim.' + btoa(orden.cedula);
       const metodo = RIFA.paymentMethods.find(m => String(m.id) === orden.metodo) || {};
       let creada;
       try {
@@ -100,13 +103,14 @@
       } catch (e) { console.warn('LottoX:', e.message); return { estado: 'rechazado' }; }
       if (metodo.isOnline) {
         const r = await post(`/orders/${creada.id}/verify`, { reference: orden.referencia, payerPhone: orden.telefonoPago, bank: orden.banco });
-        return { estado: r.approved ? 'aprobado' : 'rechazado', orden: creada.code, numeros: r.numbers || [] };
+        return { estado: r.approved ? 'aprobado' : 'rechazado', orden: creada.code, numeros: r.numbers || [], llave };
       }
       await post(`/orders/${creada.id}/receipt`, { reference: orden.referencia, bank: orden.banco, receipt: await reducir(orden.comprobante) });
       orden.numeros.forEach(n => vendidos.add(+n));
-      return { estado: 'reservado', orden: creada.code };
+      return { estado: 'reservado', orden: creada.code, llave };
     },
-    misBoletos: cedula => get(`/orders?cedula=${encodeURIComponent(cedula)}&raffleId=${RIFA.raffleId}`)
+    // Solo con la llave de esa cédula (sin llave no hay consulta, como en LottoGE).
+    misBoletos: (cedula, llave) => llave !== 'sim.' + btoa(cedula) ? Promise.reject(Object.assign(new Error('HTTP 403'), { status: 403 })) : get(`/orders?cedula=${encodeURIComponent(cedula)}&raffleId=${RIFA.raffleId}`)
       .then(d => ({
         nombre: d.customerName || '', boletos: d.ticketCount || 0,
         ordenes: (d.orders || []).map(o => ({ id: o.code, metodo: o.paymentMethodName, monto: o.amountLabel, estado: o.status === 'paid' ? 'pagado' : 'por-verificar', numeros: o.numbers || [], nota: o.note || '' }))

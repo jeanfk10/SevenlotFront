@@ -114,15 +114,22 @@
       return { estado: 'reservado', orden: creada.code || creada.id };
     },
 
-    // "Mis boletos" → { nombre, boletos, ordenes: [{ id, metodo, monto, estado: 'pagado' | 'por-verificar', numeros, nota }] }.
-    misBoletos: cedula => get(`/orders?cedula=${encodeURIComponent(cedula)}&raffleId=${RIFA.raffleId}`)   // [por confirmar]
-      .then(d => ({
-        nombre: d.customerName || '',
-        boletos: d.ticketCount || 0,
-        ordenes: (d.orders || []).map(o => ({
-          id: o.code || o.id, metodo: o.paymentMethodName, monto: o.amountLabel || '',
-          estado: o.status === 'paid' ? 'pagado' : 'por-verificar', numeros: o.numbers || [], nota: o.note || ''
-        }))
-      }))
+    // "Mis boletos" con la llave del equipo donde se compró (POST /purchases/my-tickets, ruta real de LottoGE).
+    // Sin llave o con una vencida, el servidor responde 403 y la página muestra el aviso del soporte.
+    // → { nombre, boletos, ordenes: [{ id, metodo, monto, estado: 'pagado' | 'por-verificar', numeros, nota }] }.
+    misBoletos: (cedula, llave) => post('/purchases/my-tickets', { token: llave, raffleId: RIFA.raffleId })
+      .then(d => {
+        const compras = d.purchases || [], pad = n => String(n).padStart(String(Math.max(1, (RIFA.total || 1000) - 1)).length, '0');
+        const monto = p => `${p.currency === 'USD' ? '$' : p.currency === 'VES' ? 'Bs ' : p.currency + ' '}${Number(p.totalAmount).toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+        return {
+          nombre: (compras[0] && compras[0].buyerName) || '',
+          boletos: compras.filter(p => p.status !== 'rejected').reduce((a, p) => a + (p.quantity || 0), 0),
+          ordenes: compras.filter(p => p.status !== 'rejected').map(p => ({
+            id: String(p.id).slice(0, 8).toUpperCase(), metodo: p.methodName || '', monto: monto(p),
+            estado: p.status === 'confirmed' ? 'pagado' : 'por-verificar', numeros: (p.ticketNumbers || []).map(pad),
+            nota: p.status === 'partially_paid' ? 'Abono registrado: completa el pago para asegurar tus números.' : ''
+          }))
+        };
+      })
   };
 })();

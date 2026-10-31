@@ -1252,8 +1252,9 @@ window.LOTTOGE_TEMA = {};
       const m = methodOf(orden.metodo);
       ok(!m.isOnline ? { estado: 'reservado' } : /0$/.test(orden.referencia) ? { estado: 'rechazado' } : { estado: 'aprobado' });
     }, 2400)),
-    // Órdenes de una cédula en esta rifa → { nombre, boletos, ordenes: [{ id, metodo, monto, estado: 'pagado' | 'por-verificar', numeros, nota }] }.
-    misBoletos: cedula => {
+    // Órdenes de la cédula de quien compró en este equipo → { nombre, boletos, ordenes: [{ id, metodo, monto, estado: 'pagado' | 'por-verificar', numeros, nota }] }.
+    // Recibe la llave que entregó la plataforma al comprar (sin llave no hay consulta).
+    misBoletos: (cedula, llave) => {
       const ced = cedula.slice(1), p = personFor(ced);
       return Promise.resolve({ demo: true, nombre: p.name, boletos: 7, ordenes: [
         { id: 'LG-48035', metodo: 'Pago Móvil', monto: bs(5 * CFG.price), estado: 'pagado', numeros: demoNumbers(5, +ced.slice(-4)) },
@@ -1277,6 +1278,14 @@ window.LOTTOGE_TEMA = {};
       + (o.numeros && o.numeros.length ? `<ul>${o.numeros.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : `<p>${esc(o.nota || 'Los números se asignan cuando se apruebe el pago y te llegan a tu correo.')}</p>`) + '</div>').join('')
       + (r.demo ? '<p class="hint">Datos de ejemplo. En producción, esta consulta va contra la API de LottoGE.</p>' : '');
 
+
+  /* ---------- "Mis boletos": solo quien compró en esta página, desde este equipo ----------
+     Al comprar, la plataforma entrega una llave atada a la cédula del comprador; se guarda en este equipo y con
+     ella se consultan sus boletos, con la cédula fija. Sin llave no se consulta ninguna cédula: quien compró en
+     taquilla o en otro equipo le pide sus boletos al soporte del rifero. */
+  const keyName = () => 'lottoge.misboletos.' + String(CFG.companyId || CFG.rifero || 'demo');
+  const readKey = () => { try { const v = JSON.parse(localStorage.getItem(keyName()) || 'null'); return v && v.cedula && v.token ? v : null; } catch (e) { return null; } };
+  const saveKey = v => { try { localStorage.setItem(keyName(), JSON.stringify(v)); } catch (e) {} };
 
   /* ---------- the buyer's page, built from the configuration ---------- */
   const PLUS = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M8 2h2v14H8zM2 8h14v2H2z" fill="currentColor"/></svg>';
@@ -1562,10 +1571,13 @@ window.LOTTOGE_TEMA = {};
       <div class="mine-top"><button class="back" type="button" data-action="home">${BACK}Inicio</button><p>${prize}</p></div>
       <div class="mine-body">
         <h2>Mis boletos</h2>
-        <p>Escribe tu cédula para ver los boletos que tienes en esta rifa.</p>
+        <div data-mine-form hidden>
+        <p>Los boletos de la cédula con la que compraste en esta página desde este equipo.</p>
         <div class="idrow"><div class="seg seg--id" role="radiogroup" aria-label="Tipo de documento">${ids}</div>
-          <input class="field" id="${p}-mced" type="text" inputmode="numeric" maxlength="9" placeholder="Ej. 18456732" autocomplete="off" data-in="mced" aria-label="Número de cédula"></div>
-        <button class="btn btn--ink btn--block" type="button" data-action="search" style="margin-top:8px">Buscar mis boletos</button>
+          <input class="field" id="${p}-mced" type="text" inputmode="numeric" maxlength="9" placeholder="Ej. 18456732" autocomplete="off" data-in="mced" aria-label="Número de cédula" readonly></div>
+        <button class="btn btn--ink btn--block" type="button" data-action="search" style="margin-top:8px">Actualizar mis boletos</button>
+        </div>
+        <div class="why why--note" data-mine-none hidden><p><b>Aquí ves los boletos que compraste en esta página desde este equipo.</b> Si compraste en taquilla o desde otro teléfono, escríbele al soporte con tu cédula y te los confirman: <b>${esc(c.support)}</b>.</p></div>
         <p class="err" data-err="mine" hidden></p>
         <div class="mine-res" data-mine-res aria-live="polite"></div>
       </div>
@@ -1580,6 +1592,8 @@ window.LOTTOGE_TEMA = {};
   class App {
     constructor(screen, init, device) {
       this.device = device; this.init = init;
+      // Llave de "Mis boletos" de este equipo (en las vistas de muestra del catálogo, una de ejemplo).
+      this.llave = init.view === 'mine' && init.cedula ? { cedula: 'V' + init.cedula, token: 'demo' } : readKey();
       this.s = Object.assign({ view: 'home', stage: 'pick', qty: 2, mode: 'random', picks: [], idType: 'V', cedula: '', name: '', phone: '', email: '', estado: '',
         method: 'pm-auto', ref: '', payer: '', bank: 'Banesco', holder: '', account: '', file: '', series: 0, search: '' }, JSON.parse(JSON.stringify(init)));
       const seeds = { first: 7, second: 2026, third: 4821 };
@@ -1609,7 +1623,7 @@ window.LOTTOGE_TEMA = {};
       if (this.s.view === 'ok') this.buildSuccess();
       if (this.s.view === 'held') this.buildHeld();
       if (this.s.view === 'rej') this.buildRejected();
-      if (init.searched) { this.$('[data-in="mced"]').value = this.s.cedula; this.search(); }
+      if (this.s.view === 'mine') this.renderMine();
       if (init.scrollTo) {
         const go = () => this.scrollToSec(init.scrollTo, true);
         go(); requestAnimationFrame(go); window.addEventListener('load', go, { once: true }); document.fonts && document.fonts.ready.then(go);
@@ -1685,7 +1699,7 @@ window.LOTTOGE_TEMA = {};
         case 'fix-pay': this.show('home'); this.stage('pay', true); this.scrollToSec('buy', true); this.$('[data-in="ref"]').classList.add('is-bad'); this.$('[data-in="ref"]').focus({ preventScroll: true }); return;
         case 'again': Object.assign(s, { picks: [], mode: 'random', ref: '', file: '' }); this.syncInputs(); this.show('home'); this.stage('pick', true); return this.scrollToSec('buy', true);
         case 'home': return this.show('home');
-        case 'mine': this.show('mine'); if (this.s.cedula) { this.$('[data-in="mced"]').value = this.s.cedula; this.search(); } return;
+        case 'mine': this.show('mine'); this.renderMine(); return;
         case 'search': return this.search();
         case 'g-prev': return this.goSlide(this.slide - 1);
         case 'g-next': return this.goSlide(this.slide + 1);
@@ -1939,6 +1953,8 @@ window.LOTTOGE_TEMA = {};
         this.$('[data-verify]').hidden = true; this.el.classList.remove('is-dark-top');
         this.result = res || {};
         const out = { aprobado: 'ok', reservado: 'held' }[this.result.estado] || 'rej';
+        // Compró en esta página: este equipo queda con la llave de "Mis boletos" de su cédula.
+        if (out !== 'rej' && (this.result.llave || DEMO)) { this.llave = { cedula: this.s.idType + this.s.cedula, token: this.result.llave || 'demo' }; saveKey(this.llave); }
         this.show(out);
         if (out === 'ok') this.buildSuccess(true); else if (out === 'held') this.buildHeld(); else this.buildRejected();
       };
@@ -2135,15 +2151,22 @@ window.LOTTOGE_TEMA = {};
       this.io2 = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { this.io2.disconnect(); fn(); } }, { threshold: .35 });
       this.io2.observe(this.device);
     }
+    /* "Mis boletos" con la cédula fija de quien compró en este equipo; sin compra aquí, el aviso del soporte. */
+    renderMine() {
+      const k = this.llave;
+      this.$('[data-mine-form]').hidden = !k; this.$('[data-mine-none]').hidden = !!k;
+      this.$('[data-err="mine"]').hidden = true;
+      if (!k) { this.$('[data-mine-res]').innerHTML = ''; return; }
+      this.$('[data-in="mced"]').value = k.cedula.slice(1);
+      this.$$('[data-v="mine"] [data-action="idtype"]').forEach(b => { b.setAttribute('aria-checked', String(b.dataset.t === k.cedula[0])); b.disabled = true; });
+      this.search();
+    }
     search() {
-      const inp = this.$('[data-in="mced"]'), err = this.$('[data-err="mine"]'), res = this.$('[data-mine-res]');
-      const ced = inp.value;
-      if (!/^\d{6,9}$/.test(ced)) { err.textContent = 'Escribe tu cédula, solo números (de 6 a 9 dígitos).'; err.hidden = false; inp.classList.add('is-bad'); res.innerHTML = ''; return; }
-      err.hidden = true; inp.classList.remove('is-bad');
+      const res = this.$('[data-mine-res]'), k = this.llave;
+      if (!k) return this.renderMine();
       res.innerHTML = '<p class="lookup"><span class="spin" aria-hidden="true"></span>Buscando tus boletos…</p>';
-      const idt = (this.$('[data-v="mine"] [data-action="idtype"][aria-checked="true"]') || { dataset: { t: 'V' } }).dataset.t;
-      CONEXION.misBoletos(idt + ced).then(r => { if (!this.dead) res.innerHTML = ordersHTML(r); },
-        () => { if (!this.dead) res.innerHTML = '<p class="err">No pudimos buscar tus boletos. Intenta de nuevo en un momento.</p>'; });
+      CONEXION.misBoletos(k.cedula, k.token).then(r => { if (!this.dead) res.innerHTML = ordersHTML(r); },
+        e => { if (!this.dead) res.innerHTML = e && e.status === 403 ? '<p class="err">Este equipo ya no puede consultar tus boletos. Escríbele al soporte con tu cédula.</p>' : '<p class="err">No pudimos buscar tus boletos. Intenta de nuevo en un momento.</p>'; });
     }
     setupHome() {
       const bar = this.$('[data-buybar]'), heroBuy = this.$('[data-hero-buy]'), buy = this.$('[data-sec="buy"]');
